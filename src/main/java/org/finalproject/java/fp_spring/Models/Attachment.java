@@ -1,12 +1,16 @@
 package org.finalproject.java.fp_spring.Models;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
+@Entity
+@Table(name = "attachments")
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

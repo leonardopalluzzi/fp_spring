@@ -56,7 +56,7 @@ public class Ticket {
     private String description;
 
     @OneToMany(mappedBy = "ticket")
-    private List<String> attachments; // bisogna creare una tabella separata
+    private List<Attachment> attachments; // bisogna creare una tabella separata
 
     @CreatedDate
     @Column(updatable = false)
@@ -138,11 +138,11 @@ public class Ticket {
         this.description = description;
     }
 
-    public List<String> getAttached() {
+    public List<Attachment> getAttached() {
         return this.attachments;
     }
 
-    public void setAttached(List<String> attachments) {
+    public void setAttached(List<Attachment> attachments) {
         this.attachments = attachments;
     }
 
