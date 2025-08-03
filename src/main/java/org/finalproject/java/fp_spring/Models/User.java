@@ -9,10 +9,13 @@ import org.springframework.data.annotation.CreatedDate;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -52,11 +55,45 @@ public class User {
     @OneToMany(mappedBy = "assignedTo")
     private List<Ticket> adminTickets = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Role> roles;
+
+    @ManyToMany(mappedBy = "operators", fetch = FetchType.EAGER)
+    private List<Service> services;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
+
+    @ManyToMany(mappedBy = "customers")
+    private List<Service> customerServices;
 
     public User() {
 
+    }
+
+    public List<Service> getCustomerServices() {
+        return customerServices;
+    }
+
+    public void setCustomerServices(List<Service> customerServices) {
+        this.customerServices = customerServices;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Service> services) {
+        this.services = services;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 
     public Integer getId() {

@@ -16,6 +16,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -63,8 +65,44 @@ public class Service {
     @OneToMany(mappedBy = "service")
     private List<TicketType> ticketTypes = new ArrayList<>();
 
+    @NotBlank
+    @Column(unique = true)
+    private String code;
+
+    @ManyToMany
+    @JoinTable(name = "operator_service", joinColumns = @JoinColumn(name = "service_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> operators;
+
+    @ManyToMany
+    @JoinTable(name = "customer_service", joinColumns = @JoinColumn(name = "service_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> customers;
+
     public Service() {
 
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public List<User> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(List<User> customers) {
+        this.customers = customers;
+    }
+
+    public List<User> getOperators() {
+        return operators;
+    }
+
+    public void setOperators(List<User> operators) {
+        this.operators = operators;
     }
 
     public Integer getId() {

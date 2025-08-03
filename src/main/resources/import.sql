@@ -22,7 +22,7 @@ INSERT INTO ticket_types (name, service_id) VALUES
 INSERT INTO roles (name) VALUES
 ('COMPANY_ADMIN'),
 ('COMPANY_USER'),
-('OPERATOR'),
+('CLIENT'),
 ('ADMIN');
 
 
