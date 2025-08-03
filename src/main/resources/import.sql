@@ -9,9 +9,9 @@ INSERT INTO service_types (name) VALUES
 ('Sviluppo');
 
 -- Servizi
-INSERT INTO services (name, description, status, company_id, service_type_id, created_at) VALUES
-('Help Desk', 'Supporto tecnico', 'ACTIVE', 1, 1, NOW()),
-('Web Development', 'Sviluppo siti web', 'ACTIVE', 2, 2, NOW());
+INSERT INTO services (name, description, status, company_id, service_type_id, code, created_at) VALUES
+('Help Desk', 'Supporto tecnico', 'ACTIVE', 1, 1, 'HD-001', NOW()),
+('Web Development', 'Sviluppo siti web', 'ACTIVE', 2, 2, 'WD-002', NOW());
 
 -- Tipi di ticket
 INSERT INTO ticket_types (name, service_id) VALUES
@@ -25,25 +25,34 @@ INSERT INTO roles (name) VALUES
 ('CLIENT'),
 ('ADMIN');
 
-
-
--- Utenti
-INSERT INTO users (username, email, password, created_at) VALUES
-('Mario Rossi', 'mario.rossi@email.com', 'password1', NOW()),
-('Anna Bianchi', 'anna.bianchi@email.com', 'password2', NOW());
+-- Utenti (Mario e Anna sono operatori di Boolean SRL)
+INSERT INTO users (username, email, password, created_at, company_id) VALUES
+('Mario Rossi', 'mario.rossi@email.com', 'password1', NOW(), 1),
+('Anna Bianchi', 'anna.bianchi@email.com', 'password2', NOW(), 1),
+('Cliente Uno', 'cliente1@email.com', 'password3', NOW(), NULL);
 
 -- Associazioni utenti-ruoli
 INSERT INTO user_role (user_id, role_id) VALUES
+(1, 3), -- Mario OPERATOR
+(2, 3), -- Anna OPERATOR
+(3, 2); -- Cliente Uno COMPANY_USER
+
+-- Associazioni operatori ai servizi
+INSERT INTO operator_service (service_id, user_id) VALUES
 (1, 1),
-(2, 2);
+(1, 2);
+
+-- Associazioni clienti ai servizi tramite codice
+INSERT INTO customer_service (service_id, user_id) VALUES
+(1, 3);
 
 -- Ticket
-INSERT INTO tickets (title, description, status, user_id, assigned_to, service_id, ticket_type_id, created_at, updated_at)
+INSERT INTO tickets (title, description, status, user_id, assigned_to_id, service_id, ticket_type_id, created_at, updated_at)
 VALUES
-('Problema login', 'Non riesco ad accedere', 'PENDING', 1, 2, 1, 1, NOW(), NOW()),
-('Nuova funzionalità', 'Vorrei aggiungere una dashboard', 'PENDING', 2, 1, 2, 2, NOW(), NOW());
+('Problema login', 'Non riesco ad accedere', 'OPEN', 3, 1, 1, 1, NOW(), NOW()),
+('Nuova funzionalità', 'Vorrei aggiungere una dashboard', 'OPEN', 3, 2, 1, 2, NOW(), NOW());
 
 -- Storico ticket
-INSERT INTO ticket_history (ticket_id, status, changed_by, changed_at) VALUES
-(1, 'PENDING', 1, NOW()),
-(2, 'PENDING', 2, NOW());
+INSERT INTO ticket_history (ticket_id, status, changed_by_id, changed_at) VALUES
+(1, 'OPEN', 3, NOW()),
+(2, 'OPEN', 3, NOW());
