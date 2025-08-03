@@ -66,7 +66,7 @@ public class Service {
     private List<TicketType> ticketTypes = new ArrayList<>();
 
     @NotBlank
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String code;
 
     @ManyToMany
