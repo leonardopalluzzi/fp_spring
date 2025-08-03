@@ -28,7 +28,7 @@ public class User {
     private Integer id;
 
     @NotBlank
-    private String name;
+    private String username;
 
     @NotBlank
     @Email
@@ -67,12 +67,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return this.name;
+    public String getUsername() {
+        return this.username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
