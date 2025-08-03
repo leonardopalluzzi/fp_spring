@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -54,7 +55,8 @@ public class Ticket {
 
     private String description;
 
-    private List<String> attached; // bisogna creare una tabella separata
+    @OneToMany(mappedBy = "ticket")
+    private List<String> attachments; // bisogna creare una tabella separata
 
     @CreatedDate
     @Column(updatable = false)
@@ -137,11 +139,11 @@ public class Ticket {
     }
 
     public List<String> getAttached() {
-        return this.attached;
+        return this.attachments;
     }
 
-    public void setAttached(List<String> attached) {
-        this.attached = attached;
+    public void setAttached(List<String> attachments) {
+        this.attachments = attachments;
     }
 
     public LocalDateTime getCreatedAt() {
