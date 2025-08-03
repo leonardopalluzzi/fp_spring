@@ -16,12 +16,13 @@ public class SecurityConfiguration {
     // filter chain
     @Bean
     SecurityFilterChain filterCahin(HttpSecurity http) throws Exception {
-        // fare nuova sintassi
-        http.authorizeHttpRequests(request -> request
-                .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/operator/**").hasAuthority("OPERATOR")
-                .requestMatchers("/company/**").hasAnyAuthority("COMPANY_ADMIN", "COMPANY_USER")
-                .anyRequest().permitAll()).formLogin(Customizer.withDefaults());
+        http
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/operator/**").hasAuthority("OPERATOR")
+                        .requestMatchers("/company/**").hasAnyAuthority("COMPANY_ADMIN", "COMPANY_USER")
+                        .anyRequest().permitAll())
+                .formLogin(Customizer.withDefaults());
         return http.build();
     }
 
