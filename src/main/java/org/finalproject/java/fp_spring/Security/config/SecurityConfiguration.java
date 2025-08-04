@@ -34,7 +34,4 @@ public class SecurityConfiguration {
 
         return authProvider;
     }
-
-    // aggiungere bean per jwt service qui
-
 }

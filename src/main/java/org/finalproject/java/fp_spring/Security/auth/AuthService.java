@@ -4,20 +4,20 @@ import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
+import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
+import org.finalproject.java.fp_spring.Security.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.client.HttpClientErrorException.BadRequest;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthService implements IAuthService {
 
     @Autowired
     private UserRepository userRepo;
 
-    @Override
-    public String generateJwt(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'generateJwt'");
-    }
+    @Autowired
+    private JwtService jwtService;
 
     @Override
     public String login(User user) {
@@ -28,7 +28,9 @@ public class AuthService implements IAuthService {
             throw new BadCredentialsException("Invalid credential");
         }
 
-        String token = generateJwt(foundUser.get());
+        DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
+
+        String token = jwtService.generateToken(userDTO);
 
         return token;
     }
@@ -45,8 +47,19 @@ public class AuthService implements IAuthService {
         throw new BadCredentialsException("Username already registered");
        }
 
+       DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
+
        userRepo.save(user);
-       String token = generateJwt(user);
+       String token = jwtService.generateToken(
+            new org.springframework.security.core.userdetails.User(
+                userDTO.getUsername(),
+                userDTO.getPassword(),
+                userDTO.getAuthorities() // or a list of GrantedAuthority
+            )
+        );
+
+        // Optionally, you can return the token or any other information
+        // related to the registration process.
        return token;
     }
 

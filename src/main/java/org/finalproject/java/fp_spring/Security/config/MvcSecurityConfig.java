@@ -15,9 +15,9 @@ public class MvcSecurityConfig {
         http
                 .securityMatcher("/admin/**")
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().hasAuthority("SUPERADMIN"))
+                        .anyRequest().hasAuthority("ADMIN"))
                 .formLogin(form -> form
-                        .loginPage("/admin/login")
+                        .loginPage("/login")
                         .permitAll());
         return http.build();
     }

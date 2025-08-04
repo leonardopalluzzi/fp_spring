@@ -1,8 +1,11 @@
 package org.finalproject.java.fp_spring.Security.jwt;
 
-import org.finalproject.java.fp_spring.Models.User;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtService {
 
@@ -16,6 +19,7 @@ public class JwtService {
         return Jwts.builder()
             .setSubject(userDetails.getUsername())
             .setIssuedAt(new Date())
+            .claim("roles", userDetails.getAuthorities())
             .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
             .signWith(SignatureAlgorithm.HS256, jwtSecret)
             .compact();
@@ -42,7 +46,4 @@ public class JwtService {
             .getExpiration();
         return expiration.before(new Date());
     }
-
-    
-    
 }

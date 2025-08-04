@@ -1,7 +1,6 @@
 package org.finalproject.java.fp_spring.Security.config;
 
 import org.finalproject.java.fp_spring.Security.jwt.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -18,12 +17,6 @@ public class ApiSecurityConfig {
     // jwt dall'header verificarlo caricare l'tente settare l'autenticazione nel
     // securityContextHolder, serve anche una classe jwtService da mettere nei
     // servizi
-
-    private final JwtAuthenticationFilter jwtAuthFilter;
-
-    public ApiSecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
 
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
