@@ -13,7 +13,8 @@ public class ApiSecurityConfig {
 
     // va cvreatre una classe JwtAuthenticationFilter con la llogica per estrarre il
     // jwt dall'header verificarlo caricare l'tente settare l'autenticazione nel
-    // securityContextHolder
+    // securityContextHolder, serve anche una classe jwtService da mettere nei
+    // servizi
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
