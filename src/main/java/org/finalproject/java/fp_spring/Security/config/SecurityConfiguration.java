@@ -1,4 +1,4 @@
-package org.finalproject.java.fp_spring.Security;
+package org.finalproject.java.fp_spring.Security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
