@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
+import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetailService;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Security.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class AuthService implements IAuthService {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private DatabaseUserDetailService dbUserService;
 
     @Autowired
     private JwtService jwtService;
@@ -49,7 +53,7 @@ public class AuthService implements IAuthService {
 
        DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
 
-       userRepo.save(user);
+       dbUserService.registerUser(user);
        String token = jwtService.generateToken(
             new org.springframework.security.core.userdetails.User(
                 userDTO.getUsername(),
