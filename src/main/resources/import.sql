@@ -47,7 +47,7 @@ INSERT INTO customer_service (service_id, user_id) VALUES
 (1, 3);
 
 -- Ticket
-INSERT INTO tickets (title, description, status, user_id, assigned_to_id, service_id, ticket_type_id, created_at, updated_at)
+INSERT INTO tickets (title, description, status, user_id, assigned_to, service_id, ticket_type_id, created_at, updated_at)
 VALUES
 ('Problema login', 'Non riesco ad accedere', 'OPEN', 3, 1, 1, 1, NOW(), NOW()),
 ('Nuova funzionalità', 'Vorrei aggiungere una dashboard', 'OPEN', 3, 2, 1, 2, NOW(), NOW());

@@ -17,8 +17,11 @@ public class AuthService implements IAuthService {
     @Autowired
     private UserRepository userRepo;
 
-    @Autowired
     private DatabaseUserDetailService dbUserService;
+
+    public AuthService(DatabaseUserDetailService userDetailService){
+        this.dbUserService = userDetailService;
+    }
 
     @Autowired
     private JwtService jwtService;

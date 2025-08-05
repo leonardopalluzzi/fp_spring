@@ -3,6 +3,7 @@ package org.finalproject.java.fp_spring.Security.jwt;
 import java.io.IOException;
 
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetailService;
+import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,14 +18,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-
-    @Autowired
     private JwtService jwtService;
-
-    @Autowired
     private DatabaseUserDetailService userDetailsService;
 
 
+    public JwtAuthenticationFilter(JwtService jwtService, DatabaseUserDetailService databaseUserDetailService){
+        this.jwtService = jwtService;
+        this.userDetailsService = databaseUserDetailService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

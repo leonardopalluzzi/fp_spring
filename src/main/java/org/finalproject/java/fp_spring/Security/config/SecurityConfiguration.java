@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.Security.config;
 
 import org.finalproject.java.fp_spring.Security.jwt.JwtAuthenticationFilter;
+import org.finalproject.java.fp_spring.Security.jwt.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,7 +38,12 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService, DatabaseUserDetailService databaseUserDetailService) {
+        return new JwtAuthenticationFilter(jwtService, databaseUserDetailService);
+    }
+
+    @Bean
+    public JwtService jwtService(){
+        return new JwtService();
     }
 }
