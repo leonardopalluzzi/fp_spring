@@ -110,7 +110,9 @@
                                     <a class="btn btn-primary"
                                         th:href="@{/admin/company/{id}(id = ${company.getId()})}"><i
                                             class="bi bi-eye-fill"></i></a>
-                                    <a class="btn btn-warning" href=""><i class="bi bi-pencil"></i></a>
+                                    <a class="btn btn-warning"
+                                        th:href="@{/admin/company/edit/{id}(id = ${company.getId()})}"><i
+                                            class="bi bi-pencil"></i></a>
                                     <!-- inserire in modale -->
                                     <form action="">
                                         <button class="btn btn-danger" type="submit"><i

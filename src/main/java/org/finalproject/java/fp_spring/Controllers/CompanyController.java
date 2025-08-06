@@ -87,10 +87,36 @@ public class CompanyController {
     public String store(@Valid @ModelAttribute("company") Company company, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "admin/create";
+            return "company/create";
         }
         companyService.save(company);
         return "redirect:/admin/company";
+    }
+
+    @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String edit(Model model, @PathVariable("id") Integer id) {
+        Optional<Company> company = companyService.show(id);
+
+        if (company.isEmpty()) {
+            return "company/404";
+        }
+
+        model.addAttribute("company", company);
+        return "company/edit";
+    }
+
+    @PostMapping("/update/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String update(@Valid @ModelAttribute("company") Company company, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("company", companyService.show(company.getId()));
+            return "company/edit";
+        }
+
+        companyService.save(company);
+        return "redirect:/company/company/" + company.getId();
     }
 
 }
