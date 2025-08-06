@@ -117,10 +117,22 @@
                         </div>
                     </tbody>
                 </table>
-
                 <div th:unless="${companies.size() > 0}">
                     <h2 class="text-muted">No result Found</h2>
                 </div>
+
+                <div class="w-100 d-flex align-items-center justify-content-center">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            </li>
+                            <th:block th:each="page : ${totalPages}">
+                                <li class="page-item"><a class="page-link"
+                                        th:href="@{/admin?page={p}(p = ${page})}">[[${page} + 1]]</a></li>
+                            </th:block>
+                        </ul>
+                    </nav>
+                </div>
+
 
 
             </div>

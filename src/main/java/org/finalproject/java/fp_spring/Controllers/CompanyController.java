@@ -6,7 +6,7 @@ import java.util.List;
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -28,10 +28,23 @@ public class CompanyController {
             @RequestParam(name = "email", required = false) String email,
             @RequestParam(name = "phone", required = false) String phone,
             @RequestParam(name = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime startDate,
-            @RequestParam(name = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime endDate) {
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime endDate,
+            @RequestParam(name = "page", required = false) Integer page) {
 
-        List<Company> companies = companyService.GetAllFiltered(name, email, phone, startDate, endDate);
-        model.addAttribute("companies", companies);
+        if (page == null || page < 0) {
+            page = 0;
+        }
+
+        Page<Company> companies = companyService.GetAllFiltered(name, email, phone, startDate, endDate, page);
+        model.addAttribute("companies", companies.toList());
+
+        int[] pages = new int[companies.getTotalPages()];
+
+        for (int i = 0; i < pages.length; i++) {
+            pages[i] = i;
+        }
+
+        model.addAttribute("totalPages", pages);
 
         model.addAttribute("name", name);
         model.addAttribute("email", email);
@@ -41,39 +54,5 @@ public class CompanyController {
 
         return "admin/index";
     }
-
-    // @GetMapping("/search")
-    // @PreAuthorize("hasAuthority('ADMIN')")
-    // public String search(Model model, @RequestParam(name = "name", required =
-    // false) String name,
-    // @RequestParam(name = "email", required = false) String email,
-    // @RequestParam(name = "phone", required = false) String phone,
-    // @RequestParam(name = "startDate", required = false) @DateTimeFormat(pattern =
-    // "yyyy-MM-dd'T'HH:mm") LocalDateTime startDate,
-    // @RequestParam(name = "endDate", required = false) @DateTimeFormat(pattern =
-    // "yyyy-MM-dd'T'HH:mm") LocalDateTime endDate) {
-
-    // List<Company> companies;
-
-    // if (email != null || phone != null || startDate != null || endDate != null) {
-    // System.out.println("case 1");
-    // companies = companyService.GetAllFiltered(email, phone, startDate, endDate);
-
-    // } else if (name != null) {
-    // System.out.println("case 2");
-
-    // companies = companyService.GetAllPaginatedByName(name);
-
-    // } else {
-    // System.out.println("case 3");
-
-    // companies = companyService.GetAllPaginated();
-
-    // }
-
-    // model.addAttribute("companies", companies);
-
-    // return "admin/index";
-    // }
 
 }
