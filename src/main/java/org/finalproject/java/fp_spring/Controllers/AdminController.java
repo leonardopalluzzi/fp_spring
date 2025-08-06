@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/admin")
@@ -20,11 +21,15 @@ public class AdminController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String index(Model model) {
+    public String index(Model model, @RequestParam(name = "name", required = false) String name) {
 
-        List<Company> copmanies = adminSerivce.GetAllPaginated();
-        model.addAttribute("copmanies", copmanies);
-
+        if (name != null) {
+            List<Company> copmanies = adminSerivce.GetAllPaginatedByName(name);
+            model.addAttribute("copmanies", copmanies);
+        } else {
+            List<Company> copmanies = adminSerivce.GetAllPaginated();
+            model.addAttribute("copmanies", copmanies);
+        }
         return "admin/index";
     }
 

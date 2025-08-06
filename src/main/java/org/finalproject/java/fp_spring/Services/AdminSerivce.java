@@ -21,4 +21,10 @@ public class AdminSerivce implements IAdminService {
         return companies;
     }
 
+    public List<Company> GetAllPaginatedByName(String name) {
+        List<Company> companies = companyRepo.findAllByNameContaining(name);
+
+        return companies;
+    }
+
 }
