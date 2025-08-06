@@ -6,7 +6,66 @@
 <body>
     <th:block th:replace="~{fragments/header :: navbar('Admin Dashboard')}">
     </th:block>
+    <main class="my-5">
+        <section>
+            <div class="container">
+                <h1>main</h1>
+                <!-- inserirei barra ricerca con filtri  -->
+                <form action="">
+                    <div class="mb-3 w-50">
+                        <label for="" class="form-label">Name</label>
+                        <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
+                            placeholder="" />
+                        <small id="helpId" class="form-text text-muted">Help text</small>
+                    </div>
 
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+                <!-- inserire qui popoup per filtri avanzati  -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Number Of Services</th>
+                            <th scope="col">Created at</th>
+                            <th scope="col">Actions</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <div th:each="company : ${copmanies}" th:object="${company}">
+                            <tr>
+                                <td>[[*{getName}]]</td>
+                                <td>[[*{getEmail}]]</td>
+                                <td>[[*{getPhone}]]</td>
+                                <td>[[*{getServices().size()}]]</td>
+                                <td>[[*{getCreatedAt}]]</td>
+                                <td class="d-flex align-items-center justify-content-center gap-4">
+                                    <a class="btn btn-primary" href=""><i class="bi bi-eye-fill"></i></a>
+                                    <a class="btn btn-warning" href=""><i class="bi bi-pencil"></i></a>
+                                    <!-- inserire in modale -->
+                                    <form action="">
+                                        <button class="btn btn-danger" type="submit"><i
+                                                class="bi bi-file-earmark-x-fill"></i></button>
+                                    </form>
+                                </td>
+
+
+                            </tr>
+                        </div>
+                    </tbody>
+                </table>
+
+
+            </div>
+
+        </section>
+    </main>
+
+    <th:block th:replace="~{fragments/footer :: footer}">
+    </th:block>
     <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
 </body>
 
