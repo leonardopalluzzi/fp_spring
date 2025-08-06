@@ -1,7 +1,6 @@
 package org.finalproject.java.fp_spring.Services;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.Company;
@@ -39,6 +38,11 @@ public class CompanyService implements ICompanyService {
     public Optional<Company> show(Integer id) {
         Optional<Company> company = companyRepo.findById(id);
         return company;
+    }
+
+    @Override
+    public void save(Company company) {
+        companyRepo.save(company);
     }
 
 }

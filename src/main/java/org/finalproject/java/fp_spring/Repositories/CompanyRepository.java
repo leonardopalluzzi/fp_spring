@@ -11,4 +11,6 @@ public interface CompanyRepository
 
     Optional<Company> findById(Integer id);
 
+    void save(Company company);
+
 }

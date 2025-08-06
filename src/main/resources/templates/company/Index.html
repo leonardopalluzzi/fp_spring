@@ -15,12 +15,16 @@
                     <div class="container-fluid">
 
                         <div class="">
-                            <div class="mb-3 w-50">
-                                <label for="" class="form-label">Search</label>
-                                <input type="text" class="form-control" name="name" id="" aria-describedby="helpId"
-                                    placeholder="" th:value="${name}" required />
-                                <small id="helpId" class="form-text text-muted">Search a company by name</small>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="mb-3 w-50">
+                                    <label for="" class="form-label">Search</label>
+                                    <input type="text" class="form-control" name="name" id="" aria-describedby="helpId"
+                                        placeholder="" th:value="${name}" required />
+                                    <small id="helpId" class="form-text text-muted">Search a company by name</small>
+                                </div>
+                                <a class="btn btn-primary" th:href="@{/admin/company/create}">Add a new company</a>
                             </div>
+
                             <button type="submit" class="btn btn-primary">Search</button>
 
                             <button class="btn btn-dark" type="button" data-bs-toggle="collapse"

@@ -11,4 +11,6 @@ public interface ICompanyService {
             LocalDateTime endDate, Integer page);
 
     Optional<Company> show(Integer id);
+
+    void save(Company company);
 }

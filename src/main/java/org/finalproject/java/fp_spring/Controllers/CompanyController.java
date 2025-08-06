@@ -11,10 +11,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/admin/company")
@@ -59,13 +64,33 @@ public class CompanyController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String show(Model model, @PathVariable("id") Integer id) {
-        Optional<Company> company = companyService.show(id);
 
+        Optional<Company> company = companyService.show(id);
         if (company.isEmpty()) {
             return "admin/404";
         }
         model.addAttribute("company", company.get());
         return "company/show";
+    }
+
+    @GetMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String create(Model model) {
+
+        Company company = new Company();
+        model.addAttribute("company", company);
+        return "company/create";
+    }
+
+    @PostMapping("/store")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String store(@Valid @ModelAttribute("company") Company company, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "admin/create";
+        }
+        companyService.save(company);
+        return "redirect:/admin/company";
     }
 
 }
