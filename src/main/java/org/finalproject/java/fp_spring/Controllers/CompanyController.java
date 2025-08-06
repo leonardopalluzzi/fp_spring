@@ -1,7 +1,7 @@
 package org.finalproject.java.fp_spring.Controllers;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Services.CompanyService;
@@ -12,17 +12,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/company")
 public class CompanyController {
 
     @Autowired
     CompanyService companyService;
 
-    @GetMapping
+    @GetMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
     public String index(Model model, @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "email", required = false) String email,
@@ -52,7 +53,19 @@ public class CompanyController {
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
-        return "admin/index";
+        return "company/index";
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String show(Model model, @PathVariable("id") Integer id) {
+        Optional<Company> company = companyService.show(id);
+
+        if (company.isEmpty()) {
+            return "admin/404";
+        }
+        model.addAttribute("company", company.get());
+        return "company/show";
     }
 
 }

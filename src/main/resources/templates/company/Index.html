@@ -11,7 +11,7 @@
             <div class="container">
                 <h1>Company List</h1>
                 <!-- inserirei barra ricerca con filtri  -->
-                <form th:action="@{/admin}" th:method="GET">
+                <form th:action="@{/admin/company}" th:method="GET">
                     <div class="container-fluid">
 
                         <div class="">
@@ -32,7 +32,7 @@
 
                         <div class="collapse my-3" id="collapseForm">
                             <div class="card card-body w-25">
-                                <form th:action="@{/admin}" th:method="GET">
+                                <form th:action="@{/admin/company}" th:method="GET">
                                     <div class="mb-3
                     ">
                                         <label for="" class="form-label">Email</label>
@@ -72,7 +72,7 @@
 
                                     <div>
                                         <button type="submit" class="btn btn-primary">Apply</button>
-                                        <a class="btn btn-dark" th:href="@{/admin}">Reset Filters</a>
+                                        <a class="btn btn-dark" th:href="@{/admin/company}">Reset Filters</a>
                                     </div>
 
 
@@ -103,7 +103,9 @@
                                 <td>[[*{getServices().size()}]]</td>
                                 <td>[[*{getCreatedAt}]]</td>
                                 <td class="d-flex align-items-center justify-content-center gap-4">
-                                    <a class="btn btn-primary" href=""><i class="bi bi-eye-fill"></i></a>
+                                    <a class="btn btn-primary"
+                                        th:href="@{/admin/company/{id}(id = ${company.getId()})}"><i
+                                            class="bi bi-eye-fill"></i></a>
                                     <a class="btn btn-warning" href=""><i class="bi bi-pencil"></i></a>
                                     <!-- inserire in modale -->
                                     <form action="">
@@ -127,7 +129,7 @@
                             </li>
                             <th:block th:each="page : ${totalPages}">
                                 <li class="page-item"><a class="page-link"
-                                        th:href="@{/admin?page={p}(p = ${page})}">[[${page} + 1]]</a></li>
+                                        th:href="@{/admin/company?page={p}(p = ${page})}">[[${page} + 1]]</a></li>
                             </th:block>
                         </ul>
                     </nav>

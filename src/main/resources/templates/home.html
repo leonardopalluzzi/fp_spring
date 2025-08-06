@@ -12,7 +12,7 @@
         <h1>main</h1>
         <a sec:authorize="isAnonymous()" class="btn btn-primary" th:href="@{/login}">login</a>
 
-        <a sec:authorize="hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/admin}">Dashboard</a>
+        <a sec:authorize="hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/admin/company}">Dashboard</a>
         <a sec:authorize="!hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/logout}">
             you don't have permission to access this area, please logout
         </a>

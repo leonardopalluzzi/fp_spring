@@ -9,17 +9,18 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @Order(1)
 public class MvcSecurityConfig {
-    @Bean
-    public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN").anyRequest().authenticated())
-                .formLogin(form -> form
-                        .defaultSuccessUrl("/", true)
-                        .permitAll())
-                .logout(logout -> logout.permitAll())
-                .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"));
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                                                .requestMatchers("/admin/**").hasAuthority("ADMIN").anyRequest()
+                                                .authenticated())
+                                .formLogin(form -> form
+                                                .defaultSuccessUrl("/", true)
+                                                .permitAll())
+                                .logout(logout -> logout.permitAll())
+                                .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"));
+                return http.build();
+        }
 }

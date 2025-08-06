@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{fragments/imports :: headTags}"></th:block>
+
+
+<body>
+    <th:block th:replace="~{fragments/header :: navbar('Admin Dashboard')}">
+    </th:block>
+
+
+    <main>
+        <section class="container my-5" th:object="${company}">
+            <div class="row">
+                <div class="col">
+                    <h1>[[*{getName()}]]</h1>
+                    <p>[[*{getDescription()}]]</p>
+                </div>
+                <div class="col">
+                    <label for="">Email:</label>
+                    <p>[[*{getEmail()}]]</p>
+                    <label for="">Phone:</label>
+                    <p>[[*{getPhone()}]]</p>
+                    <label for="">P.IVA:</label>
+                    <p>[[*{getPIva()}]]</p>
+                    <label for="">Created At:</label>
+                    <p>[[*{getCreatedAt()}]]</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <h2>Services:</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Code</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Tickets</th>
+                            <th scope="col">N. of Employees</th>
+                            <th scope="col">N. of Users</th>
+
+
+                            <!-- pensare se aggiungere operator e customer, e nel caso ad un metodo per avere dei compnenti che geneirno in autoamtico le view con i dettagli  -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:each="service : ${company.getServices()}" th:object="${service}">
+                            <tr>
+                                <td>[[*{getName()}]]</td>
+                                <td>[[*{getCode()}]]</td>
+                                <td>[[*{getDescription()}]]</td>
+                                <td>[[*{getStatus()}]]</td>
+                                <td>[[*{getCreatedAt()}]]</td>
+                                <td>[[*{getTickets().size()}]]</td>
+                                <!-- compilare il th:href degli anchor  -->
+                                <td>[[*{getOperators().size()}]] <a class="btn btn-primary mx-4"><i
+                                            class="bi bi-eye-fill"></i></a></td>
+                                <td>[[*{getCustomers().size()}]] <a class="btn btn-primary mx-4"><i
+                                            class="bi bi-eye-fill"></i></a></td>
+
+
+                            </tr>
+                        </th:block>
+
+                    </tbody>
+                </table>
+            </div>
+
+
+        </section>
+    </main>
+
+
+
+
+    <th:block th:replace="~{fragments/footer :: footer}">
+    </th:block>
+    <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
+</body>
+
+
+
+
+
+</html>
