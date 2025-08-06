@@ -1,18 +1,16 @@
 package org.finalproject.java.fp_spring.Controllers;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("/")
+public class HomeController {
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String index() {
-        return "admin/index";
+    public String Home() {
+        return "home";
     }
 
 }

@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<a sec:authorize="isAnonymous()" class="btn btn-primary" th:href="@{/login}">login</a>
+
+<a sec:authorize="isAuthenticated()" class="btn btn-primary" th:href="@{/admin}">Dashboard</a>

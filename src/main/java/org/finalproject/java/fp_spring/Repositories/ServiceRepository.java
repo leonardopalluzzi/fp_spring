@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ServiceRepository extends JpaRepository<Service, Integer> {
 
-    boolean existByCode(String code);
+    boolean existsByCode(String code);
 }

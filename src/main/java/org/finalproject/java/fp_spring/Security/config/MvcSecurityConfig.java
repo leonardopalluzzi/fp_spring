@@ -7,18 +7,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@Order(2)
+@Order(1)
 public class MvcSecurityConfig {
-    // filter chain per mvc
     @Bean
     public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/admin/**")
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().hasAuthority("ADMIN"))
+                        .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN").anyRequest().authenticated())
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .permitAll());
+                        .defaultSuccessUrl("/", true)
+                        .permitAll())
+                .logout(logout -> logout.permitAll())
+                .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"));
         return http.build();
     }
 }

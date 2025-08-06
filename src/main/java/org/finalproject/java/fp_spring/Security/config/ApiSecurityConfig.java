@@ -10,7 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@Order(1)
+@Order(2)
 public class ApiSecurityConfig {
 
     // va cvreatre una classe JwtAuthenticationFilter con la llogica per estrarre il
@@ -19,17 +19,18 @@ public class ApiSecurityConfig {
     // servizi
 
     @Bean
-    public SecurityFilterChain apiFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain apiFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter)
+            throws Exception {
         http
-            .securityMatcher("/api/**") // Applica solo a rotte API
-            .csrf().disable()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeHttpRequests()
+                .securityMatcher("/api/**") // Applica solo a rotte API
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeHttpRequests()
                 .requestMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
-            .and()
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .and()
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

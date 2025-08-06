@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{fragments/imports :: headTags}"></th:block>
+
+<body>
+    <th:block th:replace="~{fragments/header :: navbar('Admin Dashboard')}">
+    </th:block>
+
+    <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
+</body>
+
+</html>

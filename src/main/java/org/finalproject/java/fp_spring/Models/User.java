@@ -31,6 +31,9 @@ public class User {
     private Integer id;
 
     @NotBlank
+    private String code;
+
+    @NotBlank
     private String username;
 
     @NotBlank
@@ -70,6 +73,14 @@ public class User {
 
     public User() {
 
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public List<Service> getCustomerServices() {

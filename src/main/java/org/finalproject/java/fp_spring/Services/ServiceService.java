@@ -24,7 +24,7 @@ public class ServiceService implements IServiceService {
         // check if code already exists
         do {
             code = generateServiceCode();
-        } while (serviceRepo.existByCode(code));
+        } while (serviceRepo.existsByCode(code));
 
         service.setCode(code);
 
