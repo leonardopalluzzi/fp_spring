@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.finalproject.java.fp_spring.Models.Company;
 
-public interface IAdminService {
+public interface ICompanyService {
 
     public List<Company> GetAllPaginated();
 
