@@ -9,63 +9,80 @@
     <main class="my-5">
         <section>
             <div class="container">
-                <h1>main</h1>
+                <h1>Company List</h1>
                 <!-- inserirei barra ricerca con filtri  -->
-                <form action="">
-                    <div class="mb-3 w-50">
-                        <label for="" class="form-label">Search</label>
-                        <input type="text" class="form-control" name="name" id="" aria-describedby="helpId"
-                            placeholder="" />
-                        <small id="helpId" class="form-text text-muted">Help Search a company by name</small>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Apply</button>
-                </form>
+                <form th:action="@{/admin}" th:method="GET">
+                    <div class="container-fluid">
 
+                        <div class="">
+                            <div class="mb-3 w-50">
+                                <label for="" class="form-label">Search</label>
+                                <input type="text" class="form-control" name="name" id="" aria-describedby="helpId"
+                                    placeholder="" th:value="${name}" required />
+                                <small id="helpId" class="form-text text-muted">Search a company by name</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
 
-                <form action="">
-                    <div class="mb-3 w-25
-                    ">
-                        <label for="" class="form-label">Email</label>
-                        <input type="text" class="form-control" name="email" id="" aria-describedby="helpId"
-                            placeholder="" />
-                        <small id="helpId" class="form-text text-muted">Search by email</small>
-                    </div>
+                            <button class="btn btn-dark" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseForm" aria-expanded="false" aria-controls="collapseForm">
+                                Filters
+                            </button>
 
-                    <div class="mb-3 w-25
-                    ">
-                        <label for="" class="form-label">phone</label>
-                        <input type="text" class="form-control" name="phone" id="" aria-describedby="helpId"
-                            placeholder="" />
-                        <small id="helpId" class="form-text text-muted">Search by phone</small>
-                    </div>
-
-                    <div>
-                        <label for="">Select a date interval</label>
-                        <div class="mb-3 w-25
-                    ">
-                            <label for="" class="form-label">Start date</label>
-                            <input type="date" class="form-control" name="startDate" id="" aria-describedby="helpId"
-                                placeholder="" />
-                            <small id="helpId" class="form-text text-muted">Select a start date</small>
                         </div>
 
-                        <div class="mb-3 w-25
+                        <div class="collapse my-3" id="collapseForm">
+                            <div class="card card-body w-25">
+                                <form th:action="@{/admin}" th:method="GET">
+                                    <div class="mb-3
                     ">
-                            <label for="" class="form-label">End date</label>
-                            <input type="date" class="form-control" name="endDate" id="" aria-describedby="helpId"
-                                placeholder="" />
-                            <small id="helpId" class="form-text text-muted">Select an end date</small>
+                                        <label for="" class="form-label">Email</label>
+                                        <input type="text" class="form-control" name="email" id=""
+                                            aria-describedby="helpId" placeholder="" th:value="${email}" />
+                                        <small id="helpId" class="form-text text-muted">Search by email</small>
+                                    </div>
+
+                                    <div class="mb-3
+                    ">
+                                        <label for="" class="form-label">phone</label>
+                                        <input type="text" class="form-control" name="phone" id=""
+                                            aria-describedby="helpId" placeholder="" th:value="${phone}" />
+                                        <small id="helpId" class="form-text text-muted">Search by phone</small>
+                                    </div>
+
+                                    <div>
+                                        <label for="">Select a date interval</label>
+                                        <div class="mb-3
+                    ">
+                                            <label for="" class="form-label">Start date</label>
+                                            <input type="datetime-local" class="form-control" name="startDate" id=""
+                                                aria-describedby="helpId" placeholder="" th:value="${startDate}" />
+                                            <small id="helpId" class="form-text text-muted">Select a start
+                                                date</small>
+                                        </div>
+
+                                        <div class="mb-3
+                    ">
+                                            <label for="" class="form-label">End date</label>
+                                            <input type="datetime-local" class="form-control" name="endDate" id=""
+                                                aria-describedby="helpId" placeholder="" th:value="${endDate}" />
+                                            <small id="helpId" class="form-text text-muted">Select an end
+                                                date</small>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <button type="submit" class="btn btn-primary">Apply</button>
+                                        <a class="btn btn-dark" th:href="@{/admin}">Reset Filters</a>
+                                    </div>
+
+
+                                </form>
+                            </div>
                         </div>
                     </div>
-
-
-                    <button type="submit" class="btn btn-primary">Apply</button>
-
                 </form>
 
-
-                <!-- inserire qui popoup per filtri avanzati  -->
-                <table class="table">
+                <table th:if="${companies.size() > 0}" class="table">
                     <thead>
                         <tr>
                             <th scope="col">Name</th>
@@ -78,7 +95,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <div th:each="company : ${copmanies}" th:object="${company}">
+                        <div th:each="company : ${companies}" th:object="${company}">
                             <tr>
                                 <td>[[*{getName}]]</td>
                                 <td>[[*{getEmail}]]</td>
@@ -100,6 +117,10 @@
                         </div>
                     </tbody>
                 </table>
+
+                <div th:unless="${companies.size() > 0}">
+                    <h2 class="text-muted">No result Found</h2>
+                </div>
 
 
             </div>

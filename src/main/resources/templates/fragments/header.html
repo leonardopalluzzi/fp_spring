@@ -16,7 +16,7 @@
                         <a class="nav-link active" href="/" aria-current="page">Home
                             <span class="visually-hidden">(current)</span></a>
                     </li>
-                    <li class="nav-item">
+                    <li sec:authorize="hasAuthority('ADMIN')" class="nav-item">
                         <a class="nav-link" href="admin">Dashboard</a>
                     </li>
                 </ul>

@@ -7,7 +7,9 @@ import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.ICompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import static org.finalproject.java.fp_spring.Specifications.CompanySpecifications.*;
 
 @Service
 public class CompanyService implements ICompanyService {
@@ -28,11 +30,14 @@ public class CompanyService implements ICompanyService {
         return companies;
     }
 
-    public List<Company> GetAllFiltered(String email, String phone, LocalDateTime startDate, LocalDateTime endDate) {
-        List<Company> companies = companyRepo
-                .findAllByEmailContainingIgnoreCaseOrPhoneContainingIgnoreCaseOrCreatedAtBetween(email, phone,
-                        startDate, endDate);
+    public List<Company> GetAllFiltered(String name, String email, String phone, LocalDateTime startDate,
+            LocalDateTime endDate) {
+        Specification<Company> spec = Specification.<Company>unrestricted().and(nameContains(name))
+                .and(emailContains(email))
+                .and(phoneContains(phone))
+                .and(createdAtBetween(startDate, endDate));
 
+        List<Company> companies = companyRepo.findAll(spec);
         return companies;
     }
 

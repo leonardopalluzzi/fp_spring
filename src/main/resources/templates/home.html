@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<a sec:authorize="isAnonymous()" class="btn btn-primary" th:href="@{/login}">login</a>
+<th:block th:replace=" ~{fragments/imports :: headTags}">
+</th:block>
 
-<a sec:authorize="isAuthenticated()" class="btn btn-primary" th:href="@{/admin}">Dashboard</a>
+<body>
+    <th:block th:replace="~{fragments/header :: navbar('Admin Dashboard')}">
+    </th:block>
+
+    <main>
+        <h1>main</h1>
+        <a sec:authorize="isAnonymous()" class="btn btn-primary" th:href="@{/login}">login</a>
+
+        <a sec:authorize="hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/admin}">Dashboard</a>
+        <a sec:authorize="!hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/logout}">
+            you don't have permission to access this area, please logout
+        </a>
+
+    </main>
+
+
+    <th:block th:replace="~{fragments/footer :: footer}">
+    </th:block>
+    <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
+
+</body>
+
+
+
+</html>
