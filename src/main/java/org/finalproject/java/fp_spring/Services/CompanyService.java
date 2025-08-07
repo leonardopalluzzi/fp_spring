@@ -45,4 +45,9 @@ public class CompanyService implements ICompanyService {
         companyRepo.save(company);
     }
 
+    @Override
+    public void delete(Integer id){
+        companyRepo.deleteById(id);
+    }
+
 }

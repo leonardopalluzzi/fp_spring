@@ -134,4 +134,12 @@ public class CompanyController {
         return "redirect:/admin/company/" + company.getId();
     }
 
+    @PostMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String delete(@PathVariable("id") Integer id){
+        companyService.delete(id);
+
+        return "redirect:/admin/company";
+    }
+
 }

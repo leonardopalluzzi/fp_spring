@@ -114,10 +114,32 @@
                                         th:href="@{/admin/company/edit/{id}(id = ${company.getId()})}"><i
                                             class="bi bi-pencil"></i></a>
                                     <!-- inserire in modale -->
-                                    <form action="">
-                                        <button class="btn btn-danger" type="submit"><i
-                                                class="bi bi-file-earmark-x-fill"></i></button>
-                                    </form>
+                                    <!-- Button trigger modal -->
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                            <i class="bi bi-file-earmark-x-fill"></i>
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Confirm deleting operation</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete the [[${company.getName()}]] company?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <form th:action="@{/admin/company/delete/{id}(id = ${company.getId()})}" method="POST">
+                                                       <button type="submit" class="btn btn-primary">Yes</button> 
+                                                    </form>
+                                                    
+                                                </div>
+                                                </div>
+                                            </div>
+                                            </div>
                                 </td>
 
 
