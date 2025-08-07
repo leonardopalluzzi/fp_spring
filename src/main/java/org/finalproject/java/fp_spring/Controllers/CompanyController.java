@@ -119,7 +119,6 @@ public class CompanyController {
             return "company/create";
         }
 
-        
         Optional<Company> findCompany = companyService.show(company.getId());
         Company companyToUpdate = findCompany.get();
 
@@ -130,14 +129,14 @@ public class CompanyController {
         companyToUpdate.setPIva(company.getPIva());
 
         companyService.save(companyToUpdate);
-       
+
         return "redirect:/admin/company/" + company.getId();
     }
 
     @PostMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String delete(@PathVariable("id") Integer id){
-        companyService.delete(id);
+    public String delete(@PathVariable("id") Integer id) {
+        companyService.deleteById(id);
 
         return "redirect:/admin/company";
     }

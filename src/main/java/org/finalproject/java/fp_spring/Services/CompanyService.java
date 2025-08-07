@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.Company;
+import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.ICompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.finalproject.java.fp_spring.Specifications.CompanySpecifications.*;
 
 @Service
@@ -46,8 +49,22 @@ public class CompanyService implements ICompanyService {
     }
 
     @Override
-    public void delete(Integer id){
-        companyRepo.deleteById(id);
+    @Transactional
+    public void deleteById(Integer id) {
+        Optional<Company> companyOpt = companyRepo.findById(id);
+
+        if (companyOpt.isEmpty()) {
+            return;
+        }
+
+        Company company = companyOpt.get();
+        System.out.println("eliminando la comapny: " + company.getId());
+
+        for (User user : company.getUsers()) {
+            user.getRoles().clear();
+        }
+
+        companyRepo.delete(company);
     }
 
 }
