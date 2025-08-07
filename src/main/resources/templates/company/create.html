@@ -89,28 +89,30 @@
                     </div>
                 </div>
 
+                <div th:each="user, iterStat : ${company.users}">
+                    <input type="text" th:name="'users[' + ${iterStat.index} + '].username'"
+                        th:value="${user.username}" />
+                </div>
+
 
                 <!-- users form for edit  -->
-                <!-- <div th:if="${isEdit}" class="container card p-4 shadow my-5">
+                <div th:if="${isEdit}" class="container card p-4 shadow my-5">
                     <h3>Edit the admin users</h3>
                     <p>You need at least one admin user (max 5)</p>
 
                     <div>
-                        <div class="d-flex flex-column" th:each="user, stats : *{users}" th:object="${user}">
+                        <div class="d-flex flex-column" th:each="user, iterStat : ${company.users}">
                             <div class="mb-3">
                                 <label class="form-label">Username</label>
-                                <input th:field="*{username}" type="email" class="form-control"
-                                    th:errorClass="is-invalid" placeholder="business@domain.com" required />
-                                <small th:unless="${#fields.hasErrors('username')}" class="form-text text-muted">Insert
-                                    username</small>
-                                <small th:if="${#fields.hasErrors('username')}"
-                                    th:each="err : ${#fields.errors('username')}" th:text="${err}"
-                                    class="form-text text-muted invalid-feedback"></small>
+                                <input th:name="'users[' + ${iterStat.index} + '].username'" th:value="${user.username}"
+                                    type="email" class="form-control" th:errorClass="is-invalid"
+                                    placeholder="business@domain.com" required />
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
-                                <input th:field="*{email}" type="email" class="form-control" th:errorClass="is-invalid"
+                                <input th:name="'users[' + ${iterStat.index} + '].email'" th:value="${user.email}"
+                                    type="email" class="form-control" th:errorClass="is-invalid"
                                     placeholder="email@example.com" required />
                                 <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].email')}"
                                     class="form-text text-muted">Insert email</small>
@@ -121,8 +123,9 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
-                                <input th:field="*{password}" type="password" class="form-control"
-                                    th:errorClass="is-invalid" placeholder="Enter password" required />
+                                <input th:name="'users[' + ${iterStat.index} + '].password'" th:value="${user.password}"
+                                    type="password" class="form-control" th:errorClass="is-invalid"
+                                    placeholder="Enter password" required />
                                 <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
                                     class="form-text text-muted">Insert password</small>
                                 <small th:if="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
@@ -132,12 +135,12 @@
                         </div>
                     </div>
 
-                    <div class="w-100 text-center my-5">
+                    <!-- <div class="w-100 text-center my-5">
                         <button id="addUserBtn" type="button" class="btn btn-success">
                             <i class="bi bi-file-plus-fill"></i> Add User
                         </button>
-                    </div>
-                </div> -->
+                    </div> -->
+                </div>
 
 
 
