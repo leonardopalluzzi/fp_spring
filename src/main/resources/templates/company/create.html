@@ -13,11 +13,14 @@
 
     <main>
         <div class="container">
-            <h1>Create a new company</h1>
+            <h1 th:unless="${isEdit}">Create a new company</h1>
+            <h1 th:if="${isEdit}">Edit company details</h1>
 
 
-            <form th:action="@{/admin/company/store}" th:method="POST" th:object="${company}">
 
+            <form th:action="${isEdit ? '/admin/company/update' : '/admin/company/store'}" th:method="POST" th:object="${company}">
+
+                <input type="hidden" th:field="*{id}">
                 <div class="mb-3">
                     <label for="" class="form-label">Name</label>
                     <input th:field="*{name}" type="text" class="form-control" name="" id="" aria-describedby="helpId"

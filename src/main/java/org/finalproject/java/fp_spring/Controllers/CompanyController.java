@@ -77,6 +77,8 @@ public class CompanyController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String create(Model model) {
 
+        model.addAttribute("isEdit", false);
+
         Company company = new Company();
         model.addAttribute("company", company);
         return "company/create";
@@ -98,25 +100,38 @@ public class CompanyController {
     public String edit(Model model, @PathVariable("id") Integer id) {
         Optional<Company> company = companyService.show(id);
 
+        model.addAttribute("isEdit", true);
+
         if (company.isEmpty()) {
             return "company/404";
         }
 
         model.addAttribute("company", company);
-        return "company/edit";
+        return "company/create";
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/update")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String update(@Valid @ModelAttribute("company") Company company, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("company", companyService.show(company.getId()));
-            return "company/edit";
+            return "company/create";
         }
 
-        companyService.save(company);
-        return "redirect:/company/company/" + company.getId();
+        
+        Optional<Company> findCompany = companyService.show(company.getId());
+        Company companyToUpdate = findCompany.get();
+
+        companyToUpdate.setName(company.getName());
+        companyToUpdate.setDescription(company.getDescription());
+        companyToUpdate.setEmail(company.getEmail());
+        companyToUpdate.setPhone(company.getPhone());
+        companyToUpdate.setPIva(company.getPIva());
+
+        companyService.save(companyToUpdate);
+       
+        return "redirect:/admin/company/" + company.getId();
     }
 
 }
