@@ -10,8 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
@@ -30,6 +28,10 @@ public class Role {
     private List<User> users;
 
     public Role() {
+    }
+
+    public Role(RoleName role) {
+        this.name = role;
     }
 
     public Integer getId() {

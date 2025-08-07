@@ -1,9 +1,16 @@
 package org.finalproject.java.fp_spring.Controllers;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.Company;
+import org.finalproject.java.fp_spring.Models.Role;
+import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -79,14 +86,40 @@ public class CompanyController {
 
         model.addAttribute("isEdit", false);
 
+        List<User> users = new ArrayList();
+
         Company company = new Company();
         model.addAttribute("company", company);
+        model.addAttribute("users", users);
         return "company/create";
     }
 
     @PostMapping("/store")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String store(@Valid @ModelAttribute("company") Company company, BindingResult bindingResult, Model model) {
+
+        boolean hasAdmin = false;
+
+        Role adminRole = new Role(RoleName.COMPANY_ADMIN);
+        Set<Role> roles = new HashSet();
+        roles.add(adminRole);
+
+        for (User user : company.getUsers()) {
+            user.setRoles(roles);
+        }
+
+        for (User user : company.getUsers()) {
+            for (Role role : user.getRoles()) {
+                if (role.getName().equals(RoleName.COMPANY_ADMIN)) {
+                    hasAdmin = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasAdmin) {
+            bindingResult.reject("admin.required", "You must insert at least one admin user for this company");
+        }
 
         if (bindingResult.hasErrors()) {
             return "company/create";
@@ -106,7 +139,9 @@ public class CompanyController {
             return "company/404";
         }
 
-        model.addAttribute("company", company);
+        System.out.println("lista utenti matti" + company.get().getUsers());
+
+        model.addAttribute("company", company.get());
         return "company/create";
     }
 

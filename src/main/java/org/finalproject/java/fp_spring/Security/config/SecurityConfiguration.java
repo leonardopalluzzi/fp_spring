@@ -11,9 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class SecurityConfiguration {
 
-    // QUI BISOGNA SEPARARE LA SICUREZZA DELL'MVC DA QUELLA DELL'API CON 2 FILTER
-    // CHAIN SEPARATE
-
     // databse userdatils service
     @Bean
     DatabaseUserDetailService userDetailService() {
@@ -38,12 +35,13 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService, DatabaseUserDetailService databaseUserDetailService) {
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService,
+            DatabaseUserDetailService databaseUserDetailService) {
         return new JwtAuthenticationFilter(jwtService, databaseUserDetailService);
     }
 
     @Bean
-    public JwtService jwtService(){
+    public JwtService jwtService() {
         return new JwtService();
     }
 }

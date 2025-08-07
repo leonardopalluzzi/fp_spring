@@ -11,14 +11,15 @@
     </th:block>
 
 
-    <main>
+    <main class="my-5">
         <div class="container">
             <h1 th:unless="${isEdit}">Create a new company</h1>
             <h1 th:if="${isEdit}">Edit company details</h1>
 
 
 
-            <form th:action="${isEdit ? '/admin/company/update' : '/admin/company/store'}" th:method="POST" th:object="${company}">
+            <form th:action="${isEdit ? '/admin/company/update' : '/admin/company/store'}" th:method="POST"
+                th:object="${company}">
 
                 <input type="hidden" th:field="*{id}">
                 <div class="mb-3">
@@ -73,9 +74,79 @@
                         th:text="${err}" id="helpId" class="form-text text-muted invalid-feedback"></small>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Save</button>
+
+                <!-- users form for create  -->
+                <div th:unless="${isEdit}" class="container card p-4 shadow my-5">
+                    <h3>Add an admin user</h3>
+                    <p>You need at least one admin user (max 5)</p>
+                    <div action="" class="d-flex alig-items-center justify-content-center" th:object="${user}">
+                        <div id="user-container"></div>
+                    </div>
+
+                    <div class="w-100 text-center my-5">
+                        <button id="addUserBtn" type="button" class="btn btn-success"><i
+                                class="bi bi-file-plus-fill"></i></button> <br>
+                    </div>
+                </div>
+
+
+                <!-- users form for edit  -->
+                <!-- <div th:if="${isEdit}" class="container card p-4 shadow my-5">
+                    <h3>Edit the admin users</h3>
+                    <p>You need at least one admin user (max 5)</p>
+
+                    <div>
+                        <div class="d-flex flex-column" th:each="user, stats : *{users}" th:object="${user}">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input th:field="*{username}" type="email" class="form-control"
+                                    th:errorClass="is-invalid" placeholder="business@domain.com" required />
+                                <small th:unless="${#fields.hasErrors('username')}" class="form-text text-muted">Insert
+                                    username</small>
+                                <small th:if="${#fields.hasErrors('username')}"
+                                    th:each="err : ${#fields.errors('username')}" th:text="${err}"
+                                    class="form-text text-muted invalid-feedback"></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input th:field="*{email}" type="email" class="form-control" th:errorClass="is-invalid"
+                                    placeholder="email@example.com" required />
+                                <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].email')}"
+                                    class="form-text text-muted">Insert email</small>
+                                <small th:if="${#fields.hasErrors('users[' + iterStat.index + '].email')}"
+                                    th:each="err : ${#fields.errors('users[' + iterStat.index + '].email')}"
+                                    th:text="${err}" class="form-text text-muted invalid-feedback"></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input th:field="*{password}" type="password" class="form-control"
+                                    th:errorClass="is-invalid" placeholder="Enter password" required />
+                                <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
+                                    class="form-text text-muted">Insert password</small>
+                                <small th:if="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
+                                    th:each="err : ${#fields.errors('users[' + iterStat.index + '].password')}"
+                                    th:text="${err}" class="form-text text-muted invalid-feedback"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-100 text-center my-5">
+                        <button id="addUserBtn" type="button" class="btn btn-success">
+                            <i class="bi bi-file-plus-fill"></i> Add User
+                        </button>
+                    </div>
+                </div> -->
+
+
+
+                <button type="submit" class="btn btn-primary w-100">Save</button>
 
             </form>
+
+
+
 
         </div>
     </main>
@@ -84,6 +155,9 @@
     <th:block th:replace="~{fragments/footer :: footer}">
     </th:block>
     <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
+    <th:block th:if="${!isEdit}">
+        <script src="/generateUserForm.js"></script>
+    </th:block>
 
 </body>
 
