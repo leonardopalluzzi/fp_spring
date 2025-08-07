@@ -124,7 +124,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
                                 <input th:name="'users[' + ${iterStat.index} + '].password'" th:value="${user.password}"
-                                    type="password" class="form-control" th:errorClass="is-invalid"
+                                    type="text" class="form-control" th:errorClass="is-invalid"
                                     placeholder="Enter password" required />
                                 <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
                                     class="form-text text-muted">Insert password</small>
