@@ -139,8 +139,6 @@ public class CompanyController {
             return "company/404";
         }
 
-        System.out.println("lista utenti matti" + company.get().getUsers());
-
         model.addAttribute("company", company.get());
         return "company/create";
     }
