@@ -2,13 +2,18 @@ package org.finalproject.java.fp_spring.Services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+
+import javax.naming.NameNotFoundException;
 
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.IUserService;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -47,4 +52,7 @@ public class UserService implements IUserService {
         return user.get();
     }
 
+    public void save(User user) {
+        userRepo.save(user);
+    }
 }
