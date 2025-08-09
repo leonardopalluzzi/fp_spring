@@ -113,10 +113,16 @@
                                     th:text="${err}" class="form-text text-muted invalid-feedback"></small>
                             </div>
 
+
+                            <!-- da fare  -->
+                            <form th:if="${company.getUsers().size() > 1}"
+                                th:action="@{/admin/users/update/{id}(id=${user.id})}" method="POST">
+                                <button type="submit" class="btn btn-danger">Update</button>
+                            </form>
+
                             <!-- non funziona bene  -->
                             <form th:if="${company.getUsers().size() > 1}"
-                                th:action="@{/admin/users/delete/{id}(id=${users[' + ${iterStat.index} + '].id})}">
-
+                                th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="POST">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
 
@@ -160,16 +166,8 @@
     <th:block th:replace="~{fragments/footer :: footer}">
     </th:block>
     <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
-    <th:block>
+    <th:block th:unless="${isEdit}">
         <script src="/js/generateUserForm.js"></script>
-
-        <th:block th:if="${isEdit}">
-            <script>
-                var company = "[[${ company }]]";
-            </script>
-            <script src="/js/generateUserFormEdit.js" defer></script>
-        </th:block>
-
     </th:block>
 
 </body>
