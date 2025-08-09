@@ -75,28 +75,8 @@
                 </div>
 
 
-                <!-- users form for create  -->
-                <div th:unless="${isEdit}" class="container card p-4 shadow my-5">
-                    <h3>Add an admin user</h3>
-                    <p>You need at least one admin user (max 5)</p>
-                    <div action="" class="d-flex alig-items-center justify-content-center" th:object="${user}">
-                        <div id="user-container"></div>
-                    </div>
-
-                    <div class="w-100 text-center my-5">
-                        <button id="addUserBtn" type="button" class="btn btn-success"><i
-                                class="bi bi-file-plus-fill"></i></button> <br>
-                    </div>
-                </div>
-
-                <div th:each="user, iterStat : ${company.users}">
-                    <input type="text" th:name="'users[' + ${iterStat.index} + '].username'"
-                        th:value="${user.username}" />
-                </div>
-
-
                 <!-- users form for edit  -->
-                <div th:if="${isEdit}" class="container card p-4 shadow my-5">
+                <div th:if="${isEdit}" id="edit_form_container" class="container card p-4 shadow my-5">
                     <h3>Edit the admin users</h3>
                     <p>You need at least one admin user (max 5)</p>
 
@@ -105,7 +85,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Username</label>
                                 <input th:name="'users[' + ${iterStat.index} + '].username'" th:value="${user.username}"
-                                    type="email" class="form-control" th:errorClass="is-invalid"
+                                    type="text" class="form-control" th:errorClass="is-invalid"
                                     placeholder="business@domain.com" required />
                             </div>
 
@@ -132,7 +112,17 @@
                                     th:each="err : ${#fields.errors('users[' + iterStat.index + '].password')}"
                                     th:text="${err}" class="form-text text-muted invalid-feedback"></small>
                             </div>
+
+                            <!-- non funziona bene  -->
+                            <form th:if="${company.getUsers().size() > 1}"
+                                th:action="@{/admin/users/delete/{id}(id=${users[' + ${iterStat.index} + '].id})}">
+
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+
+                            <hr class="my-5">
                         </div>
+
                     </div>
 
                     <!-- <div class="w-100 text-center my-5">
@@ -142,7 +132,19 @@
                     </div> -->
                 </div>
 
+                <!-- users form for create  -->
+                <div th:unless="${isEdit}" class="container card p-4 shadow my-5">
+                    <h3>Add an admin user</h3>
+                    <p>You need at least one admin user (max 5)</p>
+                    <div action="" class="d-flex alig-items-center justify-content-center">
+                        <div id="user-container"></div>
+                    </div>
 
+                    <div class="w-100 text-center my-5">
+                        <button id="addUserBtn" type="button" class="btn btn-success"><i
+                                class="bi bi-file-plus-fill"></i></button> <br>
+                    </div>
+                </div>
 
                 <button type="submit" class="btn btn-primary w-100">Save</button>
 
@@ -158,8 +160,16 @@
     <th:block th:replace="~{fragments/footer :: footer}">
     </th:block>
     <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
-    <th:block th:if="${!isEdit}">
-        <script src="/generateUserForm.js"></script>
+    <th:block>
+        <script src="/js/generateUserForm.js"></script>
+
+        <th:block th:if="${isEdit}">
+            <script>
+                var company = "[[${ company }]]";
+            </script>
+            <script src="/js/generateUserFormEdit.js" defer></script>
+        </th:block>
+
     </th:block>
 
 </body>
