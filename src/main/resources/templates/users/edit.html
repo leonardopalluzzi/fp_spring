@@ -17,61 +17,48 @@
 
 
                 <div>
-                    <form th:each="user, iterStat : ${users}" th:object="${user}"
-                        th:action="@{/admin/users/update/{id}(id=${user.id})}" method="post">
-                        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-
-                        <div>
-                            <label>Username</label>
-                            <input th:value="*{username}" class="form-control" />
+                    <form th:action="@{/admin/users/update/{id}(id=*{getId()})}" th:object="${user}" method="POST">
+                        <div class=" mb-3">
+                            <label class="form-label">Username</label>
+                            <input th:field="*{username}" type="text" class="form-control" th:errorClass="is-invalid"
+                                placeholder="business@domain.com" required />
+                            <small th:unless="${#fields.hasErrors('username')}"
+                                class="form-text text-muted">Insert password</small>
+                            <small th:if="${#fields.hasErrors('username')}"
+                                th:each="err : ${#fields.errors('username')}" th:text="${err}"
+                                class="form-text text-muted invalid-feedback"></small>
                         </div>
 
-                        <div>
-                            <label>Email</label>
-                            <input th:value="*{email}" class="form-control" />
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input th:field="*{email}" type="email" class="form-control" th:errorClass="is-invalid"
+                                placeholder="email@example.com" required />
+                            <small th:unless="${#fields.hasErrors('email')}"
+                                class="form-text text-muted">Insert email</small>
+                            <small th:if="${#fields.hasErrors('email')}"
+                                th:each="err : ${#fields.errors('email')}" th:text="${err}"
+                                class="form-text text-muted invalid-feedback"></small>
                         </div>
 
-                        <div>
-                            <label>Password</label>
-                            <input th:value="*{password}" class="form-control" />
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input th:field="*{password}"
+                                type="text" class="form-control" th:errorClass="is-invalid" placeholder="Enter password"
+                                required />
+                            <small th:unless="${#fields.hasErrors('password')}"
+                                class="form-text text-muted">Insert password</small>
+                            <small th:if="${#fields.hasErrors('password')}"
+                                th:each="err : ${#fields.errors('password')}" th:text="${err}"
+                                class="form-text text-muted invalid-feedback"></small>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Update</button>
-                    </form>
+                        <button class="btn btn-success my-4" type="submit">Save</button>
+                    </form> 
                 </div>
 
 
 
-                <!-- <form action="" th:object="${user}">
-                    <div class=" mb-3">
-                        <label class="form-label">Username</label>
-                        <input th:field="*{username}" type="text" class="form-control" th:errorClass="is-invalid"
-                            placeholder="business@domain.com" required />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input th:field="*{email}" type="email" class="form-control" th:errorClass="is-invalid"
-                            placeholder="email@example.com" required />
-                        <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].email')}"
-                            class="form-text text-muted">Insert email</small>
-                        <small th:if="${#fields.hasErrors('users[' + iterStat.index + '].email')}"
-                            th:each="err : ${#fields.errors('users[' + iterStat.index + '].email')}" th:text="${err}"
-                            class="form-text text-muted invalid-feedback"></small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input th:name="'users[' + ${iterStat.index} + '].password'" th:value="${user.password}"
-                            type="text" class="form-control" th:errorClass="is-invalid" placeholder="Enter password"
-                            required />
-                        <small th:unless="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
-                            class="form-text text-muted">Insert password</small>
-                        <small th:if="${#fields.hasErrors('users[' + iterStat.index + '].password')}"
-                            th:each="err : ${#fields.errors('users[' + iterStat.index + '].password')}" th:text="${err}"
-                            class="form-text text-muted invalid-feedback"></small>
-                    </div>
-                </form> -->
+               
 
                 <!-- non funziona bene  -->
                 <!-- <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="POST">

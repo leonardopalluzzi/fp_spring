@@ -125,6 +125,9 @@ public class CompanyController {
             return "company/create";
         }
         companyService.save(company);
+        for (User user : company.getUsers()) {
+            user.setCompany(company);
+        }
         return "redirect:/admin/company";
     }
 

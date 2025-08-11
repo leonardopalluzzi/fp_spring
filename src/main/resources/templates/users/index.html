@@ -32,10 +32,13 @@
                                 <td>[[*{getEmail()}]]</td>
                                 <td>[[*{getPassword}]]</td>
                                 <td>
-                                    <a href="">Edit</a>
-                                    <form action="">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
+                                    <div class="d-flex align-item-center justify-content-center gap-4">
+                                        <a class="btn btn-warning" th:href="@{/admin/users/edit/{id}(id=*{getId()})}">Edit</a>
+                                        <form action="">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                    
                                 </td>
                             </tr>
                         </tbody>

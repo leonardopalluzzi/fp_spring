@@ -40,8 +40,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String edit(@PathVariable("id") Integer id, Model model) {
 
-        List<User> users = userService.findByCompany(id);
-        model.addAttribute("users", users);
+        User user = userService.getById(id);
+        model.addAttribute("user", user);
 
         return "users/edit";
     }
@@ -67,7 +67,10 @@ public class UserController {
 
         userService.save(user);
 
-        return "redirect:/admin/company/edit/";
+        Company company = user.getCompany();
+        Integer companyId = company.getId();
+
+        return "redirect:/admin/users/" + companyId;
 
     }
 
