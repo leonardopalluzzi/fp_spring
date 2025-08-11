@@ -1,7 +1,9 @@
 package org.finalproject.java.fp_spring.Services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -10,6 +12,7 @@ import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
+import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.ICompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,10 @@ public class CompanyService implements ICompanyService {
     CompanyRepository companyRepo;
 
     @Autowired
-    UserRepository userRepo;
+    UserService userService;
+
+    @Autowired
+    RoleRepository roleRepo;
 
     @Override
     public Page<Company> GetAllFiltered(String name, String email, String phone, LocalDateTime startDate,
@@ -51,21 +57,27 @@ public class CompanyService implements ICompanyService {
         return company;
     }
 
+    @Transactional
     @Override
-    public void save(Company company) {
-        for (User user : company.getUsers()) {
-            Set<Role> roles = new HashSet<>();
-            Role adminRole = new Role(RoleName.COMPANY_ADMIN);
-            roles.add(adminRole);
-            user.setRoles(null);
-            userRepo.save(user);
+    public void store(Company company) {
+        if (company.getUsers() == null || company.getUsers().isEmpty()) {
+            throw new RuntimeException("You must insert at least one company admin");
         }
+
+        // recupero il ruolo
+        Set<Role> roles = new HashSet<>();
+        Role role = roleRepo.findByName(RoleName.COMPANY_ADMIN);
+        roles.add(role);
+
+        // setto il ruolo per gli user
+        for (User user : company.getUsers()) {
+            user.setRoles(roles);
+            user.setCompany(company);
+        }
+
+        // salvo company in db
         companyRepo.save(company);
 
-        for (User user : company.getUsers()) {
-            user.setCompany(company);
-            userRepo.save(user);
-        }
     }
 
     @Override

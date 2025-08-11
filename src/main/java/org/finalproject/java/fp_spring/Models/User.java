@@ -65,7 +65,7 @@ public class User {
     private List<Service> services;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id") // nome della colonna FK in tabella user
     private Company company;
 
     @ManyToMany(mappedBy = "customers")

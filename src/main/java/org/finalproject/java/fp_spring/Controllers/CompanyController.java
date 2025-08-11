@@ -98,36 +98,11 @@ public class CompanyController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String store(@Valid @ModelAttribute("company") Company company, BindingResult bindingResult, Model model) {
 
-        boolean hasAdmin = false;
-
-        Role adminRole = new Role(RoleName.COMPANY_ADMIN);
-        Set<Role> roles = new HashSet();
-        roles.add(adminRole);
-
-        for (User user : company.getUsers()) {
-            user.setRoles(roles);
-        }
-
-        for (User user : company.getUsers()) {
-            for (Role role : user.getRoles()) {
-                if (role.getName().equals(RoleName.COMPANY_ADMIN)) {
-                    hasAdmin = true;
-                    break;
-                }
-            }
-        }
-
-        if (!hasAdmin) {
-            bindingResult.reject("admin.required", "You must insert at least one admin user for this company");
-        }
-
         if (bindingResult.hasErrors()) {
             return "company/create";
         }
-        companyService.save(company);
-        for (User user : company.getUsers()) {
-            user.setCompany(company);
-        }
+        companyService.store(company);
+
         return "redirect:/admin/company";
     }
 
@@ -164,7 +139,7 @@ public class CompanyController {
         companyToUpdate.setPhone(company.getPhone());
         companyToUpdate.setPIva(company.getPIva());
 
-        companyService.save(companyToUpdate);
+        companyService.store(companyToUpdate);
 
         return "redirect:/admin/company/" + company.getId();
     }

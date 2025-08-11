@@ -45,11 +45,16 @@ public class UserService implements IUserService {
 
     public User getById(Integer id) {
         Optional<User> user = userRepo.findById(id);
+
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
 
         return user.get();
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepo.findByUsername(username);
     }
 
     public void save(User user) {

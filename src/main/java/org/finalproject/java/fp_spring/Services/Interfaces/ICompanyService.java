@@ -12,7 +12,7 @@ public interface ICompanyService {
 
     Optional<Company> show(Integer id);
 
-    void save(Company company);
+    void store(Company company);
 
     void deleteById(Integer id);
 }

@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.Controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.User;
@@ -46,6 +47,28 @@ public class UserController {
         return "users/edit";
     }
 
+    @PostMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String update(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("user", user);
+        }
+
+        User userToUpdate = userService.getById(user.getId());
+        userToUpdate.setUsername(user.getUsername());
+        userToUpdate.setEmail(user.getEmail());
+        userToUpdate.setPassword(user.getPassword());
+
+        userService.save(userToUpdate);
+
+        Company company = userToUpdate.getCompany();
+        Integer companyId = company.getId();
+
+        return "redirect:/admin/users/" + companyId;
+
+    }
+
     @PostMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String delete(@PathVariable("id") Integer id) {
@@ -54,24 +77,6 @@ public class UserController {
         userService.deleteById(id);
 
         return "redirect:/admin/company/edit/" + company.getId();
-    }
-
-    @PostMapping("/update/{id}")
-    @PreAuthorize("hasAuthority")
-    public String update(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model,
-            Integer id) {
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("user", user);
-        }
-
-        userService.save(user);
-
-        Company company = user.getCompany();
-        Integer companyId = company.getId();
-
-        return "redirect:/admin/users/" + companyId;
-
     }
 
 }

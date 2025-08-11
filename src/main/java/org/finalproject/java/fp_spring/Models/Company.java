@@ -53,8 +53,7 @@ public class Company {
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Service> services = new ArrayList<>();
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Valid
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users = new ArrayList<>();
 
     public Company() {
@@ -133,4 +132,9 @@ public class Company {
         this.services = services;
     }
 
+    // helpers
+    public void addUser(User user) {
+        this.users.add(user);
+        user.setCompany(this); // ESSENZIALE per mantenere la relazione sincronizzata
+    }
 }
