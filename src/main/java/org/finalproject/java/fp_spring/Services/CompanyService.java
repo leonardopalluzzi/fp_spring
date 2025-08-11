@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,9 @@ public class CompanyService implements ICompanyService {
 
     @Autowired
     RoleRepository roleRepo;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public Page<Company> GetAllFiltered(String name, String email, String phone, LocalDateTime startDate,
@@ -73,6 +77,9 @@ public class CompanyService implements ICompanyService {
         for (User user : company.getUsers()) {
             user.setRoles(roles);
             user.setCompany(company);
+
+            String rawPassword = user.getPassword();
+            user.setPassword(passwordEncoder.encode(rawPassword));
         }
 
         // salvo company in db

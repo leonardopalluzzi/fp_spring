@@ -15,6 +15,7 @@ import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +26,9 @@ public class UserService implements IUserService {
 
     @Autowired
     CompanyRepository companyRepo;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void deleteById(Integer userId) throws UsernameNotFoundException {
@@ -58,6 +62,8 @@ public class UserService implements IUserService {
     }
 
     public void save(User user) {
+        String rawPassword = user.getPassword();
+        user.setPassword(passwordEncoder.encode(rawPassword));
         userRepo.save(user);
     }
 }

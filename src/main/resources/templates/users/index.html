@@ -21,8 +21,7 @@
                             <tr>
                                 <th scope="col">Username</th>
                                 <th scope="col">Email</th>
-                                <th scope="col">Password</th>
-                                <th scope="col">Actions</th>
+                                <th class="text-center" scope="col">Actions</th>
 
                             </tr>
                         </thead>
@@ -30,15 +29,15 @@
                             <tr th:each="user, iterStat : ${users}" th:object="${user}">
                                 <td scope="row">[[*{getUsername()}]]</td>
                                 <td>[[*{getEmail()}]]</td>
-                                <td>[[*{getPassword}]]</td>
                                 <td>
-                                    <div class="d-flex align-item-center justify-content-center gap-4">
-                                        <a class="btn btn-warning" th:href="@{/admin/users/edit/{id}(id=*{getId()})}">Edit</a>
+                                    <div class="d-flex align-items-center justify-content-center gap-4">
+                                        <a class="btn btn-warning"
+                                            th:href="@{/admin/users/edit/{id}(id=*{getId()})}">Edit</a>
                                         <form action="">
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
                                     </div>
-                                    
+
                                 </td>
                             </tr>
                         </tbody>

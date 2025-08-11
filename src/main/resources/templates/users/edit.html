@@ -46,9 +46,10 @@
 
                         <div class="mb-3">
                             <label class="form-label">Password</label>
-                            <input th:field="*{password}" type="text" class="form-control" th:errorClass="is-invalid"
-                                placeholder="Enter password" required />
-                            <small th:unless="${#fields.hasErrors('password')}" class="form-text text-muted">Insert
+                            <input th:name="password" type="text" class="form-control" th:errorClass="is-invalid"
+                                placeholder="Enter a new password" required />
+                            <small th:unless="${#fields.hasErrors('password')}" class="form-text text-muted">Insert a
+                                new
                                 password</small>
                             <small th:if="${#fields.hasErrors('password')}"
                                 th:each="err : ${#fields.errors('password')}" th:text="${err}"
