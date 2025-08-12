@@ -10,7 +10,7 @@
 
     <div class="container">
         <h1 class="my-5">Add a new User</h1>
-        <form action="@{/admin/users/store?companyId={id}(id=${companyId})}" method="POST" th:object="${user}">
+        <form th:action="@{/admin/users/store?companyId={id}(id=${companyId})}" method="POST" th:object="${user}">
             <div class="input-group mb-3">
                 <span class="input-group-text" id="inputGroup-sizing-default">Username</span>
                 <input type="text" class="form-control" th:field="*{username}" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
@@ -23,7 +23,7 @@
 
             <div class="input-group mb-3">
                 <span class="input-group-text" id="inputGroup-sizing-default">Password</span>
-                <input type="Password" class="form-control" th:field="*{password}" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                <input type="password" class="form-control" th:field="*{password}" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
             </div>
 
             <button class="btn btn-success" type="submit">Save</button>
