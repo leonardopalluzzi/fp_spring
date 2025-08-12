@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
 
@@ -32,6 +33,7 @@ public class UserController {
 
         List<User> users = userService.findByCompany(id);
         model.addAttribute("users", users);
+        model.addAttribute("companyId", id);
 
         return "users/index";
 
@@ -77,6 +79,25 @@ public class UserController {
         userService.deleteById(id);
 
         return "redirect:/admin/company/edit/" + company.getId();
+    }
+
+    @GetMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String create(Model model, @RequestParam("companyId") Integer companyId){
+
+        User user = new User();
+
+        model.addAttribute("user", user);
+        model.addAttribute("companyId", companyId);
+
+        return "users/create";
+    }
+
+    @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String store(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model, @RequestParam("companyId") Integer companyId){
+        User updatedUser = userService.insertNewUser(user, companyId);
+        return "redirect:/admin/users/" + updatedUser.getCompany().getId();
     }
 
 }
