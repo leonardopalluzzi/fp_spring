@@ -78,6 +78,7 @@ public class UserService implements IUserService {
     public User insertNewUser(User user, Integer companyId){
         User userWithCompany = setCompanyById(user, companyId);
         User updatedUser = setAdminRole(userWithCompany);
+        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
 
         userRepo.save(updatedUser);
 

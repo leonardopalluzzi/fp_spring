@@ -15,7 +15,7 @@
             </div>
         
             <div class="col d-flex align-items-center justify-content-end">
-                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId=${companyId}}">Add a new User</a> 
+                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId={id}(id=${companyId})}">Add a new User</a> 
             </div>
         </div>
         
