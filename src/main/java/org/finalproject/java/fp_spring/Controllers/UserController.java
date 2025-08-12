@@ -1,11 +1,13 @@
 package org.finalproject.java.fp_spring.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.UserService;
+import org.finalproject.java.fp_spring.ViewModels.UsersVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,11 +31,16 @@ public class UserController {
 
     @GetMapping("{id}")
     @PreAuthorize("hasAuthrity")
-    public String index(Model model, @PathVariable("id") Integer id) {
+    public String index(Model model, @PathVariable("id") Integer id,
+            @RequestParam(name = "isService", required = false) boolean isService) {
 
-        List<User> users = userService.findByCompany(id);
-        model.addAttribute("users", users);
-        model.addAttribute("companyId", id);
+        if (isService) {
+            UsersVM users = userService.findByService(id);
+        } else {
+            List<User> users = userService.findByCompany(id);
+            model.addAttribute("users", users);
+            model.addAttribute("companyId", id);
+        }
 
         return "users/index";
 
@@ -83,7 +90,7 @@ public class UserController {
 
     @GetMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String create(Model model, @RequestParam("companyId") Integer companyId){
+    public String create(Model model, @RequestParam("companyId") Integer companyId) {
 
         User user = new User();
 
@@ -95,7 +102,8 @@ public class UserController {
 
     @PostMapping("/store")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String store(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model, @RequestParam("companyId") Integer companyId){
+    public String store(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model,
+            @RequestParam("companyId") Integer companyId) {
         User updatedUser = userService.insertNewUser(user, companyId);
         return "redirect:/admin/users/" + updatedUser.getCompany().getId();
     }

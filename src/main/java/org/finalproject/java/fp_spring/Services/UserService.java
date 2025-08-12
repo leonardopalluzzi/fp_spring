@@ -16,6 +16,7 @@ import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.IUserService;
+import org.finalproject.java.fp_spring.ViewModels.UsersVM;
 import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
@@ -75,7 +76,7 @@ public class UserService implements IUserService {
         userRepo.save(user);
     }
 
-    public User insertNewUser(User user, Integer companyId){
+    public User insertNewUser(User user, Integer companyId) {
         User userWithCompany = setCompanyById(user, companyId);
         User updatedUser = setAdminRole(userWithCompany);
         String rawPassword = updatedUser.getPassword();
@@ -86,14 +87,14 @@ public class UserService implements IUserService {
         return updatedUser;
     }
 
-    public User setCompanyById(User user, Integer companyId){
+    public User setCompanyById(User user, Integer companyId) {
         Optional<Company> company = companyRepo.findById(companyId);
         user.setCompany(company.get());
-        
+
         return user;
     }
 
-    public User setAdminRole(User user){
+    public User setAdminRole(User user) {
         Role role = roleRepo.findByName(RoleName.COMPANY_ADMIN);
         Set<Role> roles = new HashSet<>();
         roles.add(role);
@@ -101,5 +102,16 @@ public class UserService implements IUserService {
         user.setRoles(roles);
 
         return user;
+    }
+
+    public UsersVM findByService(Integer serviceId) {
+
+        // recupero la lista di impegiati
+
+        // recupero lista clienti
+
+        UsersVM users = new UsersVM(null, null);
+
+        return users;
     }
 }
