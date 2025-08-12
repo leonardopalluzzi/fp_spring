@@ -93,7 +93,7 @@ public class UserController {
         return "users/create";
     }
 
-    @PostMapping("/create")
+    @PostMapping("/store")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String store(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model, @RequestParam("companyId") Integer companyId){
         User updatedUser = userService.insertNewUser(user, companyId);
