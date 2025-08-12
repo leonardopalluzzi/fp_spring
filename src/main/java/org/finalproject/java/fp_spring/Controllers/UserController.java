@@ -36,6 +36,7 @@ public class UserController {
 
         if (isService) {
             UsersVM users = userService.findByService(id);
+            // da finire
         } else {
             List<User> users = userService.findByCompany(id);
             model.addAttribute("users", users);
