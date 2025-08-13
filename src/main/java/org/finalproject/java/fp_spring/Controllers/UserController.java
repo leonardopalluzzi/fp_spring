@@ -2,12 +2,10 @@ package org.finalproject.java.fp_spring.Controllers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.UserService;
-import org.finalproject.java.fp_spring.ViewModels.UsersVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
