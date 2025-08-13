@@ -8,14 +8,26 @@
 
     <div id="edit_form_container" class="container card p-4 shadow my-5">
 
-        <div class="row row-cols-1 row-cols-md-2">
+        <div th:unless="${isService}" class="row row-cols-1 row-cols-md-2">
             <div class="col">
                 <h3>Edit the admin users</h3>
                 <p>You need at least one admin user (max 5)</p> 
             </div>
         
             <div class="col d-flex align-items-center justify-content-end">
-                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId={id}(id=${companyId})}">Add a new User</a> 
+                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId={id}(id=${companyId})}">Add a new Admin</a> 
+            </div>
+        </div>
+
+        <div th:if="${isService && isOperator}" class="row row-cols-1 row-cols-md-2">
+            <div class="col">
+                <h3>Edit the employess for the current service</h3>
+            </div>
+        </div>
+
+        <div th:if="${isService && !isOperator}" class="row row-cols-1 row-cols-md-2">
+            <div class="col">
+                <h3>Edit the customers for the current service</h3>
             </div>
         </div>
         
@@ -42,9 +54,40 @@
                                     <div class="d-flex align-items-center justify-content-center gap-4">
                                         <a class="btn btn-warning"
                                             th:href="@{/admin/users/edit/{id}(id=*{getId()})}">Edit</a>
-                                        <form th:if="${users.size() > 1}" action="">
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
+                                         <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                            th:data-bs-target="'#staticBackdrop' + *{id}">
+                                            <i class="bi bi-file-earmark-x-fill"></i>
+                                        </button>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" th:id="'staticBackdrop' + *{id}"
+                                            data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                                            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Confirm
+                                                            deleting operation</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to delete the [[*{username}]]
+                                                        user?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <form
+                                                            th:action="@{/admin/users/delete/{id}(id = *{getId()})}"
+                                                            method="POST">
+                                                            <button type="submit" class="btn btn-primary">Yes</button>
+                                                        </form>
+
+                                                    </div>
+                                                </div>
+                                            </div>
                                     </div>
 
                                 </td>

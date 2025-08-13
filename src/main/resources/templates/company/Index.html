@@ -9,6 +9,9 @@
     <main class="my-5">
         <section>
             <div class="container">
+
+                <div th:replace="~{fragments/breadcrumb :: breadcrumb(${breadcrumb})}"></div>
+
                 <h1>Company List</h1>
                 <!-- inserirei barra ricerca con filtri  -->
                 <form th:action="@{/admin/company}" th:method="GET">

@@ -28,16 +28,25 @@ public class UserController {
     UserService userService;
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthrity")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String index(Model model, @PathVariable("id") Integer id,
-            @RequestParam(name = "isService", required = false) boolean isService, @RequestParam(name = "isOperator", required = false) boolean isOperator) {
+            @RequestParam(name = "isService", required = false) Boolean isService, @RequestParam(name = "isOperator", required = false) Boolean isOperator) {
 
                 List<User> users = new ArrayList<>();
 
 
+        if(isService == null){
+            isService = false;
+        }
+
+        if(isOperator == null){
+            isOperator = false;
+        }
+
         if (isService && isOperator) {
             users = userService.getOperatorsByService(id);
             model.addAttribute("serviceId", id);
+            
         } else  if(isService && !isOperator){
             users = userService.getCustomersByService(id);
             model.addAttribute("serviceId", id);
@@ -47,6 +56,8 @@ public class UserController {
         }
 
         model.addAttribute("users", users);
+        model.addAttribute("isService", isService);
+        model.addAttribute("isOperator", isOperator);
 
         return "users/index";
 
@@ -91,7 +102,7 @@ public class UserController {
         Company company = user.getCompany();
         userService.deleteById(id);
 
-        return "redirect:/admin/company/edit/" + company.getId();
+        return "redirect:/admin/users/" + company.getId();
     }
 
     @GetMapping("/create")

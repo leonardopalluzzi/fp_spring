@@ -11,6 +11,8 @@
 
     <main>
         <section class="container my-5" th:object="${company}">
+            <div th:replace="~{fragments/breadcrumb :: breadcrumb(${breadcrumb})}"></div>
+
             <div class="row">
                 <div class="col">
                     <h1>[[*{getName()}]]</h1>
@@ -42,10 +44,7 @@
                             <th scope="col">Created At</th>
                             <th scope="col">Tickets</th>
                             <th scope="col">N. of Employees</th>
-                            <th scope="col">N. of Users</th>
-
-
-                            <!-- pensare se aggiungere operator e customer, e nel caso ad un metodo per avere dei compnenti che geneirno in autoamtico le view con i dettagli  -->
+                            <th scope="col">N. of Customer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,7 +56,6 @@
                                 <td>[[*{getStatus()}]]</td>
                                 <td>[[*{getCreatedAt()}]]</td>
                                 <td>[[*{getTickets().size()}]]</td>
-                                <!-- compilare il th:href degli anchor  -->
                                 <td>[[*{getOperators().size()}]] <a th:if="*{operators.size() > 0}" th:href="@{/admin/users/{id}(id=${service.getId()}, isService=true, isOperator=true)}" class="btn btn-primary mx-4"><i
                                                 class="bi bi-pencil"></i></a></td>
                                 <td>[[*{getCustomers().size()}]] <a th:if="*{customers.size() > 0}" th:href="@{/admin/users/{id}(id=${service.getId()}, isService=true, isOperator=false)}" class="btn btn-primary mx-4"><i
@@ -70,8 +68,6 @@
                     </tbody>
                 </table>
             </div>
-
-
         </section>
     </main>
 

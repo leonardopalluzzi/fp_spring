@@ -11,6 +11,9 @@ let users = [
 
 
 function renderUserInputGroup(index, username, email, password) {
+    users[index].username = username;
+    users[index].email = email;
+    users[index].password = password;
     return `
         <div class="input-container row row-cols-3" data-index="${index}">
             <div class="mb-3 col">
@@ -35,6 +38,20 @@ function renderUserInputGroup(index, username, email, password) {
     `;
 }
 
+function syncUserInputs() {
+    const inputContainers = document.querySelectorAll('.input-container');
+    inputContainers.forEach(container => {
+        const index = parseInt(container.dataset.index);
+        const username = container.querySelector(`input[name="users[${index}].username"]`).value;
+        const email = container.querySelector(`input[name="users[${index}].email"]`).value;
+        const password = container.querySelector(`input[name="users[${index}].password"]`).value;
+
+        users[index].username = username;
+        users[index].email = email;
+        users[index].password = password;
+    });
+}
+
 
 function renderForm() {
     container.innerHTML = '';
@@ -43,6 +60,7 @@ function renderForm() {
     })
 }
 
+syncUserInputs();
 renderForm();
 
 
@@ -50,16 +68,18 @@ addUserBtn.addEventListener('click', () => {
     if (users.length == 5) {
         return
     }
-    users.push({ username: '', email: '', password: '' });
 
+    syncUserInputs();
+    users.push({ username: '', email: '', password: '' });
     renderForm();
 })
 
 container.addEventListener('click', (e) => {
-    if (users.length == 1) {
-        return
-    }
-    if (e.target.classList.contains('delete-input-btn')) {
+    if (e.target.closest('.delete-input-btn')) {
+        if (users.length === 1) return;
+
+        syncUserInputs();
+
         const containerDiv = e.target.closest('.input-container');
         const indexToDelete = parseInt(containerDiv.dataset.index);
         users.splice(indexToDelete, 1);
