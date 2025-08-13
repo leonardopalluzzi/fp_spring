@@ -15,7 +15,7 @@
             </div>
         
             <div class="col d-flex align-items-center justify-content-end">
-                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId={id}(id=${companyId})}">Add a new Admin</a> 
+                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId={id}(id=${companyId}(returnTo=/admin/users/${companyId}))}">Add a new Admin</a> 
             </div>
         </div>
 
@@ -53,7 +53,7 @@
                                 <td>
                                     <div class="d-flex align-items-center justify-content-center gap-4">
                                         <a class="btn btn-warning"
-                                            th:href="@{/admin/users/edit/{id}(id=*{getId()})}">Edit</a>
+                                            th:href="@{/admin/users/edit/{id}(id=*{getId()})(returnTo=/admin/users/${companyId})}">Edit</a>
                                          <!-- Button trigger modal -->
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                             th:data-bs-target="'#staticBackdrop' + *{id}">
