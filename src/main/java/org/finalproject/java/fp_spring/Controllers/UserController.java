@@ -62,7 +62,7 @@ public class UserController {
             model.addAttribute("isService", isService);
 
             String returnToIfService = "/admin/users/" + id
-                    + "?isService=true&isOperator=false&returnTo=/admi/company/";
+                    + "?isService=true&isOperator=false&returnTo=/admin/company/";
             model.addAttribute("returnToIfService", returnToIfService);
         } else {
             users = userService.findByCompany(id);
