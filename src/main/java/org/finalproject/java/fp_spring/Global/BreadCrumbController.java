@@ -64,7 +64,6 @@ public class BreadCrumbController {
                 }
                 
             } else if(uri.contains("/create")){
-                breadcrumb.add(Map.of("label", "Dashboard", "url", "/admin/company"));
                 breadcrumb.add(Map.of("label", "Users", "url", returnTo));
                 breadcrumb.add(Map.of("label", "Create User", "url", uri));
             }

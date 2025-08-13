@@ -17,7 +17,7 @@
             </div>
         
             <div class="col d-flex align-items-center justify-content-end">
-                <a class="btn btn-primary" th:href="@{/admin/users/create?companyId={id}(id=${companyId})(returnTo='/admin/users/' + ${companyId})}">Add a new Admin</a> 
+                <a class="btn btn-primary" th:href="@{/admin/users/create(companyId=${companyId}, returnTo='/admin/users/' + ${companyId})}">Add a new Admin</a> 
             </div>
         </div>
 
