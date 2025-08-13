@@ -9,6 +9,9 @@
 
     <!-- users form for edit  -->
     <div id="edit_form_container" class="container card p-4 shadow my-5">
+
+        <div th:replace="~{fragments/breadcrumb :: breadcrumb(${breadcrumb})}"></div>
+
         <h3>Edit the admin users</h3>
         <p>You need at least one admin user (max 5)</p>
 

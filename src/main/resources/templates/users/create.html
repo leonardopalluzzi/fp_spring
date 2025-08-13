@@ -9,6 +9,9 @@
     </th:block>
 
     <div class="container">
+
+        <div th:replace="~{fragments/breadcrumb :: breadcrumb(${breadcrumb})}"></div>
+
         <h1 class="my-5">Add a new User</h1>
         <form th:action="@{/admin/users/store?companyId={id}(id=${companyId})}" method="POST" th:object="${user}">
             <div class="input-group mb-3">

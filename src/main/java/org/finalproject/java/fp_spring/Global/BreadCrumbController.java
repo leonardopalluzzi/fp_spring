@@ -39,26 +39,26 @@ public class BreadCrumbController {
             }
 
         } else if(uri.startsWith("/admin/users")){
+            breadcrumb.add(Map.of("label", "Dashboard", "url", "/admin/company"));
             if(uri.matches("/admin/users/\\d+")){
                 //index
-                if(isService == "true"){
-                    breadcrumb.add(Map.of("label", "Dashboard", "url", "/admin/company"));
+                if(isService != null){
+                    
                     breadcrumb.add(Map.of("label", "Company Details", "url", returnTo));
                     breadcrumb.add(Map.of("label", "Users", "url", uri));
                 } else {
-                    breadcrumb.add(Map.of("label", "Dashboard", "url", "/admin/company"));
                     breadcrumb.add(Map.of("label", "Users", "url", uri));
                 }
                 
 
             } else if(uri.matches("/admin/users/edit/\\d+")){
-                if(isService == "true"){
+                if(isService != null){
+                    breadcrumb.add(Map.of("label", "Company Details", "url", returnTo));
                     breadcrumb.add(Map.of("label", "Users", "url", returnTo));
                     breadcrumb.add(Map.of("label", "Edit User", "url", uri));
 
                 } else {
 
-                    breadcrumb.add(Map.of("label", "Dashboard", "url", "/admin/company"));
                     breadcrumb.add(Map.of("label", "Users", "url", returnTo));
                     breadcrumb.add(Map.of("label", "Edit User", "url", uri));
                 }
