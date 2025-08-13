@@ -9,13 +9,18 @@
     </th:block>
 
     <main>
-        <h1>main</h1>
-        <a sec:authorize="isAnonymous()" class="btn btn-primary" th:href="@{/login}">login</a>
+        <div class="container my-5 text-center">
+            <h1>Benvenuto <span sec:authentication="principal.username" class="fst-italic me-2"></span>
+            </h1>
 
-        <a sec:authorize="hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/admin/company}">Dashboard</a>
-        <a sec:authorize="!hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/logout}">
-            you don't have permission to access this area, please logout
-        </a>
+            <a sec:authorize="isAnonymous()" class="btn btn-primary" th:href="@{/login}">login</a>
+
+            <a sec:authorize="hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/admin/company}">Dashboard</a>
+            <a sec:authorize="!hasAuthority('ADMIN')" class="btn btn-primary" th:href="@{/logout}">
+                you don't have permission to access this area, please logout
+            </a>
+        </div>
+
 
     </main>
 
