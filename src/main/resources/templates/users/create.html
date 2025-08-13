@@ -5,39 +5,48 @@
 
 
 <body>
-     <th:block th:replace="~{fragments/header :: navbar('Admin Dashboard')}">
-    </th:block>
 
-    <div class="container">
+    <header>
+        <th:block th:replace="~{fragments/header :: navbar('Admin Dashboard')}">
+        </th:block>
+    </header>
 
-        <div th:replace="~{fragments/breadcrumb :: breadcrumb(${breadcrumb})}"></div>
+    <main>
+        <div class="container my-5">
 
-        <h1 class="my-5">Add a new User</h1>
-        <form th:action="@{/admin/users/store?companyId={id}(id=${companyId})}" method="POST" th:object="${user}">
-            <div class="input-group mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-default">Username</span>
-                <input type="text" class="form-control" th:field="*{username}" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-            </div>
+            <div th:replace="~{fragments/breadcrumb :: breadcrumb(${breadcrumb})}"></div>
 
-            <div class="input-group mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-default">Email</span>
-                <input type="email" class="form-control" th:field="*{email}" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-            </div>
+            <h1 class="my-5">Add a new User</h1>
+            <form th:action="@{/admin/users/store?companyId={id}(id=${companyId})}" method="POST" th:object="${user}">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Username</span>
+                    <input type="text" class="form-control" th:field="*{username}" aria-label="Sizing example input"
+                        aria-describedby="inputGroup-sizing-default">
+                </div>
 
-            <div class="input-group mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-default">Password</span>
-                <input type="password" class="form-control" th:field="*{password}" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-            </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Email</span>
+                    <input type="email" class="form-control" th:field="*{email}" aria-label="Sizing example input"
+                        aria-describedby="inputGroup-sizing-default">
+                </div>
 
-            <button class="btn btn-success" type="submit">Save</button>
-        </form>
-    </div>
-    
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Password</span>
+                    <input type="password" class="form-control" th:field="*{password}" aria-label="Sizing example input"
+                        aria-describedby="inputGroup-sizing-default">
+                </div>
+
+                <button class="btn btn-success" type="submit">Save</button>
+            </form>
+        </div>
+
+    </main>
 
 
 
 
-    
+
+
     <th:block th:replace="~{fragments/footer :: footer}">
     </th:block>
     <th:block th:replace="~{fragments/imports :: scripts}"></th:block>
