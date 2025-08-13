@@ -30,26 +30,40 @@ public class UserController {
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String index(Model model, @PathVariable("id") Integer id,
-            @RequestParam(name = "isService", required = false) Boolean isService, @RequestParam(name = "isOperator", required = false) Boolean isOperator) {
+            @RequestParam(name = "isService", required = false) Boolean isService,
+            @RequestParam(name = "isOperator", required = false) Boolean isOperator) {
 
-                List<User> users = new ArrayList<>();
+        List<User> users = new ArrayList<>();
 
-
-        if(isService == null){
+        if (isService == null) {
             isService = false;
         }
 
-        if(isOperator == null){
+        if (isOperator == null) {
             isOperator = false;
         }
 
         if (isService && isOperator) {
             users = userService.getOperatorsByService(id);
+            Integer companyId = userService.findCompanyIdByServiceId(id);
             model.addAttribute("serviceId", id);
-            
-        } else  if(isService && !isOperator){
+            model.addAttribute("companyId", companyId);
+            model.addAttribute("isService", isService);
+
+            String returnToIfService = "/admin/users/" + id
+                    + "?isService=true&isOperator=true&returnTo=/admin/company/";
+            model.addAttribute("returnToIfService", returnToIfService);
+
+        } else if (isService && !isOperator) {
             users = userService.getCustomersByService(id);
+            Integer companyId = userService.findCompanyIdByServiceId(id);
             model.addAttribute("serviceId", id);
+            model.addAttribute("companyId", companyId);
+            model.addAttribute("isService", isService);
+
+            String returnToIfService = "/admin/users/" + id
+                    + "?isService=true&isOperator=false&returnTo=/admi/company/";
+            model.addAttribute("returnToIfService", returnToIfService);
         } else {
             users = userService.findByCompany(id);
             model.addAttribute("companyId", id);

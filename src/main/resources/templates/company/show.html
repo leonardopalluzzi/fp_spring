@@ -56,10 +56,12 @@
                                 <td>[[*{getStatus()}]]</td>
                                 <td>[[*{getCreatedAt()}]]</td>
                                 <td>[[*{getTickets().size()}]]</td>
-                                <td>[[*{getOperators().size()}]] <a th:if="*{operators.size() > 0}" th:href="@{/admin/users/{id}(id=${service.getId()}, isService=true, isOperator=true, returnTo='/admin/company/' + ${company.id})}" class="btn btn-primary mx-4"><i
-                                                class="bi bi-pencil"></i></a></td>
-                                <td>[[*{getCustomers().size()}]] <a th:if="*{customers.size() > 0}" th:href="@{/admin/users/{id}(id=${service.getId()}, isService=true, isOperator=false, returnTo='/admin/company/' + ${company.id})}" class="btn btn-primary mx-4"><i
-                                                class="bi bi-pencil"></i></a></td> 
+                                <td>[[*{getOperators().size()}]] <a th:if="*{operators.size() > 0}"
+                                        th:href="@{/admin/users/{id}(id=${service.getId()}, isService=true, isOperator=true, returnTo='/admin/company/' + ${company.id})}"
+                                        class="btn btn-primary mx-4"><i class="bi bi-pencil"></i></a></td>
+                                <td>[[*{getCustomers().size()}]] <a th:if="*{customers.size() > 0}"
+                                        th:href="@{/admin/users/{id}(id=${service.getId()}, isService=true, isOperator=false, returnTo='/admin/company/' + ${company.id})}"
+                                        class="btn btn-primary mx-4"><i class="bi bi-pencil"></i></a></td>
 
 
                             </tr>

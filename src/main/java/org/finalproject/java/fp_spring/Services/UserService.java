@@ -105,14 +105,14 @@ public class UserService implements IUserService {
         return user;
     }
 
-    public List<User> getOperatorsByService(Integer serviceId){
+    public List<User> getOperatorsByService(Integer serviceId) {
         CompanyService service = serviceRepo.findById(serviceId).get();
         List<User> employees = service.getOperators();
 
         return employees;
     }
 
-    public List<User> getCustomersByService(Integer serviceId){
+    public List<User> getCustomersByService(Integer serviceId) {
         CompanyService service = serviceRepo.findById(serviceId).get();
         List<User> customers = service.getCustomers();
 
@@ -128,9 +128,9 @@ public class UserService implements IUserService {
         List<User> customers = new ArrayList<>();
 
         for (User user : allUsers) {
-            if(user.getRoles().contains(employeeRole)){
+            if (user.getRoles().contains(employeeRole)) {
                 employees.add(user);
-            } else if(user.getRoles().contains(customerRole)){
+            } else if (user.getRoles().contains(customerRole)) {
                 customers.add(user);
             }
         }
@@ -138,5 +138,12 @@ public class UserService implements IUserService {
         UsersVM users = new UsersVM(employees, customers);
 
         return users;
+    }
+
+    public Integer findCompanyIdByServiceId(Integer serviceId) {
+        CompanyService service = serviceRepo.findById(serviceId).get();
+        Integer companyId = service.getCompany().getId();
+
+        return companyId;
     }
 }
