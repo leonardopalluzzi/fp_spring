@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@Order(1)
+@Order(2)
 public class MvcSecurityConfig {
         @Bean
         public SecurityFilterChain mvcFilterChain(HttpSecurity http) throws Exception {
