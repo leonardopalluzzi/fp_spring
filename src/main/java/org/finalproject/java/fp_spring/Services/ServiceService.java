@@ -2,7 +2,7 @@ package org.finalproject.java.fp_spring.Services;
 
 import java.util.UUID;
 
-import org.finalproject.java.fp_spring.Models.Service;
+import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.IServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class ServiceService implements IServiceService {
         return "SVC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    public Service createService(Service service) {
+    public CompanyService createService(CompanyService service) {
 
         String code;
 
@@ -30,5 +30,4 @@ public class ServiceService implements IServiceService {
 
         return serviceRepo.save(service);
     }
-
 }

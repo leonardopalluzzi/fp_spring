@@ -51,7 +51,7 @@ public class Company {
     }
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Service> services = new ArrayList<>();
+    private List<CompanyService> services = new ArrayList<>();
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users = new ArrayList<>();
@@ -124,11 +124,11 @@ public class Company {
         this.createdAt = createdAt;
     }
 
-    public List<Service> getServices() {
+    public List<CompanyService> getServices() {
         return this.services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<CompanyService> services) {
         this.services = services;
     }
 

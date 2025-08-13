@@ -30,7 +30,7 @@ public class TicketType {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    private Service service;
+    private CompanyService service;
 
     public TicketType() {
     }
@@ -59,11 +59,11 @@ public class TicketType {
         this.tickets = tickets;
     }
 
-    public Service getService() {
+    public CompanyService getService() {
         return this.service;
     }
 
-    public void setService(Service service) {
+    public void setService(CompanyService service) {
         this.service = service;
     }
 

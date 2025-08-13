@@ -32,16 +32,23 @@ public class UserController {
     @GetMapping("{id}")
     @PreAuthorize("hasAuthrity")
     public String index(Model model, @PathVariable("id") Integer id,
-            @RequestParam(name = "isService", required = false) boolean isService) {
+            @RequestParam(name = "isService", required = false) boolean isService, @RequestParam(name = "isOperator", required = false) boolean isOperator) {
 
-        if (isService) {
-            UsersVM users = userService.findByService(id);
-            // da finire
+                List<User> users = new ArrayList<>();
+
+
+        if (isService && isOperator) {
+            users = userService.getOperatorsByService(id);
+            model.addAttribute("serviceId", id);
+        } else  if(isService && !isOperator){
+            users = userService.getCustomersByService(id);
+            model.addAttribute("serviceId", id);
         } else {
-            List<User> users = userService.findByCompany(id);
-            model.addAttribute("users", users);
+            users = userService.findByCompany(id);
             model.addAttribute("companyId", id);
         }
+
+        model.addAttribute("users", users);
 
         return "users/index";
 

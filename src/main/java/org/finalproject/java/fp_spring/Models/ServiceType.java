@@ -23,7 +23,7 @@ public class ServiceType {
     private String name;
 
     @OneToMany(mappedBy = "serviceType")
-    private List<Service> services = new ArrayList<>();
+    private List<CompanyService> services = new ArrayList<>();
 
     public ServiceType() {
 
@@ -45,11 +45,11 @@ public class ServiceType {
         this.name = name;
     }
 
-    public List<Service> getServices() {
+    public List<CompanyService> getServices() {
         return this.services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<CompanyService> services) {
         this.services = services;
     }
 

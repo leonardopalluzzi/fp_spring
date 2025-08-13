@@ -62,32 +62,32 @@ public class User {
     private Set<Role> roles;
 
     @ManyToMany(mappedBy = "operators", fetch = FetchType.EAGER)
-    private List<Service> services;
+    private List<CompanyService> services;
 
     @ManyToOne
     @JoinColumn(name = "company_id") // nome della colonna FK in tabella user
     private Company company;
 
     @ManyToMany(mappedBy = "customers")
-    private List<Service> customerServices;
+    private List<CompanyService> customerServices;
 
     public User() {
 
     }
 
-    public List<Service> getCustomerServices() {
+    public List<CompanyService> getCustomerServices() {
         return customerServices;
     }
 
-    public void setCustomerServices(List<Service> customerServices) {
+    public void setCustomerServices(List<CompanyService> customerServices) {
         this.customerServices = customerServices;
     }
 
-    public List<Service> getServices() {
+    public List<CompanyService> getServices() {
         return services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<CompanyService> services) {
         this.services = services;
     }
 

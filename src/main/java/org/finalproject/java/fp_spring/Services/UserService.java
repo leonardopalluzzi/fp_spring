@@ -1,5 +1,6 @@
 package org.finalproject.java.fp_spring.Services;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -9,8 +10,10 @@ import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
+import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
+import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Services.Interfaces.IUserService;
 import org.finalproject.java.fp_spring.ViewModels.UsersVM;
@@ -30,6 +33,9 @@ public class UserService implements IUserService {
 
     @Autowired
     RoleRepository roleRepo;
+
+    @Autowired
+    ServiceRepository serviceRepo;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -99,13 +105,37 @@ public class UserService implements IUserService {
         return user;
     }
 
+    public List<User> getOperatorsByService(Integer serviceId){
+        CompanyService service = serviceRepo.findById(serviceId).get();
+        List<User> employees = service.getOperators();
+
+        return employees;
+    }
+
+    public List<User> getCustomersByService(Integer serviceId){
+        CompanyService service = serviceRepo.findById(serviceId).get();
+        List<User> customers = service.getCustomers();
+
+        return customers;
+    }
+
     public UsersVM findByService(Integer serviceId) {
+        List<User> allUsers = userRepo.findByServicesId(serviceId);
+        Role employeeRole = new Role(RoleName.COMPANY_USER);
+        Role customerRole = new Role(RoleName.CLIENT);
 
-        // recupero la lista di impegiati
+        List<User> employees = new ArrayList<>();
+        List<User> customers = new ArrayList<>();
 
-        // recupero lista clienti
+        for (User user : allUsers) {
+            if(user.getRoles().contains(employeeRole)){
+                employees.add(user);
+            } else if(user.getRoles().contains(customerRole)){
+                customers.add(user);
+            }
+        }
 
-        UsersVM users = new UsersVM(null, null);
+        UsersVM users = new UsersVM(employees, customers);
 
         return users;
     }

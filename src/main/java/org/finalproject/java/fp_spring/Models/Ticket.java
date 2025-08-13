@@ -32,7 +32,7 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    private Service service;
+    private CompanyService service;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -83,11 +83,11 @@ public class Ticket {
         this.id = id;
     }
 
-    public Service getService() {
+    public CompanyService getService() {
         return this.service;
     }
 
-    public void setService(Service service) {
+    public void setService(CompanyService service) {
         this.service = service;
     }
 

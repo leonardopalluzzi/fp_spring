@@ -26,7 +26,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "services")
-public class Service {
+public class CompanyService {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,7 +77,7 @@ public class Service {
     @JoinTable(name = "customer_service", joinColumns = @JoinColumn(name = "service_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> customers;
 
-    public Service() {
+    public CompanyService() {
 
     }
 
