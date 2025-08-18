@@ -18,7 +18,7 @@ public class UserDTO {
     private List<CompanyServiceLightDTO> customerService;
     private List<TicketLightDTO> userTickets;
     private List<TicketLightDTO> adminTickets;
-    private Set<Role> roles = new HashSet<>();
+    private Set<RoleLightDTO> roles = new HashSet<>();
 
     public List<TicketLightDTO> getAdminTickets() {
         return adminTickets;
@@ -84,11 +84,11 @@ public class UserDTO {
         this.services = services;
     }
 
-    public Set<Role> getRoles() {
+    public Set<RoleLightDTO> getRoles() {
         return this.roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<RoleLightDTO> roles) {
         this.roles = roles;
     }
 

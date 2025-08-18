@@ -1,12 +1,15 @@
 package org.finalproject.java.fp_spring.Services;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceLightDTO;
 import org.finalproject.java.fp_spring.DTOs.RoleDTO;
+import org.finalproject.java.fp_spring.DTOs.RoleLightDTO;
 import org.finalproject.java.fp_spring.DTOs.ServiceTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketLightDTO;
@@ -112,6 +115,17 @@ public class MapperService {
         return dto;
     }
 
+    public RoleLightDTO toRoleLightDTO(Role entity) {
+        if (entity == null)
+            return null;
+
+        RoleLightDTO dto = new RoleLightDTO();
+
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        return dto;
+    }
+
     public TicketDTO toTicketDTO(Ticket entity) {
         if (entity == null)
             return null;
@@ -180,7 +194,11 @@ public class MapperService {
             }
             dto.setAdminTickets(adminTickets);
         }
-        dto.setRoles(entity.getRoles());
+        Set<RoleLightDTO> rDto = new HashSet<>();
+        for (Role role : entity.getRoles()) {
+            rDto.add(toRoleLightDTO(role));
+        }
+        dto.setRoles(rDto);
 
         return dto;
     }
@@ -194,6 +212,11 @@ public class MapperService {
         dto.setUsername(entity.getUsername());
         dto.setEmail(entity.getEmail());
         dto.setCreatedAt(entity.getCreatedAt());
+        Set<RoleLightDTO> rDto = new HashSet<>();
+        for (Role role : entity.getRoles()) {
+            rDto.add(toRoleLightDTO(role));
+        }
+        dto.setRoles(rDto);
 
         return dto;
     }

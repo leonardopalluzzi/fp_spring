@@ -38,12 +38,6 @@ public class ServiceRestController {
         for (CompanyService companyService : currentUser.getServices()) {
             services.add(mapper.toCompanyServiceDTO(companyService));
         }
-        // try {
-        // // services = serviceService.findAllByUser(currentUser);
-
-        // } catch (RoleInfoNotFoundException e) {
-        // return new ResponseEntity<>("Role Not Found", HttpStatus.BAD_REQUEST);
-        // }
 
         return ResponseEntity.ok(services);
     }

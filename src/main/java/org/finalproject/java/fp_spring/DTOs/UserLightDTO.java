@@ -13,7 +13,7 @@ public class UserLightDTO {
     private String email;
     private LocalDateTime createdAt;
 
-    private Set<Role> roles = new HashSet<>();
+    private Set<RoleLightDTO> roles = new HashSet<>();
 
     public Integer getId() {
         return this.id;
@@ -47,11 +47,11 @@ public class UserLightDTO {
         this.createdAt = createdAt;
     }
 
-    public Set<Role> getRoles() {
+    public Set<RoleLightDTO> getRoles() {
         return this.roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<RoleLightDTO> roles) {
         this.roles = roles;
     }
 
