@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +23,7 @@ public class ServiceType {
     @NotBlank
     private String name;
 
-    @OneToMany(mappedBy = "serviceType")
+    @OneToMany(mappedBy = "serviceType", fetch = FetchType.EAGER)
     private List<CompanyService> services = new ArrayList<>();
 
     public ServiceType() {

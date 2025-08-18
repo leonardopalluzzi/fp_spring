@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.finalproject.java.fp_spring.Enum.RoleName;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,7 +27,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleName name;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private List<User> users;
 
     public Role() {

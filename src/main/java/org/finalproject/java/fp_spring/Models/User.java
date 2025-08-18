@@ -8,6 +8,9 @@ import java.util.Set;
 
 import org.springframework.data.annotation.CreatedDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,10 +55,10 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Ticket> userTickets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Ticket> adminTickets = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)

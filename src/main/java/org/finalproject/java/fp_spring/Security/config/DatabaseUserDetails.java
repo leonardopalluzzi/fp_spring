@@ -1,8 +1,10 @@
 package org.finalproject.java.fp_spring.Security.config;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +17,7 @@ public class DatabaseUserDetails implements UserDetails {
     private final String username;
     private final String email;
     private final String password;
+    private final List<CompanyService> services;
     private final Set<GrantedAuthority> authorities;
 
     public DatabaseUserDetails(User user) {
@@ -22,6 +25,7 @@ public class DatabaseUserDetails implements UserDetails {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        this.services = user.getServices();
         this.authorities = new HashSet<GrantedAuthority>();
         for (Role role : user.getRoles()) {
             authorities.add(new SimpleGrantedAuthority(role.getName().toString()));
@@ -50,6 +54,10 @@ public class DatabaseUserDetails implements UserDetails {
 
     public String getEmail() {
         return this.email;
+    }
+
+    public List<CompanyService> getServices() {
+        return services;
     }
 
     @Override
