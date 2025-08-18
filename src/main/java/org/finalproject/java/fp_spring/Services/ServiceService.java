@@ -1,12 +1,16 @@
 package org.finalproject.java.fp_spring.Services;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.management.ServiceNotFoundException;
 import javax.management.relation.RoleInfoNotFoundException;
 
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
@@ -28,6 +32,9 @@ public class ServiceService implements IServiceService {
 
     @Autowired
     private RoleRepository roleRepo;
+
+    @Autowired
+    private MapperService mapper;
 
     @Override
     public String generateServiceCode() {
@@ -70,5 +77,48 @@ public class ServiceService implements IServiceService {
         }
 
         return services;
+    }
+
+    public List<CompanyServiceDTO> getAllFromUser(DatabaseUserDetails user) {
+        List<CompanyServiceDTO> services = new ArrayList<>();
+
+        for (CompanyService companyService : user.getServices()) {
+            services.add(mapper.toCompanyServiceDTO(companyService));
+        }
+
+        return services;
+    }
+
+    public CompanyServiceDTO findById(Integer serviceId, DatabaseUserDetails user)
+            throws AccessDeniedException, ServiceNotFoundException {
+        Optional<CompanyService> service = serviceRepo.findById(serviceId);
+
+        GrantedAuthority adminRole = new SimpleGrantedAuthority(roleRepo.findByName(RoleName.COMPANY_ADMIN).toString());
+        GrantedAuthority employeeRole = new SimpleGrantedAuthority(
+                roleRepo.findByName(RoleName.COMPANY_USER).toString());
+        GrantedAuthority customerRole = new SimpleGrantedAuthority(
+                roleRepo.findByName(RoleName.CLIENT).toString());
+
+        if (service.isEmpty()) {
+            throw new ServiceNotFoundException("Serivce Not Found");
+        }
+        boolean userHasService = user.getServices().stream()
+                .anyMatch(s -> s.getId().equals(service.get().getId()));
+
+        if (!userHasService) {
+            throw new AccessDeniedException("The current user is not registered to this service");
+        }
+
+        if (user.getAuthorities().contains(customerRole) && !user.getAuthorities().contains(adminRole)
+                && !user.getAuthorities().contains(employeeRole)) {
+            CompanyServiceDTO serviceDTO = mapper.toCompanyServiceDTO(service.get());
+            serviceDTO.setCustomers(null);
+            serviceDTO.setTickets(null);
+            serviceDTO.setOperators(null);
+
+            return serviceDTO;
+        }
+
+        return mapper.toCompanyServiceDTO(service.get());
     }
 }

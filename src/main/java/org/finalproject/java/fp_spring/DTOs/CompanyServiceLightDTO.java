@@ -3,7 +3,6 @@ package org.finalproject.java.fp_spring.DTOs;
 import java.time.LocalDateTime;
 
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
-import org.finalproject.java.fp_spring.Models.ServiceType;
 
 public class CompanyServiceLightDTO {
     private Integer id;
