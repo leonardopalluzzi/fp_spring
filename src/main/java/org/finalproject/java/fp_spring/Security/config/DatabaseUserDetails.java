@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
@@ -17,6 +18,7 @@ public class DatabaseUserDetails implements UserDetails {
     private final String username;
     private final String email;
     private final String password;
+    private final Company company;
     private final List<CompanyService> services;
     private final Set<GrantedAuthority> authorities;
 
@@ -25,6 +27,7 @@ public class DatabaseUserDetails implements UserDetails {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        this.company = user.getCompany();
         this.services = user.getServices();
         this.authorities = new HashSet<GrantedAuthority>();
         for (Role role : user.getRoles()) {
@@ -58,6 +61,10 @@ public class DatabaseUserDetails implements UserDetails {
 
     public List<CompanyService> getServices() {
         return services;
+    }
+
+    public Company getCompany() {
+        return company;
     }
 
     @Override

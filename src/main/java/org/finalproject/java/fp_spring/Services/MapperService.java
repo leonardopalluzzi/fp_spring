@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceLightDTO;
 import org.finalproject.java.fp_spring.DTOs.RoleDTO;
 import org.finalproject.java.fp_spring.DTOs.RoleLightDTO;
@@ -18,14 +19,18 @@ import org.finalproject.java.fp_spring.DTOs.UserLightDTO;
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
+import org.finalproject.java.fp_spring.Models.ServiceType;
 import org.finalproject.java.fp_spring.Models.Ticket;
+import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
+import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
+import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MapperService {
 
-    //--------------TO DTO--------------
+    // --------------TO DTO--------------
     public CompanyDTO toCompanyDTO(Company entity) {
         if (entity == null)
             return null;
@@ -222,29 +227,28 @@ public class MapperService {
         return dto;
     }
 
+    // -------------TO ENTITY-----------------
+    public CompanyService toCompanyServiceEntity(CompanyServiceInputDTO dto, ServiceTypeRepository serviceTypeRepo,
+            TicketTypeRepository ticketTypeRepo) {
+        if (dto == null)
+            return null;
 
-    //-------------TO ENTITY-----------------
-    public Company toCompanyEntity(CompanyDTO dto){
-        if(dto == null) return null;
-
-        Company entity = new Company();
-        entity.setId(dto.getId());
+        CompanyService entity = new CompanyService();
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
-        entity.setEmail(dto.getEmail());
-        entity.setPhone(dto.getPhone());
-        entity.setPIva(dto.getPIva());
-        entity.setCreatedAt(dto.getCreatedAt());
 
-        if(dto.getServices() != null && dto.getServices().size() > 0){
-
-            List<CompanyService> services = new ArrayList<>();
-            for (CompanyServiceLightDTO dtoService : dto.getServices()){
-
-            }
-
+        if (dto.getServiceTypeId() != null) {
+            ServiceType serviceType = serviceTypeRepo.findById(dto.getServiceTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("ServiceType not found"));
+            entity.setServiceType(serviceType);
         }
 
+        if (dto.getTicketTypeIds() != null && !dto.getTicketTypeIds().isEmpty()) {
+            List<TicketType> tickets = ticketTypeRepo.findAllById(dto.getTicketTypeIds());
+            entity.setTicketTypes(tickets);
+        }
+
+        return entity;
     }
 
 }

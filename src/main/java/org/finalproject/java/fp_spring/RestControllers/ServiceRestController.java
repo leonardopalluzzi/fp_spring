@@ -1,13 +1,14 @@
 package org.finalproject.java.fp_spring.RestControllers;
+
 import java.util.List;
 
-
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,15 +56,24 @@ public class ServiceRestController {
 
     }
 
-    @PostMapping("store")
-    public ResponseEntity<?> store(@Valid @ModelAttribute("service") CompanyServiceDTO service, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
+    @PostMapping("/store")
+    public ResponseEntity<?> store(@Valid @RequestBody CompanyServiceInputDTO service,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
 
-        serviceService.store(service);
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
 
-        return ResponseEntity.ok("Service succesfully created");
-        
+        try {
+            CompanyServiceDTO saved = serviceService.store(service, currentUser);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
     }
 }

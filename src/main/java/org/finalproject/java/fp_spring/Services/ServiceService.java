@@ -11,11 +11,15 @@ import javax.management.ServiceNotFoundException;
 import javax.management.relation.RoleInfoNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
+import org.finalproject.java.fp_spring.Enum.ServiceStatus;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
+import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
+import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.Interfaces.IServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +39,12 @@ public class ServiceService implements IServiceService {
 
     @Autowired
     private MapperService mapper;
+
+    @Autowired
+    ServiceTypeRepository serviceTypeRepo;
+
+    @Autowired
+    TicketTypeRepository ticketTypeRepo;
 
     @Override
     public String generateServiceCode() {
@@ -122,9 +132,21 @@ public class ServiceService implements IServiceService {
         return mapper.toCompanyServiceDTO(service.get());
     }
 
-    public void store(CompanyServiceDTO service){
-        //mappare da dto a entity
+    public CompanyServiceDTO store(CompanyServiceInputDTO service, DatabaseUserDetails user)
+            throws IllegalArgumentException {
 
-        //salvare in db
+        // mappare da dto a entity
+        CompanyService serviceEntity = mapper.toCompanyServiceEntity(service, serviceTypeRepo, ticketTypeRepo);
+
+        // popolo campi mancanti
+        serviceEntity.setCode(generateServiceCode());
+        serviceEntity.setCompany(user.getCompany());
+        serviceEntity.setStatus(ServiceStatus.INACTIVE);
+
+        // salvare in db
+        CompanyService saved = serviceRepo.save(serviceEntity);
+
+        // ritornare DTO mappato
+        return mapper.toCompanyServiceDTO(saved);
     }
 }
