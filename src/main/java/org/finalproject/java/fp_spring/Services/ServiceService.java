@@ -16,6 +16,7 @@ import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
+import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
@@ -148,5 +149,33 @@ public class ServiceService implements IServiceService {
 
         // ritornare DTO mappato
         return mapper.toCompanyServiceDTO(saved);
+    }
+
+    public CompanyServiceDTO update(CompanyServiceInputDTO serviceDto, Integer serviceId)
+            throws IllegalArgumentException, ServiceNotFoundException {
+
+        Optional<CompanyService> serviceEntity = serviceRepo.findById(serviceId);
+        if (serviceEntity.isEmpty()) {
+            throw new ServiceNotFoundException("Service not found");
+        }
+
+        CompanyService service = serviceEntity.get();
+
+        service.setName(serviceDto.getName());
+        service.setDescription(serviceDto.getDescription());
+        service.setServiceType(serviceTypeRepo.findById(serviceDto.getServiceTypeId()).get());
+        List<TicketType> ticketTypeList = new ArrayList<>();
+        for (Integer ticketTypeId : serviceDto.getTicketTypeIds()) {
+
+            TicketType ticketType = ticketTypeRepo.findById(ticketTypeId).get();
+            ticketTypeList.add(ticketType);
+        }
+        service.getTicketTypes().clear();
+        service.getTicketTypes().addAll(ticketTypeList);
+
+        serviceRepo.save(service);
+
+        return mapper.toCompanyServiceDTO(service);
+
     }
 }

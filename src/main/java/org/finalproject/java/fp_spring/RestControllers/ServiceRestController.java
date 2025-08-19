@@ -2,9 +2,10 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.util.List;
 
+import javax.management.ServiceNotFoundException;
+
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
-import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -73,6 +73,25 @@ public class ServiceRestController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody CompanyServiceInputDTO serviceDto,
+            BindingResult bindingResult, @PathVariable("id") Integer id) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("There are errors in some fields");
+        }
+
+        try {
+            CompanyServiceDTO updated = serviceService.update(serviceDto, id);
+            return ResponseEntity.ok(updated);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ServiceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
     }
