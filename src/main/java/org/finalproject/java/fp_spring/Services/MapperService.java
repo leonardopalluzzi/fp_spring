@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MapperService {
 
+    //--------------TO DTO--------------
     public CompanyDTO toCompanyDTO(Company entity) {
         if (entity == null)
             return null;
@@ -219,6 +220,31 @@ public class MapperService {
         dto.setRoles(rDto);
 
         return dto;
+    }
+
+
+    //-------------TO ENTITY-----------------
+    public Company toCompanyEntity(CompanyDTO dto){
+        if(dto == null) return null;
+
+        Company entity = new Company();
+        entity.setId(dto.getId());
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setEmail(dto.getEmail());
+        entity.setPhone(dto.getPhone());
+        entity.setPIva(dto.getPIva());
+        entity.setCreatedAt(dto.getCreatedAt());
+
+        if(dto.getServices() != null && dto.getServices().size() > 0){
+
+            List<CompanyService> services = new ArrayList<>();
+            for (CompanyServiceLightDTO dtoService : dto.getServices()){
+
+            }
+
+        }
+
     }
 
 }

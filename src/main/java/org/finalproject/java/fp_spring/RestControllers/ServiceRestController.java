@@ -1,25 +1,24 @@
 package org.finalproject.java.fp_spring.RestControllers;
-
-import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.ServiceNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.Models.CompanyService;
-
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
-import org.finalproject.java.fp_spring.Services.MapperService;
 import org.finalproject.java.fp_spring.Services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -55,4 +54,15 @@ public class ServiceRestController {
 
     }
 
+    @PostMapping("store")
+    public ResponseEntity<?> store(@Valid @ModelAttribute("service") CompanyServiceDTO service, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        serviceService.store(service);
+
+        return ResponseEntity.ok("Service succesfully created");
+        
+    }
 }

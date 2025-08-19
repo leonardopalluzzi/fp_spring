@@ -121,4 +121,10 @@ public class ServiceService implements IServiceService {
 
         return mapper.toCompanyServiceDTO(service.get());
     }
+
+    public void store(CompanyServiceDTO service){
+        //mappare da dto a entity
+
+        //salvare in db
+    }
 }
