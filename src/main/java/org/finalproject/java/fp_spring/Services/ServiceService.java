@@ -190,4 +190,12 @@ public class ServiceService implements IServiceService {
         return mapper.toCompanyServiceDTO(service);
 
     }
+
+    public void deleteById(Integer id) throws ServiceNotFoundException {
+        Optional<CompanyService> serviceToDelete = serviceRepo.findById(id);
+        if (serviceToDelete.isEmpty()) {
+            throw new ServiceNotFoundException("Service not found");
+        }
+        serviceRepo.delete(serviceToDelete.get());
+    }
 }
