@@ -243,8 +243,13 @@ public class MapperService {
             entity.setServiceType(serviceType);
         }
 
-        if (dto.getTicketTypeIds() != null && !dto.getTicketTypeIds().isEmpty()) {
-            List<TicketType> tickets = ticketTypeRepo.findAllById(dto.getTicketTypeIds());
+        if (dto.getTicketType() != null && !dto.getTicketType().isEmpty()) {
+            List<TicketType> tickets = new ArrayList<>();
+            for (String ticketTypeDTO : dto.getTicketType()) {
+                TicketType ticketType = new TicketType();
+                ticketType.setName(ticketTypeDTO);
+                tickets.add(ticketType);
+            }
             entity.setTicketTypes(tickets);
         }
 

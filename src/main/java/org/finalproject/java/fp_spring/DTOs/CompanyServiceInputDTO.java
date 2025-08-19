@@ -8,7 +8,7 @@ public class CompanyServiceInputDTO {
     private String description;
 
     private Integer serviceTypeId;
-    private List<Integer> ticketTypesIds = new ArrayList<>();
+    private List<String> ticketTypes = new ArrayList<>();
 
     public String getName() {
         return this.name;
@@ -34,12 +34,12 @@ public class CompanyServiceInputDTO {
         this.serviceTypeId = serviceTypeId;
     }
 
-    public List<Integer> getTicketTypeIds() {
-        return this.ticketTypesIds;
+    public List<String> getTicketType() {
+        return this.ticketTypes;
     }
 
-    public void setTicketTypeIds(List<Integer> ticketTypesIds) {
-        this.ticketTypesIds = ticketTypesIds;
+    public void setTicketType(List<String> ticketTypes) {
+        this.ticketTypes = ticketTypes;
     }
 
 }

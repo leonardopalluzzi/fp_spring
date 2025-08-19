@@ -3,6 +3,8 @@ package org.finalproject.java.fp_spring.Models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +32,7 @@ public class TicketType {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
+    @JsonIgnore
     private CompanyService service;
 
     public TicketType() {

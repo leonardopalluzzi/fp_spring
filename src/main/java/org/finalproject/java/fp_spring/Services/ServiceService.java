@@ -143,6 +143,16 @@ public class ServiceService implements IServiceService {
         serviceEntity.setCode(generateServiceCode());
         serviceEntity.setCompany(user.getCompany());
         serviceEntity.setStatus(ServiceStatus.INACTIVE);
+        List<TicketType> ticketTypeList = new ArrayList<>();
+        for (String ticketTypeDTO : service.getTicketType()) {
+
+            TicketType ticketType = new TicketType();
+            ticketType.setName(ticketTypeDTO);
+            ticketType.setService(serviceEntity);
+            ticketTypeList.add(ticketType);
+        }
+        serviceEntity.getTicketTypes().clear();
+        serviceEntity.getTicketTypes().addAll(ticketTypeList);
 
         // salvare in db
         CompanyService saved = serviceRepo.save(serviceEntity);
@@ -165,9 +175,11 @@ public class ServiceService implements IServiceService {
         service.setDescription(serviceDto.getDescription());
         service.setServiceType(serviceTypeRepo.findById(serviceDto.getServiceTypeId()).get());
         List<TicketType> ticketTypeList = new ArrayList<>();
-        for (Integer ticketTypeId : serviceDto.getTicketTypeIds()) {
+        for (String ticketTypeDTO : serviceDto.getTicketType()) {
 
-            TicketType ticketType = ticketTypeRepo.findById(ticketTypeId).get();
+            TicketType ticketType = new TicketType();
+            ticketType.setName(ticketTypeDTO);
+            ticketType.setService(service);
             ticketTypeList.add(ticketType);
         }
         service.getTicketTypes().clear();
