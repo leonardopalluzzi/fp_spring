@@ -20,6 +20,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "tickets")
@@ -45,7 +46,7 @@ public class Ticket {
     @JoinColumn(name = "ticket_type_id", nullable = false)
     private TicketType type;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
     private TicketStatus status;

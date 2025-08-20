@@ -1,25 +1,39 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.management.ServiceNotFoundException;
+
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
+import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tickets")
@@ -60,6 +74,83 @@ public class TicketsRestController {
         }
 
         return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TicketDTO> show(@PathVariable("id") Integer id) {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        try {
+            TicketDTO ticket = ticketService.findByIdFilterByRole(currentUser, id);
+
+            return ResponseEntity.ok(ticket);
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    @PostMapping("/store/{id}")
+    public ResponseEntity<?> store(@Valid @RequestBody TicketInputDTO ticket, BindingResult bindingResult,
+            @PathVariable("id") Integer id) {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("There are errors in some fields");
+        }
+
+        try {
+            TicketDTO storedTicket = ticketService.store(ticket, currentUser, id);
+            return ResponseEntity.ok(storedTicket);
+
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.badRequest().body("Access Denied");
+        } catch (ServiceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+
+        }
+
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@Valid @RequestBody TicketInputDTO ticket) {
+
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        try {
+            TicketDTO updatedTicket = ticketService.update(ticket, currentUser);
+            return ResponseEntity.ok(updatedTicket);
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Integer id) {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        try {
+            ticketService.deleteById(id, currentUser);
+            return ResponseEntity.ok(HttpStatus.OK);
+
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.badRequest().body("You don't have permission to access this resource");
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+
+        }
+
     }
 
 }

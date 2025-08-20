@@ -8,7 +8,7 @@ import org.finalproject.java.fp_spring.Models.TicketType;
 public class TicketLightDTO {
     private Integer id;
     private String title;
-    private TicketType type;
+    private TicketTypeDTO type;
     private TicketStatus status;
     private LocalDateTime createdAt;
 
@@ -28,11 +28,11 @@ public class TicketLightDTO {
         this.title = title;
     }
 
-    public TicketType getType() {
+    public TicketTypeDTO getType() {
         return this.type;
     }
 
-    public void setType(TicketType type) {
+    public void setType(TicketTypeDTO type) {
         this.type = type;
     }
 

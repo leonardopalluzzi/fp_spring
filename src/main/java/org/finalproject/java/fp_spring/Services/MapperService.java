@@ -14,6 +14,7 @@ import org.finalproject.java.fp_spring.DTOs.RoleLightDTO;
 import org.finalproject.java.fp_spring.DTOs.ServiceTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketLightDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.DTOs.UserLightDTO;
 import org.finalproject.java.fp_spring.Models.Company;
@@ -142,7 +143,7 @@ public class MapperService {
         dto.setAttachments(entity.getAttached());
         dto.setService(toCompanyServiceLightDTO(entity.getService()));
         dto.setRequester(toUserLightDTO(entity.getRequester()));
-        dto.setType(entity.getType());
+        dto.setType(toTicketTypeDTO(entity.getType()));
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
 
@@ -156,9 +157,20 @@ public class MapperService {
         TicketLightDTO dto = new TicketLightDTO();
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
-        dto.setType(entity.getType());
+        dto.setType(toTicketTypeDTO(entity.getType()));
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
+
+        return dto;
+    }
+
+    public TicketTypeDTO toTicketTypeDTO(TicketType entity) {
+        if (entity == null)
+            return null;
+
+        TicketTypeDTO dto = new TicketTypeDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
 
         return dto;
     }
@@ -255,5 +267,4 @@ public class MapperService {
 
         return entity;
     }
-
 }

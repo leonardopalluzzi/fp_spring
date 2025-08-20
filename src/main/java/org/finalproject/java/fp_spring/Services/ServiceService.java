@@ -113,6 +113,7 @@ public class ServiceService implements IServiceService {
         if (service.isEmpty()) {
             throw new ServiceNotFoundException("Serivce Not Found");
         }
+
         boolean userHasService = user.getServices().stream()
                 .anyMatch(s -> s.getId().equals(service.get().getId()));
 
@@ -131,6 +132,17 @@ public class ServiceService implements IServiceService {
         }
 
         return mapper.toCompanyServiceDTO(service.get());
+    }
+
+    public CompanyService findByIdEntity(Integer serviceId)
+            throws ServiceNotFoundException {
+
+        Optional<CompanyService> service = serviceRepo.findById(serviceId);
+
+        if (service.isEmpty()) {
+            throw new ServiceNotFoundException("Serivce Not Found");
+        }
+        return service.get();
     }
 
     public CompanyServiceDTO store(CompanyServiceInputDTO service, DatabaseUserDetails user)
