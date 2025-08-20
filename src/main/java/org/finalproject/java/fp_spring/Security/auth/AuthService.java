@@ -27,7 +27,7 @@ public class AuthService implements IAuthService {
     private JwtService jwtService;
 
     @Override
-    public String login(User user) {
+    public String login(User user) throws BadCredentialsException {
 
         Optional<User> foundUser = userRepo.findByUsername(user.getUsername());
 
