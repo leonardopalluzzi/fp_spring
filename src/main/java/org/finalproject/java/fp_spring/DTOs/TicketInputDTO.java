@@ -17,6 +17,15 @@ public class TicketInputDTO {
     private Integer typeId;
     private TicketStatus status;
     private LocalDateTime createdAt; // non modificabile
+    private Integer assignedToId;
+
+    public Integer getAssignedToId() {
+        return assignedToId;
+    }
+
+    public void setAssignedToId(Integer assignedToId) {
+        this.assignedToId = assignedToId;
+    }
 
     public String getDescription() {
         return description;

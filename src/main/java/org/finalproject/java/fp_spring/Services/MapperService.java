@@ -146,6 +146,7 @@ public class MapperService {
         dto.setType(toTicketTypeDTO(entity.getType()));
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
+        dto.setAssignedTo(toUserLightDTO(entity.getAssignedTo()));
 
         return dto;
     }

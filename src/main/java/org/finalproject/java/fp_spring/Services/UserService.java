@@ -71,6 +71,10 @@ public class UserService implements IUserService {
         return userRepo.findByUsername(username);
     }
 
+    public Optional<User> findById(Integer userId) {
+        return userRepo.findById(userId);
+    }
+
     public void save(User user) {
         String rawPassword = user.getPassword();
         user.setPassword(passwordEncoder.encode(rawPassword));

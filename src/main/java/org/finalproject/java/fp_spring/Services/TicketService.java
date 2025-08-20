@@ -235,6 +235,10 @@ public class TicketService {
         ticketToUpdate.setStatus(ticket.getStatus());
         ticketToUpdate.setDescription(ticket.getDescription());
         ticketToUpdate.setUpdatedAt(LocalDateTime.now());
+        Optional<User> assingedTo = userService.findById(ticket.getAssignedToId());
+        if (assingedTo.isEmpty())
+            throw new NotFoundException("User not found");
+        ticketToUpdate.setAssignedTo(assingedTo.get());
 
         // aggiornare ticket history
 
