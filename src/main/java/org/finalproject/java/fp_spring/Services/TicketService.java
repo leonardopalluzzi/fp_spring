@@ -27,12 +27,14 @@ import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Specifications.TicketsSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TicketService {
@@ -248,6 +250,7 @@ public class TicketService {
 
     }
 
+    @Transactional
     public void deleteById(Integer ticketId, DatabaseUserDetails user) throws NotFoundException, AccessDeniedException {
         User currentUser = userService.getById(user.getId());
         Role employeeRole = roleRepo.findByName(RoleName.COMPANY_USER);
@@ -271,7 +274,20 @@ public class TicketService {
             throw new AccessDeniedException("You don't have permission to access this resource");
         }
 
-        ticketsRepo.deleteById(ticketId);
+        // ticketsRepo.delete(ticketEntity.get());
+
+        try {
+            ticketsRepo.delete(ticketEntity.get()); // elimina l'entity
+            ticketsRepo.flush(); // forza la DELETE a DB subito
+
+            // verifica hard: se esiste ancora, qualcosa lo impedisce
+            if (ticketsRepo.existsById(ticketId)) {
+                throw new IllegalStateException("Delete did not remove the ticket (still exists after flush)");
+            }
+        } catch (DataIntegrityViolationException e) {
+            // Es. FK su child (attachments) senza cascade/orphanRemoval
+            throw new IllegalStateException("Cannot delete ticket due to related data constraints", e);
+        }
     }
 
 }

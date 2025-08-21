@@ -7,6 +7,7 @@ import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,7 +40,7 @@ public class Ticket {
     private User requester;
 
     @ManyToOne
-    @JoinColumn(name = "assigned_to")
+    @JoinColumn(name = "assigned_to", nullable = true)
     private User assignedTo;
 
     @ManyToOne
@@ -56,7 +57,7 @@ public class Ticket {
 
     private String description;
 
-    @OneToMany(mappedBy = "ticket")
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments; // bisogna creare una tabella separata
 
     @CreatedDate

@@ -2,9 +2,6 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.management.ServiceNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
@@ -141,7 +138,7 @@ public class TicketsRestController {
 
         try {
             ticketService.deleteById(id, currentUser);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity.ok().build();
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.badRequest().body("You don't have permission to access this resource");
