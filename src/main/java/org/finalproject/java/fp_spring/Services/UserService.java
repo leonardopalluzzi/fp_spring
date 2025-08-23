@@ -1,5 +1,6 @@
 package org.finalproject.java.fp_spring.Services;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -162,17 +164,41 @@ public class UserService implements IUserService {
         return companyId;
     }
 
-    public Page<UserDTO> getAllFiltered(DatabaseUserDetails user, String name, String email, int page) {
+    public Page<UserDTO> getAllFiltered(DatabaseUserDetails user, String name, String email, int page)
+            throws AccessDeniedException {
 
-        Specification<User> spec = Specification.<User>unrestricted()
-                .and(usernameContains(name))
-                .and(emailContains(email));
+        if (user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            // implementare filtro per company admin
+            Specification<User> spec = Specification.<User>unrestricted()
+                    .and(usernameContains(name))
+                    .and(emailContains(email));
 
-        Pageable pagination = PageRequest.of(page, 10);
+            Pageable pagination = PageRequest.of(page, 10);
 
-        Page<User> users = userRepo.findAll(spec, pagination);
-        Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
+            Page<User> users = userRepo.findAll(spec, pagination);
+            Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
 
-        return usersDTO;
+            return usersDTO;
+
+        } else if (user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
+
+            // implementare filtro per commpnau employee
+            Specification<User> spec = Specification.<User>unrestricted()
+                    .and(usernameContains(name))
+                    .and(emailContains(email));
+
+            Pageable pagination = PageRequest.of(page, 10);
+
+            Page<User> users = userRepo.findAll(spec, pagination);
+            Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
+
+            return usersDTO;
+
+        } else {
+            throw new AccessDeniedException("You don't have the authority to access this resource");
+        }
+
+        // gestire logica in base ai claims
+
     }
 }

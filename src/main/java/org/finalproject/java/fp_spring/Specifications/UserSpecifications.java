@@ -19,4 +19,11 @@ public class UserSpecifications {
         return (root, query, cb) -> cb.like(root.get("email"), "%" + email.toLowerCase() + "%");
     }
 
+    public static getCopmanyRelatedUsers(Company company){
+        if(company == null){
+            return Specification.unrestricted();
+        }
+        return (root, query, cb) -> cb.findAll(root.getCompany());
+    }
+
 }

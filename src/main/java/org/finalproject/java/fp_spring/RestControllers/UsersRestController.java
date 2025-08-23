@@ -1,5 +1,6 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
@@ -29,9 +30,13 @@ public class UsersRestController {
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
-        Page<UserDTO> users = userService.getAllFiltered(currentUser, username, email, page);
+        try {
+            Page<UserDTO> users = userService.getAllFiltered(currentUser, username, email, page);
 
-        return ResponseEntity.ok(users);
+            return ResponseEntity.ok(users);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.badRequest().build();
+        }
 
     }
 
