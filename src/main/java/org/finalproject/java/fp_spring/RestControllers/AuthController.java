@@ -3,7 +3,6 @@ package org.finalproject.java.fp_spring.RestControllers;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Security.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,13 +22,13 @@ public class AuthController {
     // login
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
-        
+
         try {
-        String token = authService.login(user);
-        return new ResponseEntity<>(token, HttpStatus.OK);
-            
+            String token = authService.login(user);
+            return ResponseEntity.ok(token);
+
         } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest().body("Bad Credentials");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
     }
@@ -38,14 +37,14 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(null);
     }
 
     // logout
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestBody String token) {
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(null);
     }
 
     // refershtoken

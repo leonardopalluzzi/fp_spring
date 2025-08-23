@@ -1,5 +1,6 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 import javax.management.ServiceNotFoundException;
@@ -53,8 +54,10 @@ public class ServiceRestController {
             CompanyServiceDTO service = serviceService.findById(id, currentUser);
             return ResponseEntity.ok(service);
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (ServiceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
     }
@@ -74,7 +77,7 @@ public class ServiceRestController {
             CompanyServiceDTO saved = serviceService.store(service, currentUser);
             return ResponseEntity.ok(saved);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -96,7 +99,7 @@ public class ServiceRestController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (ServiceNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
     }
@@ -110,7 +113,7 @@ public class ServiceRestController {
             return ResponseEntity.ok(HttpStatus.OK);
 
         } catch (ServiceNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

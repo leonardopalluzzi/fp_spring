@@ -40,7 +40,7 @@ public class TicketsRestController {
     TicketService ticketService;
 
     @GetMapping
-    public ResponseEntity<Page<TicketDTO>> index(
+    public ResponseEntity<?> index(
             @RequestParam(name = "type", required = false) TicketType type,
             @RequestParam(name = "status", required = false) TicketStatus status,
             @RequestParam(name = "title", required = false) String title,
@@ -50,6 +50,10 @@ public class TicketsRestController {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged");
+        }
 
         GrantedAuthority customerRole = new SimpleGrantedAuthority(RoleName.CLIENT.toString());
         GrantedAuthority employeeRole = new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString());
@@ -74,7 +78,7 @@ public class TicketsRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketDTO> show(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> show(@PathVariable("id") Integer id) {
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
@@ -84,7 +88,8 @@ public class TicketsRestController {
             return ResponseEntity.ok(ticket);
 
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+
         }
 
     }
@@ -103,11 +108,12 @@ public class TicketsRestController {
             return ResponseEntity.ok(storedTicket);
 
         } catch (AccessDeniedException e) {
-            return ResponseEntity.badRequest().body("Access Denied");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(e.getMessage());
         } catch (ServiceNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 
         }
 
@@ -124,9 +130,10 @@ public class TicketsRestController {
             return ResponseEntity.ok(updatedTicket);
 
         } catch (NotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (AccessDeniedException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(e.getMessage());
         }
 
     }
@@ -141,10 +148,11 @@ public class TicketsRestController {
             return ResponseEntity.ok().build();
 
         } catch (AccessDeniedException e) {
-            return ResponseEntity.badRequest().body("You don't have permission to access this resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(e.getMessage());
 
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 
         }
 
