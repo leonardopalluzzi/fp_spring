@@ -252,7 +252,8 @@ public class UserService implements IUserService {
         if (isAdmin) {
             boolean isRelated = user.getCompany().getUsers().contains(userEntity)
                     || user.getCompany().getServices().stream().anyMatch(s -> s.getCustomers().contains(userEntity))
-                    || user.getCompany().getServices().stream().anyMatch(s -> s.getOperators().contains(userEntity));
+                    || user.getCompany().getServices().stream().anyMatch(s -> s.getOperators().contains(userEntity))
+                    || user.getId().equals(userId);
 
             if (isRelated) {
                 userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
