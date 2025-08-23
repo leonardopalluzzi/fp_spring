@@ -1,5 +1,6 @@
 package org.finalproject.java.fp_spring.Services;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.finalproject.java.fp_spring.DTOs.UserAdminIndexDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
+import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
@@ -233,6 +235,50 @@ public class UserService implements IUserService {
         customersDTO = new PageImpl<UserDTO>(customersListDTO);
 
         return customersDTO;
+    }
+
+    public UserDTO getByIdRoleWise(DatabaseUserDetails user, Integer userId)
+            throws AccessDeniedException, NotFoundException {
+        boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
+        boolean isEmployee = user.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()));
+        boolean isCustomer = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
+        User userToSend = new User();
+
+        User userEntity = userRepo.findById(user.getId())
+                .orElseThrow(() -> new AccessDeniedException("User not logged"));
+
+        // la chain andrebbe girata al contrario ma per testing la tengo cosi
+        if (isAdmin) {
+            boolean isRelated = user.getCompany().getUsers().contains(userEntity)
+                    || user.getCompany().getServices().stream().anyMatch(s -> s.getCustomers().contains(userEntity))
+                    || user.getCompany().getServices().stream().anyMatch(s -> s.getOperators().contains(userEntity));
+
+            if (isRelated) {
+                userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+            } else {
+                throw new AccessDeniedException("You don't have permission to access this resource");
+            }
+        } else if (isEmployee) {
+            boolean isRelated = user.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getCustomers().contains(userEntity));
+
+            if (isRelated) {
+                userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+            } else {
+                throw new AccessDeniedException("You don't have permission to access this resource");
+            }
+        } else if (isCustomer) {
+            if (user.getId() == userId) {
+                userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+            } else {
+                throw new AccessDeniedException("You don't have permission to access this resource");
+            }
+        } else {
+            throw new AccessDeniedException("User not logged or role not recognized");
+        }
+
+        return mapper.toUserDTO(userToSend);
     }
 
 }
