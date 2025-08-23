@@ -27,22 +27,32 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
     Optional<User> findByAdminTicketsContaining(Ticket ticket);
 
-    @Query(value = """
-            SELECT u.* FROM users u
-            JOIN customer_service cs ON cs.user_id = u.id
-            JOIN operator_service os ON os.user_id = u.id
-            JOIN services s ON os.service_id = s.id
-            JOIN companies c ON s.company_id = c.id
+    @Query("""
+            SELECT u FROM User u
+            JOIN u.customerServices cs
+            JOIN cs.company c
             WHERE c.id = :companyId
-            """, countQuery = """
-            SELECT count(*) FROM users u
-            JOIN customer_service cs ON cs.user_id = u.id
-            JOIN operator_service os ON os.user_id = u.id
-            JOIN services s ON os.service_id = s.id
-            JOIN companies c ON s.company_id = c.id
+            """)
+    Page<User> findCustomersByCompanyId(@Param("companyId") Integer companyId, Specification<User> spec,
+            Pageable pagination);
+
+    @Query("""
+            SELECT u FROM User u
+            JOIN u.services s
+            JOIN s.company c
             WHERE c.id = :companyId
-            """, nativeQuery = true)
-    Page<User> findAllForAdminPaged(Pageable pagination, Specification<User> spec,
-            @Param("companyId") Integer companyId);
+            """)
+    Page<User> findEmployeesByCompanyId(@Param("companyId") Integer companyId, Specification<User> spec,
+            Pageable pagination);
+
+    @Query("""
+            SELECT DISTINCT u
+            FROM User u
+            JOIN u.customerServices cs
+            JOIN cs.operators o
+            WHERE o.id = :operatorId
+            """)
+    Page<User> findCustomerByOperatorId(@Param("operatorId") Integer operatorId, Specification<User> spec,
+            Pageable pagination);
 
 }

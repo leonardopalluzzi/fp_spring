@@ -53,7 +53,7 @@ public class Company {
     private List<CompanyService> services = new ArrayList<>();
 
     // restituisce gli admin di una company
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<User> users = new ArrayList<>();
 
     public Company() {

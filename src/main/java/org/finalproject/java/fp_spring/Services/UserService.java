@@ -1,12 +1,12 @@
 package org.finalproject.java.fp_spring.Services;
 
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.finalproject.java.fp_spring.DTOs.UserAdminIndexDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.Company;
@@ -22,6 +22,7 @@ import org.finalproject.java.fp_spring.Services.Interfaces.IUserService;
 import org.finalproject.java.fp_spring.ViewModels.UsersVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -164,41 +165,74 @@ public class UserService implements IUserService {
         return companyId;
     }
 
-    public Page<UserDTO> getAllFiltered(DatabaseUserDetails user, String name, String email, int page)
-            throws AccessDeniedException {
+    public UserAdminIndexDTO getAllForAdminFiltered(DatabaseUserDetails user, String username, String email,
+            int page) {
 
-        if (user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
-            // implementare filtro per company admin
-            Specification<User> spec = Specification.<User>unrestricted()
-                    .and(usernameContains(name))
-                    .and(emailContains(email));
+        Integer companyId = user.getCompany().getId();
+        Pageable pagination = PageRequest.of(page, 10);
+        Specification<User> spec = Specification.<User>unrestricted()
+                .and(usernameContains(username))
+                .and(emailContains(email));
 
-            Pageable pagination = PageRequest.of(page, 10);
+        UserAdminIndexDTO usersLists = new UserAdminIndexDTO();
 
-            Page<User> users = userRepo.findAllForAdminPaged(pagination, spec, user.getCompany().getId());
-            Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
-
-            return usersDTO;
-
-        } else if (user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
-
-            // implementare filtro per commpnau employee
-            Specification<User> spec = Specification.<User>unrestricted()
-                    .and(usernameContains(name))
-                    .and(emailContains(email));
-
-            Pageable pagination = PageRequest.of(page, 10);
-
-            Page<User> users = userRepo.findAll(spec, pagination);
-            Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
-
-            return usersDTO;
-
-        } else {
-            throw new AccessDeniedException("You don't have the authority to access this resource");
+        // popolo lista admin della company e converto in dto
+        List<User> adminCompany = user.getCompany().getUsers();
+        List<UserDTO> adminCompanyDTO = new ArrayList<>();
+        for (User admin : adminCompany) {
+            adminCompanyDTO.add(mapper.toUserDTO(admin));
         }
 
-        // gestire logica in base ai claims
+        // popolo lista customer della company e converto in dto
+        Page<User> custmomersEntity = userRepo.findCustomersByCompanyId(companyId, spec, pagination);
+        Page<UserDTO> customers = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
+        List<User> usersContent = custmomersEntity.getContent();
+        List<UserDTO> usersDTO = new ArrayList<>();
 
+        for (User userEntity : usersContent) {
+            usersDTO.add(mapper.toUserDTO(userEntity));
+        }
+        customers = new PageImpl<UserDTO>(usersDTO);
+
+        // popolo lista impiegati della company e converto in dto
+        Page<User> employeesEntity = userRepo.findEmployeesByCompanyId(companyId, spec, pagination);
+        Page<UserDTO> employeesDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
+        List<User> employeesEntityList = employeesEntity.getContent();
+        List<UserDTO> employeesDTOList = new ArrayList<>();
+
+        for (User employeeEntity : employeesEntityList) {
+            employeesDTOList.add(mapper.toUserDTO(employeeEntity));
+        }
+        employeesDTO = new PageImpl<UserDTO>(employeesDTOList);
+
+        // assegno i risultati nel dto
+        usersLists.setCompanyAdmins(adminCompanyDTO);
+        usersLists.setCustomers(customers);
+        usersLists.setEmployees(employeesDTO);
+
+        return usersLists;
     }
+
+    public Page<UserDTO> getAllForEmployeeFiltered(DatabaseUserDetails user, String username, String email,
+            int page) {
+
+        Specification<User> sepc = Specification.<User>unrestricted()
+                .and(usernameContains(username))
+                .and(emailContains(email));
+        Pageable pagination = PageRequest.of(page, 10);
+        Integer operatorId = user.getId();
+
+        Page<User> customersEntity = userRepo.findCustomerByOperatorId(operatorId, sepc, pagination);
+        Page<UserDTO> customersDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
+        List<User> customersListEntity = customersEntity.getContent();
+        List<UserDTO> customersListDTO = new ArrayList<>();
+
+        for (User customer : customersListEntity) {
+            customersListDTO.add(mapper.toUserDTO(customer));
+        }
+        customersDTO = new PageImpl<UserDTO>(customersListDTO);
+
+        return customersDTO;
+    }
+
 }

@@ -8,9 +8,6 @@ import java.util.Set;
 
 import org.springframework.data.annotation.CreatedDate;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -72,7 +69,7 @@ public class User {
     @JoinColumn(name = "company_id") // nome della colonna FK in tabella user
     private Company company;
 
-    @ManyToMany(mappedBy = "customers")
+    @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
     private List<CompanyService> customerServices;
 
     public User() {
