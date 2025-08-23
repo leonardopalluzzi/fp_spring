@@ -175,7 +175,7 @@ public class UserService implements IUserService {
 
             Pageable pagination = PageRequest.of(page, 10);
 
-            Page<User> users = userRepo.findAll(spec, pagination);
+            Page<User> users = userRepo.findAllForAdminPaged(pagination, spec, user.getCompany().getId());
             Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
 
             return usersDTO;
