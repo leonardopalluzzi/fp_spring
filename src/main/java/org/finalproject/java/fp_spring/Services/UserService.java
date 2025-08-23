@@ -245,33 +245,40 @@ public class UserService implements IUserService {
         boolean isCustomer = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
         User userToSend = new User();
 
-        User userEntity = userRepo.findById(user.getId())
-                .orElseThrow(() -> new AccessDeniedException("User not logged"));
+        if (!userRepo.existsById(userId)) {
+            throw new NotFoundException("Requeseted User Not Found");
+        }
 
         // la chain andrebbe girata al contrario ma per testing la tengo cosi
         if (isAdmin) {
-            boolean isRelated = user.getCompany().getUsers().contains(userEntity)
-                    || user.getCompany().getServices().stream().anyMatch(s -> s.getCustomers().contains(userEntity))
-                    || user.getCompany().getServices().stream().anyMatch(s -> s.getOperators().contains(userEntity))
+            // confronto i valori degli id perche il contains usa l'equals che confornta le
+            // istanze non avendo un override in user, quindi confrontado id sono sempre
+            // sicuro di trovare corrispondenza
+            boolean isRelated = user.getCompany().getUsers().stream()
+                    .anyMatch(u -> u.getId().equals(userId))
+                    || user.getCompany().getServices().stream().anyMatch(
+                            s -> s.getCustomers().stream().anyMatch(c -> c.getId().equals(userId)))
+                    || user.getCompany().getServices().stream().anyMatch(
+                            s -> s.getOperators().stream().anyMatch(o -> o.getId().equals(userId)))
                     || user.getId().equals(userId);
 
             if (isRelated) {
-                userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+                userToSend = userRepo.findById(userId).get();
             } else {
                 throw new AccessDeniedException("You don't have permission to access this resource");
             }
         } else if (isEmployee) {
             boolean isRelated = user.getCompany().getServices().stream()
-                    .anyMatch(s -> s.getCustomers().contains(userEntity));
+                    .anyMatch(s -> s.getCustomers().stream().anyMatch(c -> c.getId().equals(userId)));
 
             if (isRelated) {
-                userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+                userToSend = userRepo.findById(userId).get();
             } else {
                 throw new AccessDeniedException("You don't have permission to access this resource");
             }
         } else if (isCustomer) {
-            if (user.getId() == userId) {
-                userToSend = userRepo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+            if (user.getId().equals(userId)) {
+                userToSend = userRepo.findById(userId).get();
             } else {
                 throw new AccessDeniedException("You don't have permission to access this resource");
             }
