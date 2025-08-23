@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.Role;
@@ -15,12 +16,19 @@ import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
+import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.Interfaces.IUserService;
 import org.finalproject.java.fp_spring.ViewModels.UsersVM;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static org.finalproject.java.fp_spring.Specifications.UserSpecifications.*;
 
 @Service
 public class UserService implements IUserService {
@@ -39,6 +47,9 @@ public class UserService implements IUserService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    MapperService mapper;
 
     @Override
     public void deleteById(Integer userId) throws UsernameNotFoundException {
@@ -149,5 +160,19 @@ public class UserService implements IUserService {
         Integer companyId = service.getCompany().getId();
 
         return companyId;
+    }
+
+    public Page<UserDTO> getAllFiltered(DatabaseUserDetails user, String name, String email, int page) {
+
+        Specification<User> spec = Specification.<User>unrestricted()
+                .and(usernameContains(name))
+                .and(emailContains(email));
+
+        Pageable pagination = PageRequest.of(page, 10);
+
+        Page<User> users = userRepo.findAll(spec, pagination);
+        Page<UserDTO> usersDTO = users.map(u -> mapper.toUserDTO(u));
+
+        return usersDTO;
     }
 }
