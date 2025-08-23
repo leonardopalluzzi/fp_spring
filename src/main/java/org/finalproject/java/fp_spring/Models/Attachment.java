@@ -1,5 +1,6 @@
 package org.finalproject.java.fp_spring.Models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +18,7 @@ public class Attachment {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "ticket_id", nullable = false)
+    @JoinColumn(name = "ticket_id", nullable = true)
     private Ticket ticket;
 
     @NotBlank

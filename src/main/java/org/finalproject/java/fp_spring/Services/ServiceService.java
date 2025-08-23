@@ -16,6 +16,7 @@ import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
+import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
@@ -209,5 +210,9 @@ public class ServiceService implements IServiceService {
             throw new ServiceNotFoundException("Service not found");
         }
         serviceRepo.delete(serviceToDelete.get());
+    }
+
+    public Optional<CompanyService> findByTicketsContaining(Ticket ticket) {
+        return serviceRepo.findByTicketsContaining(ticket);
     }
 }

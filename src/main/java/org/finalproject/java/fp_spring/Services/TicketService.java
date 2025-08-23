@@ -16,10 +16,12 @@ import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
+import org.finalproject.java.fp_spring.Models.Attachment;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
+import org.finalproject.java.fp_spring.Repositories.AttachmentRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
@@ -62,6 +64,9 @@ public class TicketService {
 
     @Autowired
     TicketTypeRepository ticketTypeRepo;
+
+    @Autowired
+    AttachmentRepository attachmentRepo;
 
     public Page<TicketDTO> findCustomerTicketsFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
             String title, String description, LocalDateTime createdAt, Integer page) {
@@ -252,42 +257,31 @@ public class TicketService {
 
     @Transactional
     public void deleteById(Integer ticketId, DatabaseUserDetails user) throws NotFoundException, AccessDeniedException {
+        Ticket ticketToDelete = ticketsRepo.findById(ticketId)
+                .orElseThrow(() -> new NotFoundException("Ticket Not Found"));
+
         User currentUser = userService.getById(user.getId());
         Role employeeRole = roleRepo.findByName(RoleName.COMPANY_USER);
-        Role customRole = roleRepo.findByName(RoleName.CLIENT);
-        boolean errorFlag = false;
+        Role customerRole = roleRepo.findByName(RoleName.CLIENT);
 
-        Optional<Ticket> ticketEntity = ticketsRepo.findById(ticketId);
-
-        if (ticketEntity.isEmpty()) {
-            throw new NotFoundException("Ticket Not Found");
-        }
-
-        if (currentUser.getRoles().contains(employeeRole)) {
-            errorFlag = currentUser.getAdminTickets().contains(ticketEntity.get()) ? false : true;
-
-        } else if (currentUser.getRoles().contains(customRole)) {
-            errorFlag = currentUser.getUserTickets().contains(ticketEntity.get()) ? false : true;
-        }
-
-        if (errorFlag == true) {
+        if (currentUser.getRoles().contains(employeeRole) || currentUser.getRoles().contains(customerRole)) {
             throw new AccessDeniedException("You don't have permission to access this resource");
         }
 
-        // ticketsRepo.delete(ticketEntity.get());
-
-        try {
-            ticketsRepo.delete(ticketEntity.get()); // elimina l'entity
-            ticketsRepo.flush(); // forza la DELETE a DB subito
-
-            // verifica hard: se esiste ancora, qualcosa lo impedisce
-            if (ticketsRepo.existsById(ticketId)) {
-                throw new IllegalStateException("Delete did not remove the ticket (still exists after flush)");
-            }
-        } catch (DataIntegrityViolationException e) {
-            // Es. FK su child (attachments) senza cascade/orphanRemoval
-            throw new IllegalStateException("Cannot delete ticket due to related data constraints", e);
+        if (ticketToDelete.getService() != null) {
+            ticketToDelete.getService().getTickets().remove(ticketToDelete);
+            ticketToDelete.setService(null);
         }
-    }
 
+        if (ticketToDelete.getType() != null) {
+            ticketToDelete.getType().getTickets().remove(ticketToDelete);
+            ticketToDelete.setType(null);
+        }
+
+        ticketToDelete.setRequester(null);
+        ticketToDelete.setAssignedTo(null);
+
+        // elimina direttamente il ticket: JPA si occupa di cascade e orphan removal
+        ticketsRepo.delete(ticketToDelete);
+    }
 }

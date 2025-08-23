@@ -44,7 +44,7 @@ public class Ticket {
     private User assignedTo;
 
     @ManyToOne
-    @JoinColumn(name = "ticket_type_id", nullable = false)
+    @JoinColumn(name = "ticket_type_id", nullable = true)
     private TicketType type;
 
     @NotNull
@@ -58,7 +58,7 @@ public class Ticket {
     private String description;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Attachment> attachments; // bisogna creare una tabella separata
+    private List<Attachment> attachments;
 
     @CreatedDate
     @Column(updatable = false)
