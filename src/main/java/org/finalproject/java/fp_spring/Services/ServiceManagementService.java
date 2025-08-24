@@ -6,6 +6,7 @@ import javax.management.ServiceNotFoundException;
 
 import org.apache.coyote.BadRequestException;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
+import org.finalproject.java.fp_spring.DTOs.CustomerRegisterRequestDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.CompanyService;
@@ -171,6 +172,47 @@ public class ServiceManagementService {
             throw new AccessDeniedException(e.getMessage());
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
+        } catch (ServiceNotFoundException e) {
+            throw new ServiceNotFoundException(e.getMessage());
+        }
+
+    }
+
+    public void registerCustomerToService(DatabaseUserDetails currentUser, CustomerRegisterRequestDTO request)
+            throws AccessDeniedException, ServiceNotFoundException, BadRequestException {
+        try {
+            // verificare che il current user corrisponda allo user id
+            if (!currentUser.getId().equals(request.getUserId())) {
+                throw new AccessDeniedException("You don't have the authority to access this resource");
+            }
+
+            // verificare che il service esista
+            CompanyService serviceEntity = serviceRepo.findById(request.getServiceId())
+                    .orElseThrow(() -> new ServiceNotFoundException("Service Not Found"));
+
+            // verificare che lo user non sia gia registrato
+            if (serviceEntity.getCustomers().stream().anyMatch(c -> c.getId().equals(request.getUserId()))) {
+                throw new BadRequestException("The user is already registered to this service");
+            }
+
+            // conforntare codice service con codice requeset
+            boolean isMatch = serviceEntity.getCode().equals(request.getServiceCode());
+
+            // se codici corrispondono aggiungere customer a service
+            if (isMatch) {
+                User userToAssign = userService.getById(request.getUserId());
+                serviceEntity.getCustomers().add(userToAssign);
+                userToAssign.getServices().add(serviceEntity);
+
+                serviceRepo.save(serviceEntity);
+            } else {
+                throw new BadRequestException("The service code is not valid for the required service");
+            }
+
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (ServiceNotFoundException e) {
             throw new ServiceNotFoundException(e.getMessage());
         }
