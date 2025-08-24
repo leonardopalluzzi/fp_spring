@@ -3,12 +3,23 @@ package org.finalproject.java.fp_spring.DTOs;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.finalproject.java.fp_spring.Enum.ServiceStatus;
+
 public class CompanyServiceInputDTO {
     private String name;
     private String description;
 
     private Integer serviceTypeId;
     private List<String> ticketTypes = new ArrayList<>();
+    private ServiceStatus status;
+
+    public ServiceStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ServiceStatus status) {
+        this.status = status;
+    }
 
     public String getName() {
         return this.name;

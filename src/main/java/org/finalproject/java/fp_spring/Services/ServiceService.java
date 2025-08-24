@@ -197,6 +197,7 @@ public class ServiceService implements IServiceService {
         }
         service.getTicketTypes().clear();
         service.getTicketTypes().addAll(ticketTypeList);
+        service.setStatus(serviceDto.getStatus());
 
         serviceRepo.save(service);
 
