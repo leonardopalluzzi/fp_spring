@@ -343,12 +343,36 @@ public class UserService implements IUserService {
 
         // se company_admin fai senno no
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
 
-            boolean isRelated = currentUser.getCompany().getServices().stream().anyMatch(s -> s.getOperators().stream()
-                    .anyMatch(o -> o.getId().equals(userId)));
+                boolean isRelated = currentUser.getCompany().getServices().stream()
+                        .anyMatch(s -> s.getOperators().stream()
+                                .anyMatch(o -> o.getId().equals(userId)));
+
+                if (isRelated) {
+                    // creo user a partire dal dto
+                    User userToUpdateEntity = userRepo.findById(userId)
+                            .orElseThrow(() -> new NotFoundException("User Not Found"));
+                    userToUpdateEntity.setUsername(userToUpdateDTO.getUsername());
+                    userToUpdateEntity.setEmail(userToUpdateDTO.getEmail());
+                    String rawPassword = userToUpdateDTO.getPassword();
+                    userToUpdateEntity.setPassword(passwordEncoder.encode(rawPassword));
+
+                    User updatedUser = userRepo.save(userToUpdateEntity);
+
+                    return mapper.toUserDTO(updatedUser);
+                } else {
+                    throw new AccessDeniedException(
+                            "You cannot insert an employee in a service that is not from your company");
+                }
+
+            } else {
+                throw new AccessDeniedException("You don't have permission to excecute this action");
+            }
+        } else if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
+            boolean isRelated = currentUser.getId().equals(userId);
 
             if (isRelated) {
-                // creo user a partire dal dto
                 User userToUpdateEntity = userRepo.findById(userId)
                         .orElseThrow(() -> new NotFoundException("User Not Found"));
                 userToUpdateEntity.setUsername(userToUpdateDTO.getUsername());
@@ -360,13 +384,46 @@ public class UserService implements IUserService {
 
                 return mapper.toUserDTO(updatedUser);
             } else {
-                throw new AccessDeniedException(
-                        "You cannot insert an employee in a service that is not from your company");
+                throw new AccessDeniedException("You don't have the authority to modify this resource");
+            }
+        } else {
+            throw new AccessDeniedException("You don't have the authority to modify this resource");
+        }
+    }
+
+    public void deleteByIdRoleWise(Integer userId, DatabaseUserDetails currentUser)
+            throws UsernameNotFoundException, AccessDeniedException {
+        User user = userRepo.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            boolean isRelated = currentUser.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getOperators().stream().anyMatch(o -> o.getId().equals(userId)));
+
+            if (isRelated) {
+                user.getServices().stream().allMatch(s -> s.getOperators().remove(user));
+
+                userRepo.deleteById(userId);
+
+            } else {
+                throw new AccessDeniedException("You don't have the authority to modify this resource");
             }
 
+        } else if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
+            boolean isRelated = currentUser.getId().equals(userId);
+
+            if (isRelated) {
+
+                user.getCompany().getServices().stream().allMatch(s -> s.getCustomers().remove(user));
+                userRepo.deleteById(userId);
+
+            } else {
+                throw new AccessDeniedException("You don't have the authority to modify this resource");
+
+            }
         } else {
-            throw new AccessDeniedException("You don't have permission to excecute this action");
+            throw new AccessDeniedException("You don't have the authority to modify this resource");
         }
+
     }
 
 }
