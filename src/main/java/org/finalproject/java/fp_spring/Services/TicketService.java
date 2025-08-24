@@ -2,19 +2,15 @@ package org.finalproject.java.fp_spring.Services;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import javax.management.ServiceNotFoundException;
 
-import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
-import org.finalproject.java.fp_spring.Models.Attachment;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketHistory;
@@ -28,7 +24,6 @@ import org.finalproject.java.fp_spring.Repositories.TicketHistroyRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
-import org.finalproject.java.fp_spring.Specifications.TicketsSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

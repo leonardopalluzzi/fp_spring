@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.finalproject.java.fp_spring.Models.Role;
-
 public class UserLightDTO {
 
     private Integer id;

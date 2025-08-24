@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.finalproject.java.fp_spring.Enum.RoleName;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

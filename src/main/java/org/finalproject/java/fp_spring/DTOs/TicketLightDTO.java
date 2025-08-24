@@ -3,7 +3,6 @@ package org.finalproject.java.fp_spring.DTOs;
 import java.time.LocalDateTime;
 
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
-import org.finalproject.java.fp_spring.Models.TicketType;
 
 public class TicketLightDTO {
     private Integer id;

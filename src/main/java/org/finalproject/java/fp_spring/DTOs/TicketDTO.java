@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Models.Attachment;
-import org.finalproject.java.fp_spring.Models.TicketType;
 
 public class TicketDTO {
     private Integer id;

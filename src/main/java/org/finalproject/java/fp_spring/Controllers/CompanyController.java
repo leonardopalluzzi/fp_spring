@@ -2,14 +2,10 @@ package org.finalproject.java.fp_spring.Controllers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.Company;
-import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +82,7 @@ public class CompanyController {
 
         model.addAttribute("isEdit", false);
 
-        List<User> users = new ArrayList();
+        List<User> users = new ArrayList<>();
 
         Company company = new Company();
         model.addAttribute("company", company);
