@@ -13,6 +13,7 @@ import org.finalproject.java.fp_spring.DTOs.RoleDTO;
 import org.finalproject.java.fp_spring.DTOs.RoleLightDTO;
 import org.finalproject.java.fp_spring.DTOs.ServiceTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketHistoryDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketLightDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
@@ -22,6 +23,7 @@ import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.ServiceType;
 import org.finalproject.java.fp_spring.Models.Ticket;
+import org.finalproject.java.fp_spring.Models.TicketHistory;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
@@ -267,5 +269,19 @@ public class MapperService {
         }
 
         return entity;
+    }
+
+    public TicketHistoryDTO toTicketHistoryDTO(TicketHistory entity) {
+        if (entity == null)
+            return null;
+
+        TicketHistoryDTO dto = new TicketHistoryDTO();
+        dto.setId(entity.getId());
+        dto.setChangedAt(entity.getChangedAt());
+        dto.setChangedBy(toUserDTO(entity.getChangedBy()));
+        dto.setNotes(entity.getNotes());
+        dto.setTicket(toTicketDTO(entity.getTicket()));
+
+        return dto;
     }
 }
