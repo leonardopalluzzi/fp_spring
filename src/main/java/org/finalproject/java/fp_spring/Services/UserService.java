@@ -413,7 +413,7 @@ public class UserService implements IUserService {
 
             if (isRelated) {
 
-                user.getCompany().getServices().stream().allMatch(s -> s.getCustomers().remove(user));
+                user.getServices().stream().allMatch(s -> s.getCustomers().remove(user));
                 userRepo.deleteById(userId);
 
             } else {
