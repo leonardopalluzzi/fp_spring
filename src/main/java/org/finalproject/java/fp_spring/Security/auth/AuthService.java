@@ -19,7 +19,7 @@ public class AuthService implements IAuthService {
 
     private DatabaseUserDetailService dbUserService;
 
-    public AuthService(DatabaseUserDetailService userDetailService){
+    public AuthService(DatabaseUserDetailService userDetailService) {
         this.dbUserService = userDetailService;
     }
 
@@ -31,11 +31,11 @@ public class AuthService implements IAuthService {
 
         Optional<User> foundUser = userRepo.findByUsername(user.getUsername());
 
-        if(foundUser.isEmpty()){
+        if (foundUser.isEmpty()) {
             throw new BadCredentialsException("Invalid credential");
         }
 
-        DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
+        DatabaseUserDetails userDTO = new DatabaseUserDetails(foundUser.get());
 
         String token = jwtService.generateToken(userDTO);
 
@@ -50,24 +50,18 @@ public class AuthService implements IAuthService {
 
     @Override
     public String register(User user) {
-       if(userRepo.existsByUsername(user.getUsername())){
-        throw new BadCredentialsException("Username already registered");
-       }
+        if (userRepo.existsByUsername(user.getUsername())) {
+            throw new BadCredentialsException("Username already registered");
+        }
 
-       DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
+        DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
 
-       dbUserService.registerUser(user);
-       String token = jwtService.generateToken(
-            new org.springframework.security.core.userdetails.User(
-                userDTO.getUsername(),
-                userDTO.getPassword(),
-                userDTO.getAuthorities() // or a list of GrantedAuthority
-            )
-        );
+        dbUserService.registerUser(user);
+        String token = jwtService.generateToken(userDTO);
 
         // Optionally, you can return the token or any other information
         // related to the registration process.
-       return token;
+        return token;
     }
 
 }

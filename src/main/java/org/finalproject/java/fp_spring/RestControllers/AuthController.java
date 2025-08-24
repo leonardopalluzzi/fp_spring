@@ -1,5 +1,7 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
+import java.util.Map;
+
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Security.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +23,14 @@ public class AuthController {
 
     // login
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody User user) {
 
         try {
             String token = authService.login(user);
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(Map.of("token", token));
 
         } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
 
     }
