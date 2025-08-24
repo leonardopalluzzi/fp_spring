@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.finalproject.java.fp_spring.DTOs.UserAdminIndexDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
+import org.finalproject.java.fp_spring.DTOs.UserInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.Company;
@@ -49,6 +50,9 @@ public class UserService implements IUserService {
 
     @Autowired
     ServiceRepository serviceRepo;
+
+    @Autowired
+    ServiceService serviceService;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -237,7 +241,7 @@ public class UserService implements IUserService {
         return customersDTO;
     }
 
-    public UserDTO getByIdRoleWise(DatabaseUserDetails user, Integer userId)
+    public UserDTO getAllByIdRoleWise(DatabaseUserDetails user, Integer userId)
             throws AccessDeniedException, NotFoundException {
         boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
         boolean isEmployee = user.getAuthorities()
@@ -287,6 +291,82 @@ public class UserService implements IUserService {
         }
 
         return mapper.toUserDTO(userToSend);
+    }
+
+    public UserDTO save(DatabaseUserDetails currentUser, UserInputDTO newUser, Integer serviceId)
+            throws AccessDeniedException, NotFoundException {
+
+        // se company_admin fai senno no
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            // controllo se admin puo inserire user nel service
+            CompanyService service = serviceRepo.findById(serviceId)
+                    .orElseThrow(() -> new NotFoundException("Service Not Found"));
+
+            boolean isRelated = currentUser.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getId().equals(service.getId()));
+
+            if (isRelated) {
+                // creo user a partire dal dto
+                User newUserEntity = new User();
+                Role employeeRole = roleRepo.findByName(RoleName.COMPANY_USER);
+                Set<Role> rolesToSet = new HashSet<>();
+                rolesToSet.add(employeeRole);
+                newUserEntity.setUsername(newUser.getUsername());
+                newUserEntity.setEmail(newUser.getEmail());
+                newUserEntity.setRoles(rolesToSet);
+
+                // settare service in user e viceversa per persistenza
+                List<CompanyService> services = new ArrayList<>();
+                services.add(service);
+                newUserEntity.getServices().add(service);
+                service.getOperators().add(newUserEntity);
+
+                // cripto password
+                String rawPassword = newUser.getPassword();
+                newUserEntity.setPassword(passwordEncoder.encode(rawPassword));
+
+                // salvare user
+                User savedUser = userRepo.save(newUserEntity);
+                return mapper.toUserDTO(savedUser);
+            } else {
+                throw new AccessDeniedException(
+                        "You cannot insert an employee in a service that is not from your company");
+            }
+
+        } else {
+            throw new AccessDeniedException("You don't have permission to excecute this action");
+        }
+    }
+
+    public UserDTO update(DatabaseUserDetails currentUser, UserInputDTO userToUpdateDTO, Integer userId)
+            throws AccessDeniedException, NotFoundException {
+
+        // se company_admin fai senno no
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+
+            boolean isRelated = currentUser.getCompany().getServices().stream().anyMatch(s -> s.getOperators().stream()
+                    .anyMatch(o -> o.getId().equals(userId)));
+
+            if (isRelated) {
+                // creo user a partire dal dto
+                User userToUpdateEntity = userRepo.findById(userId)
+                        .orElseThrow(() -> new NotFoundException("User Not Found"));
+                userToUpdateEntity.setUsername(userToUpdateDTO.getUsername());
+                userToUpdateEntity.setEmail(userToUpdateDTO.getEmail());
+                String rawPassword = userToUpdateDTO.getPassword();
+                userToUpdateEntity.setPassword(passwordEncoder.encode(rawPassword));
+
+                User updatedUser = userRepo.save(userToUpdateEntity);
+
+                return mapper.toUserDTO(updatedUser);
+            } else {
+                throw new AccessDeniedException(
+                        "You cannot insert an employee in a service that is not from your company");
+            }
+
+        } else {
+            throw new AccessDeniedException("You don't have permission to excecute this action");
+        }
     }
 
 }

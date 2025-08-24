@@ -115,7 +115,7 @@ public class ServiceService implements IServiceService {
             throw new ServiceNotFoundException("Serivce Not Found");
         }
 
-        boolean userHasService = user.getServices().stream()
+        boolean userHasService = user.getCompany().getServices().stream()
                 .anyMatch(s -> s.getId().equals(service.get().getId()));
 
         if (!userHasService) {

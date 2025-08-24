@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,7 +74,7 @@ public class UsersRestController {
                 .getPrincipal();
 
         try {
-            UserDTO user = userService.getByIdRoleWise(currentUser, id);
+            UserDTO user = userService.getAllByIdRoleWise(currentUser, id);
             return ResponseEntity.ok(user);
 
         } catch (AccessDeniedException e) {
@@ -85,7 +86,7 @@ public class UsersRestController {
 
     }
 
-    @PutMapping("/store/{id}")
+    @PostMapping("/store/{id}")
     @PreAuthorize("hasAuthority(RoleName.COMPANY_ADMIN.ToString())")
     public ResponseEntity<?> store(@Valid @RequestBody UserInputDTO user, BindingResult bindingResult,
             @PathVariable("id") Integer serviceId) {
@@ -96,6 +97,35 @@ public class UsersRestController {
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
+        try {
+            UserDTO savedUser = userService.save(currentUser, user, serviceId);
+            return ResponseEntity.ok(savedUser);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody UserInputDTO userToUpdate, BindingResult bindingResult,
+            @PathVariable("id") Integer userId) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There are error is some fields");
+        }
+
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        try {
+            UserDTO savedUser = userService.update(currentUser, userToUpdate, userId);
+            return ResponseEntity.ok(savedUser);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
 }

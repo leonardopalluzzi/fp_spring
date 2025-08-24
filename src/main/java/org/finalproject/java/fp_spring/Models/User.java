@@ -63,7 +63,7 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(mappedBy = "operators", fetch = FetchType.EAGER)
-    private List<CompanyService> services;
+    private List<CompanyService> services = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "company_id") // nome della colonna FK in tabella user
