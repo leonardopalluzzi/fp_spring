@@ -46,7 +46,8 @@ public class TicketsRestController {
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "description", required = false) String description,
             @RequestParam(name = "createdAt", required = false) LocalDateTime createdAt,
-            @RequestParam(name = "page", required = true, defaultValue = "0") Integer page) {
+            @RequestParam(name = "page", required = true, defaultValue = "0") Integer page,
+            @RequestParam(name = "serviceId", required = false) Integer serviceId) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
@@ -63,15 +64,15 @@ public class TicketsRestController {
 
         if (currentUser.getAuthorities().contains(customerRole)) {
             tickets = ticketService.findCustomerTicketsFiltered(currentUser, type, status, title, description,
-                    createdAt, page);
+                    createdAt, page, serviceId);
 
         } else if (currentUser.getAuthorities().contains(employeeRole)) {
             tickets = ticketService.findEmployeeTicketFiltered(currentUser, type, status, title, description,
-                    createdAt, page);
+                    createdAt, page, serviceId);
 
         } else if (currentUser.getAuthorities().contains(companyAdminRole)) {
             tickets = ticketService.findCompanyTicketFiltered(currentUser, type, status, title, description,
-                    createdAt, page);
+                    createdAt, page, serviceId);
         }
 
         return ResponseEntity.ok(tickets);

@@ -18,6 +18,7 @@ import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.AttachmentRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
+import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
@@ -63,8 +64,11 @@ public class TicketService {
     @Autowired
     AttachmentRepository attachmentRepo;
 
+    @Autowired
+    ServiceRepository serviceRepo;
+
     public Page<TicketDTO> findCustomerTicketsFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
-            String title, String description, LocalDateTime createdAt, Integer page) {
+            String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
 
         // prendo i ticket da db gia filtrati per l'utente
         User currentUser = userService.getById(user.getId());
@@ -76,7 +80,8 @@ public class TicketService {
                 .and(hasStatus(status))
                 .and(titleContains(title))
                 .and(descriptionContains(description))
-                .and(createdAfter(createdAt));
+                .and(createdAfter(createdAt))
+                .and(belongsToService(serviceId));
 
         Page<Ticket> ticketsEntity = ticketsRepo.findAll(spec, pagination);
 
@@ -87,7 +92,7 @@ public class TicketService {
     }
 
     public Page<TicketDTO> findEmployeeTicketFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
-            String title, String description, LocalDateTime createdAt, Integer page) {
+            String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
         // prendo tutti i ticket assegnati all'impiegato
         User currentUser = userService.getById(user.getId());
         Pageable pagination = PageRequest.of(page, 10);
@@ -98,7 +103,8 @@ public class TicketService {
                 .and(hasStatus(status))
                 .and(titleContains(title))
                 .and(descriptionContains(description))
-                .and(createdAfter(createdAt));
+                .and(createdAfter(createdAt))
+                .and(belongsToService(serviceId));
 
         Page<Ticket> ticketsEntity = ticketsRepo.findAll(spec, pagination);
 
@@ -109,7 +115,7 @@ public class TicketService {
     }
 
     public Page<TicketDTO> findCompanyTicketFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
-            String title, String description, LocalDateTime createdAt, Integer page) {
+            String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
         // prendo tutti i ticket per la compangia
         User currentUser = userService.getById(user.getId());
         Integer companyId = currentUser.getCompany().getId();
@@ -121,7 +127,8 @@ public class TicketService {
                 .and(hasStatus(status))
                 .and(titleContains(title))
                 .and(descriptionContains(description))
-                .and(createdAfter(createdAt));
+                .and(createdAfter(createdAt))
+                .and(belongsToService(serviceId));
 
         Page<Ticket> ticketsEntity = ticketsRepo.findAll(spec, pagination);
 
@@ -149,27 +156,38 @@ public class TicketService {
 
         Role adminRole = roleRepo.findByName(RoleName.COMPANY_ADMIN);
         Role employeeRole = roleRepo.findByName(RoleName.COMPANY_USER);
-        Role customRole = roleRepo.findByName(RoleName.CLIENT);
+        Role customerRole = roleRepo.findByName(RoleName.CLIENT);
 
         try {
-            // lancia gia lui eccezione per not found
-            CompanyServiceDTO service = serviceService.findById(serviceId, user);
 
-            org.finalproject.java.fp_spring.Models.CompanyService serviceEntity = serviceService.findByIdEntity(
-                    serviceId);
+            org.finalproject.java.fp_spring.Models.CompanyService serviceEntity = serviceRepo.findById(serviceId)
+                    .orElseThrow(() -> new ServiceNotFoundException("Service Not Found"));
 
             Ticket ticketToSave = new Ticket();
 
             // setto le relazioni e le info automatiche in base al ruolo
             if (currentUser.getRoles().contains(adminRole)) {
+                boolean isRelated = user.getCompany().getServices().stream().anyMatch(s -> s.getId().equals(serviceId));
+                if (!isRelated) {
+                    throw new AccessDeniedException("You don't have te authority to access this resource company");
+                }
                 ticketToSave.setAssignedTo(currentUser);
                 ticketToSave.setRequester(currentUser);
 
             } else if (currentUser.getRoles().contains(employeeRole)) {
+                boolean isRelated = serviceEntity.getOperators().stream().anyMatch(o -> o.getId().equals(user.getId()));
+                if (!isRelated) {
+                    throw new AccessDeniedException("You don't have te authority to access this resource employee");
+                }
                 ticketToSave.setAssignedTo(currentUser);
                 ticketToSave.setRequester(currentUser);
 
-            } else if (currentUser.getRoles().contains(customRole)) {
+            } else if (currentUser.getRoles().contains(customerRole)) {
+                boolean isRelated = serviceEntity.getCustomers().stream()
+                        .anyMatch(c -> c.getId().equals(currentUser.getId()));
+                if (!isRelated) {
+                    throw new AccessDeniedException("You don't have te authority to access this resource customer");
+                }
                 ticketToSave.setRequester(currentUser);
             }
 
@@ -186,7 +204,7 @@ public class TicketService {
             ticketToSave.setDescription(ticket.getDescription());
             ticketToSave.setUpdatedAt(LocalDateTime.now());
 
-            // aggiornare ticket history
+            // TODO: aggiornare ticket history
 
             Ticket updatedTicket = ticketsRepo.save(ticketToSave);
 

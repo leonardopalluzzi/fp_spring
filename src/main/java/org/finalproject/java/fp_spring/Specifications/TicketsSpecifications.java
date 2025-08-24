@@ -3,10 +3,13 @@ package org.finalproject.java.fp_spring.Specifications;
 import java.time.LocalDateTime;
 
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
+import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
 import org.springframework.data.jpa.domain.Specification;
+
+import jakarta.persistence.criteria.Join;
 
 public class TicketsSpecifications {
 
@@ -44,6 +47,28 @@ public class TicketsSpecifications {
     public static Specification<Ticket> belongsToCompany(Integer companyId) {
         return (root, query, cb) -> companyId == null ? null
                 : cb.equal(root.get("service").get("company").get("id"), companyId);
+    }
+
+    public static Specification<Ticket> belongsToService(Integer serviceId) {
+        if (serviceId == null) {
+            return Specification.unrestricted();
+        }
+        return (root, query, cb) -> cb.equal(root.get("service").get("id"), serviceId);
+    }
+
+    public static Specification<Ticket> belongsToOperatorService(Integer operatorId) {
+        if (operatorId == null) {
+            return Specification.unrestricted();
+        }
+        return (root, query, cb) -> {
+            Join<Ticket, CompanyService> serviceJoin = root.join("service");
+            Join<CompanyService, User> operatorJoin = serviceJoin.join("operators");
+            return cb.equal(operatorJoin.get("id"), operatorId);
+        };
+    }
+
+    public static Specification<Ticket> hasNoAssignee() {
+        return (root, query, cb) -> cb.isNull(root.get("assignedTo"));
     }
 
 }
