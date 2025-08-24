@@ -91,8 +91,8 @@ public class ServiceManagementService {
             User userEntity = userService.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
 
             // verifico che lo user non e gia nel service
-            if (serviceEntity.getOperators().stream().anyMatch(s -> s.getId().equals(userId))) {
-                throw new BadRequestException("The User is already assigned to this service");
+            if (!serviceEntity.getOperators().stream().anyMatch(s -> s.getId().equals(userId))) {
+                throw new BadRequestException("The User is already removed from this service");
             }
 
             // verifico se richiedente e relazionato al service
@@ -122,9 +122,25 @@ public class ServiceManagementService {
 
     public void detachCustomerFromService(Integer serviceId, Integer userId, DatabaseUserDetails currentUser)
             throws AccessDeniedException, NotFoundException, ServiceNotFoundException {
-        // verifico che userId == currentUser.id
-        if (currentUser.getId() != userId) {
-            throw new AccessDeniedException("You don't have the authority to access this resource");
+
+        boolean isAdmin = currentUser.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
+        boolean isCustomer = currentUser.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
+
+        if (isCustomer) {
+            // verifico che userId == currentUser.id
+            if (currentUser.getId() != userId) {
+                throw new AccessDeniedException("You don't have the authority to access this resource");
+            }
+
+        } else if (isAdmin) {
+            if (!currentUser.getCompany().getServices().stream().anyMatch(s -> s.getId().equals(serviceId))) {
+                throw new AccessDeniedException("You don't have the authority to access this resource");
+            }
+
+        } else {
+            throw new AccessDeniedException("User Not Allowed Here");
         }
 
         try {
@@ -138,7 +154,7 @@ public class ServiceManagementService {
 
             // verifico relazione dal service trovato
             boolean isRelated = serviceEntity.getCustomers().stream()
-                    .anyMatch(c -> c.getId().equals(currentUser.getId()));
+                    .anyMatch(c -> c.getId().equals(userEntity.getId()));
 
             if (isRelated) {
                 // se ok rimuovo user dal service
@@ -148,7 +164,7 @@ public class ServiceManagementService {
                 serviceRepo.save(serviceEntity);
 
             } else {
-                throw new AccessDeniedException("You don't have the authorty to access this resource");
+                throw new AccessDeniedException("You don't have the authority to access this resource");
             }
 
         } catch (AccessDeniedException e) {

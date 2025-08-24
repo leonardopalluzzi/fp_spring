@@ -46,7 +46,7 @@ public class ServiceManagementController {
         }
     }
 
-    @DeleteMapping("{serviceId}/operator/{userId}")
+    @DeleteMapping("/{serviceId}/operator/{userId}")
     public ResponseEntity<?> detachOperatorFromService(@PathVariable("serviceId") Integer serviceId,
             @PathVariable("userId") Integer userId) {
 
