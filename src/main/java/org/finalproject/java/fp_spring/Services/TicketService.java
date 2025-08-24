@@ -2,6 +2,8 @@ package org.finalproject.java.fp_spring.Services;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.management.ServiceNotFoundException;
@@ -12,14 +14,17 @@ import org.finalproject.java.fp_spring.DTOs.TicketInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
+import org.finalproject.java.fp_spring.Models.Attachment;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
+import org.finalproject.java.fp_spring.Models.TicketHistory;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.AttachmentRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
+import org.finalproject.java.fp_spring.Repositories.TicketHistroyRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
@@ -66,6 +71,9 @@ public class TicketService {
 
     @Autowired
     ServiceRepository serviceRepo;
+
+    @Autowired
+    TicketHistroyRepository ticketHistoryRepo;
 
     public Page<TicketDTO> findCustomerTicketsFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
             String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
@@ -204,9 +212,9 @@ public class TicketService {
             ticketToSave.setDescription(ticket.getDescription());
             ticketToSave.setUpdatedAt(LocalDateTime.now());
 
-            // TODO: aggiornare ticket history
-
             Ticket updatedTicket = ticketsRepo.save(ticketToSave);
+            // aggiorna ticket history
+            updateTicketHistory(ticket, updatedTicket, user);
 
             return mapper.toTicketDTO(updatedTicket);
 
@@ -248,7 +256,7 @@ public class TicketService {
         Ticket ticketToUpdate = ticketEntity.get();
 
         ticketToUpdate.setTitle(ticket.getTitle());
-        ticketToUpdate.setAttached(ticket.getAttachments());
+        ticketToUpdate.getAttached().addAll(ticket.getAttachments());
         TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
                 .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
         ticketToUpdate.setType(type);
@@ -260,9 +268,9 @@ public class TicketService {
             throw new NotFoundException("User not found");
         ticketToUpdate.setAssignedTo(assingedTo.get());
 
-        // aggiornare ticket history
-
         Ticket updatedTicket = ticketsRepo.save(ticketToUpdate);
+        // aggiorna ticket history
+        updateTicketHistory(ticket, updatedTicket, user);
 
         return mapper.toTicketDTO(updatedTicket);
 
@@ -296,5 +304,22 @@ public class TicketService {
 
         // elimina direttamente il ticket: JPA si occupa di cascade e orphan removal
         ticketsRepo.delete(ticketToDelete);
+    }
+
+    public void updateTicketHistory(TicketInputDTO ticketDTO, Ticket ticketEntity, DatabaseUserDetails currentUser)
+            throws NotFoundException {
+        TicketHistory ticketHistory = new TicketHistory();
+        User currentUserEntity = userService.findById(currentUser.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        ticketHistory.setChangedAt(currentDate);
+        ticketHistory.setChangedBy(currentUserEntity);
+        ticketHistory.setNotes(ticketDTO.getNotes());
+        ticketHistory.setStatus(ticketDTO.getStatus());
+        ticketHistory.setTicket(ticketEntity);
+
+        ticketHistoryRepo.save(ticketHistory);
+
     }
 }

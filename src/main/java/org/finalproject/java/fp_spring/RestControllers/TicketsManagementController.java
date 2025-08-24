@@ -25,7 +25,7 @@ public class TicketsManagementController {
     @Autowired
     TicketsManagementService ticketsManagementService;
 
-    // get pool di ticket da assengare
+    // get pool di ticket da assengare per servizio (ad uso degli operatori)
     @GetMapping
     public ResponseEntity<?> getPool(
             @RequestParam(name = "type", required = false) TicketType type,

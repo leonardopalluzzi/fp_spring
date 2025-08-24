@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.Models;
 
 import java.time.LocalDateTime;
 
+import org.finalproject.java.fp_spring.DTOs.TicketInputDTO;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.springframework.data.annotation.CreatedDate;
 

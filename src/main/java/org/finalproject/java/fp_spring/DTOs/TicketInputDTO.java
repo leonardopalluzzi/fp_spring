@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.DTOs;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
@@ -9,7 +10,7 @@ import org.finalproject.java.fp_spring.Models.Attachment;
 public class TicketInputDTO {
     private Integer id; // non modificabile
     private String title;
-    private List<Attachment> attachments;
+    private List<Attachment> attachments = new ArrayList<>();
     private UserLightDTO requester; // non modificabile
     private String description;
 
@@ -17,6 +18,15 @@ public class TicketInputDTO {
     private TicketStatus status;
     private LocalDateTime createdAt; // non modificabile
     private Integer assignedToId;
+    private String notes; // per storico
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
     public Integer getAssignedToId() {
         return assignedToId;
