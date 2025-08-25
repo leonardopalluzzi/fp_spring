@@ -2,6 +2,8 @@ package org.finalproject.java.fp_spring.Security.auth;
 
 import java.util.Optional;
 
+import org.finalproject.java.fp_spring.DTOs.UserDTO;
+import org.finalproject.java.fp_spring.DTOs.UserInputDTO;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetailService;
@@ -43,15 +45,16 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public String register(User user) {
-        if (userRepo.existsByUsername(user.getUsername())) {
+    public String register(UserInputDTO userDTO) throws BadCredentialsException {
+        if (userRepo.existsByUsername(userDTO.getUsername())) {
             throw new BadCredentialsException("Username already registered");
         }
 
-        DatabaseUserDetails userDTO = new DatabaseUserDetails(user);
+        User userEntity = new User(userDTO);
+        DatabaseUserDetails userDB = new DatabaseUserDetails(userEntity);
 
-        dbUserService.registerUser(user);
-        String token = jwtService.generateToken(userDTO);
+        dbUserService.registerUser(userEntity);
+        String token = jwtService.generateToken(userDB);
 
         // Optionally, you can return the token or any other information
         // related to the registration process.

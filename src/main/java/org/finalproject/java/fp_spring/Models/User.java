@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.finalproject.java.fp_spring.DTOs.UserInputDTO;
 import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.CascadeType;
@@ -74,6 +75,12 @@ public class User {
 
     public User() {
 
+    }
+
+    public User(UserInputDTO userDTO) {
+        this.username = userDTO.getUsername();
+        this.email = userDTO.getEmail();
+        this.password = userDTO.getPassword();
     }
 
     public List<CompanyService> getCustomerServices() {
