@@ -44,6 +44,7 @@ public class AuthService implements IAuthService {
         return token;
     }
 
+    // ad uso esclusivo dei clienti
     @Override
     public String register(UserInputDTO userDTO) throws BadCredentialsException {
         if (userRepo.existsByUsername(userDTO.getUsername())) {

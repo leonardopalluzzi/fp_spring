@@ -1,8 +1,12 @@
 package org.finalproject.java.fp_spring.Security.config;
 
 import java.util.Optional;
+import java.util.Set;
 
+import org.finalproject.java.fp_spring.Enum.RoleName;
+import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.User;
+import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +24,9 @@ public class DatabaseUserDetailService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    RoleRepository roleRepo;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -34,7 +41,10 @@ public class DatabaseUserDetailService implements UserDetailsService {
 
     public void registerUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
+        Role customerRole = roleRepo.findByName(RoleName.CLIENT);
+        Set<Role> roles = Set.of(customerRole);
         user.setPassword(encodedPassword);
+        user.setRoles(roles);
 
         repo.save(user);
     }
