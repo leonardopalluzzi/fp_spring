@@ -43,12 +43,6 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public void logout(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'logout'");
-    }
-
-    @Override
     public String register(User user) {
         if (userRepo.existsByUsername(user.getUsername())) {
             throw new BadCredentialsException("Username already registered");
