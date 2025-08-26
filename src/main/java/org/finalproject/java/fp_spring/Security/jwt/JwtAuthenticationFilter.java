@@ -3,6 +3,7 @@ package org.finalproject.java.fp_spring.Security.jwt;
 import java.io.IOException;
 
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetailService;
+import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,11 +42,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String username = jwtService.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                DatabaseUserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
+
+                    System.out.println("Authorities: " + userDetails.getAuthorities());
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

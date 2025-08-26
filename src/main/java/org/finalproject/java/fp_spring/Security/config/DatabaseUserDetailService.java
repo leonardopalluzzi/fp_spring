@@ -28,7 +28,7 @@ public class DatabaseUserDetailService implements UserDetailsService {
     RoleRepository roleRepo;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public DatabaseUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<User> user = repo.findByUsername(username);
 
