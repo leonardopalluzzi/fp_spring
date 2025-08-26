@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/v1")
 public class ApiFallBackController {
+
     @RequestMapping("/**")
     public ResponseEntity<?> handleNotFound(HttpServletRequest request) {
         String path = request.getRequestURI();
