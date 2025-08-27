@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.Security.config;
 
 import java.util.List;
 
+import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Security.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,9 +46,9 @@ public class ApiSecurityConfig {
                                 }))
                                 .csrf(csrf -> csrf.disable())
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .authorizeHttpRequests(auth -> auth
+                                .authorizeHttpRequests(auth -> auth 
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
-                                                .anyRequest().authenticated())
+                                                .anyRequest().authenticated()) 
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint((request, response, authException) -> {
                                                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
