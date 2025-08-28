@@ -105,18 +105,28 @@ public class ServiceService implements IServiceService {
             throws AccessDeniedException, ServiceNotFoundException {
         Optional<CompanyService> service = serviceRepo.findById(serviceId);
 
-        GrantedAuthority adminRole = new SimpleGrantedAuthority(roleRepo.findByName(RoleName.COMPANY_ADMIN).toString());
-        GrantedAuthority employeeRole = new SimpleGrantedAuthority(
-                roleRepo.findByName(RoleName.COMPANY_USER).toString());
-        GrantedAuthority customerRole = new SimpleGrantedAuthority(
-                roleRepo.findByName(RoleName.CLIENT).toString());
+        GrantedAuthority adminRole = new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString());
+        GrantedAuthority employeeRole = new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString());
+        GrantedAuthority customerRole = new SimpleGrantedAuthority(RoleName.CLIENT.toString());
 
         if (service.isEmpty()) {
             throw new ServiceNotFoundException("Serivce Not Found");
         }
 
-        boolean userHasService = user.getCompany().getServices().stream()
-                .anyMatch(s -> s.getId().equals(service.get().getId()));
+        boolean userHasService = false;
+
+        if (user.getAuthorities().contains(adminRole)) {
+            userHasService = user.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getId().equals(service.get().getId()));
+        } else if (user.getAuthorities().contains(employeeRole)) {
+            userHasService = user.getServices().stream()
+                    .anyMatch(s -> s.getId().equals(service.get().getId()));
+        } else if (user.getAuthorities().contains(customerRole)) {
+            userHasService = service.get().getCustomers().stream().anyMatch(c -> c.getId().equals(user.getId()));
+
+        } else {
+            throw new AccessDeniedException("User not authenticated");
+        }
 
         if (!userHasService) {
             throw new AccessDeniedException("The current user is not registered to this service");
