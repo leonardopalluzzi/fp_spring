@@ -92,10 +92,27 @@ public class ServiceService implements IServiceService {
     }
 
     public List<CompanyServiceDTO> getAllFromUser(DatabaseUserDetails user) {
+
+        boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
+        boolean isEmployee = user.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()));
+        boolean isCustomer = user.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
         List<CompanyServiceDTO> services = new ArrayList<>();
 
-        for (CompanyService companyService : user.getServices()) {
-            services.add(mapper.toCompanyServiceDTO(companyService));
+        if (isAdmin) {
+            for (CompanyService companyService : user.getCompany().getServices()) {
+                services.add(mapper.toCompanyServiceDTO(companyService));
+            }
+        } else if (isEmployee) {
+            for (CompanyService companyService : user.getServices()) {
+                services.add(mapper.toCompanyServiceDTO(companyService));
+            }
+        } else if (isCustomer) {
+            List<CompanyService> servicesEntity = serviceRepo.findByCustomers_id(user.getId());
+            for (CompanyService entity : servicesEntity) {
+                services.add(mapper.toCompanyServiceDTO(entity));
+            }
         }
 
         return services;

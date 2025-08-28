@@ -17,7 +17,7 @@ public class CompanyServiceDTO {
     private ServiceStatus status = ServiceStatus.INACTIVE;
     private LocalDateTime createdAt;
     private List<TicketLightDTO> tickets = new ArrayList<>();
-    private List<TicketType> ticketTypes = new ArrayList<>();
+    private List<TicketTypeDTO> ticketTypes = new ArrayList<>();
     private List<UserLightDTO> customers;
     private List<UserLightDTO> operators;
 
@@ -85,11 +85,11 @@ public class CompanyServiceDTO {
         this.tickets = tickets;
     }
 
-    public List<TicketType> getTicketTypes() {
+    public List<TicketTypeDTO> getTicketTypes() {
         return this.ticketTypes;
     }
 
-    public void setTicketTypes(List<TicketType> ticketTypes) {
+    public void setTicketTypes(List<TicketTypeDTO> ticketTypes) {
         this.ticketTypes = ticketTypes;
     }
 

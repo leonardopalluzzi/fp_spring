@@ -79,7 +79,11 @@ public class MapperService {
         if (entity.getTickets() != null) {
             dto.setTickets(entity.getTickets().stream().map(this::toTicketLightDTO).toList());
         }
-        dto.setTicketTypes(entity.getTicketTypes());
+        List<TicketTypeDTO> ttDTO = new ArrayList<>();
+        for (TicketType ttEntity : entity.getTicketTypes()) {
+            ttDTO.add(toTicketTypeDTO(ttEntity));
+        }
+        dto.setTicketTypes(ttDTO);
         if (entity.getOperators() != null) {
             dto.setOperators(entity.getOperators().stream().map(this::toUserLightDTO).toList());
         }
