@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.DTOs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
 
@@ -10,7 +11,7 @@ public class CompanyServiceInputDTO {
     private String description;
 
     private Integer serviceTypeId;
-    private List<String> ticketTypes = new ArrayList<>();
+    private List<Map<String, String>> ticketTypes = new ArrayList<>();
     private ServiceStatus status;
 
     public ServiceStatus getStatus() {
@@ -45,11 +46,11 @@ public class CompanyServiceInputDTO {
         this.serviceTypeId = serviceTypeId;
     }
 
-    public List<String> getTicketType() {
+    public List<Map<String, String>> getTicketTypes() {
         return this.ticketTypes;
     }
 
-    public void setTicketType(List<String> ticketTypes) {
+    public void setTicketTypes(List<Map<String, String>> ticketTypes) {
         this.ticketTypes = ticketTypes;
     }
 

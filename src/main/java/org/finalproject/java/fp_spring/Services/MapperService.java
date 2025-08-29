@@ -3,6 +3,7 @@ package org.finalproject.java.fp_spring.Services;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyDTO;
@@ -262,11 +263,11 @@ public class MapperService {
             entity.setServiceType(serviceType);
         }
 
-        if (dto.getTicketType() != null && !dto.getTicketType().isEmpty()) {
+        if (dto.getTicketTypes() != null && !dto.getTicketTypes().isEmpty()) {
             List<TicketType> tickets = new ArrayList<>();
-            for (String ticketTypeDTO : dto.getTicketType()) {
+            for (Map<String, String> ticketTypeDTO : dto.getTicketTypes()) {
                 TicketType ticketType = new TicketType();
-                ticketType.setName(ticketTypeDTO);
+                ticketType.setName(ticketTypeDTO.get("name"));
                 tickets.add(ticketType);
             }
             entity.setTicketTypes(tickets);

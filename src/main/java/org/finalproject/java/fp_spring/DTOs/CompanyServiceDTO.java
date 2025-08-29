@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
-import org.finalproject.java.fp_spring.Models.TicketType;
 
 public class CompanyServiceDTO {
     private Integer id;

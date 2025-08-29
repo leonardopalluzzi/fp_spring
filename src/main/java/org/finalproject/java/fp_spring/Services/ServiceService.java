@@ -3,6 +3,7 @@ package org.finalproject.java.fp_spring.Services;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -185,10 +186,10 @@ public class ServiceService implements IServiceService {
         serviceEntity.setCompany(user.getCompany());
         serviceEntity.setStatus(ServiceStatus.INACTIVE);
 
-        List<TicketType> ticketTypes = service.getTicketType().stream()
+        List<TicketType> ticketTypes = service.getTicketTypes().stream()
                 .map(ticketTypeName -> {
                     TicketType t = new TicketType();
-                    t.setName(ticketTypeName);
+                    t.setName(ticketTypeName.get("name"));
                     t.setService(serviceEntity);
                     return t;
                 })
@@ -218,10 +219,10 @@ public class ServiceService implements IServiceService {
         service.setDescription(serviceDto.getDescription());
         service.setServiceType(serviceTypeRepo.findById(serviceDto.getServiceTypeId()).get());
         List<TicketType> ticketTypeList = new ArrayList<>();
-        for (String ticketTypeDTO : serviceDto.getTicketType()) {
+        for (Map<String, String> ticketTypeDTO : serviceDto.getTicketTypes()) {
 
             TicketType ticketType = new TicketType();
-            ticketType.setName(ticketTypeDTO);
+            ticketType.setName(ticketTypeDTO.get("name"));
             ticketType.setService(service);
             ticketTypeList.add(ticketType);
         }
