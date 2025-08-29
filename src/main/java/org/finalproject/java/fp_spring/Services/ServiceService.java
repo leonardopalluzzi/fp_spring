@@ -173,6 +173,7 @@ public class ServiceService implements IServiceService {
         return service.get();
     }
 
+    @Transactional
     public CompanyServiceDTO store(CompanyServiceInputDTO service, DatabaseUserDetails user)
             throws IllegalArgumentException {
 
@@ -183,16 +184,18 @@ public class ServiceService implements IServiceService {
         serviceEntity.setCode(generateServiceCode());
         serviceEntity.setCompany(user.getCompany());
         serviceEntity.setStatus(ServiceStatus.INACTIVE);
-        List<TicketType> ticketTypeList = new ArrayList<>();
-        for (String ticketTypeDTO : service.getTicketType()) {
 
-            TicketType ticketType = new TicketType();
-            ticketType.setName(ticketTypeDTO);
-            ticketType.setService(serviceEntity);
-            ticketTypeList.add(ticketType);
-        }
+        List<TicketType> ticketTypes = service.getTicketType().stream()
+                .map(ticketTypeName -> {
+                    TicketType t = new TicketType();
+                    t.setName(ticketTypeName);
+                    t.setService(serviceEntity);
+                    return t;
+                })
+                .toList();
+
         serviceEntity.getTicketTypes().clear();
-        serviceEntity.getTicketTypes().addAll(ticketTypeList);
+        serviceEntity.getTicketTypes().addAll(ticketTypes);
 
         // salvare in db
         CompanyService saved = serviceRepo.save(serviceEntity);
