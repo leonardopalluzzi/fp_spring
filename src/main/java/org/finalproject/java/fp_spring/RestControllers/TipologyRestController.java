@@ -25,7 +25,7 @@ public class TipologyRestController {
     MapperService mapper;
 
     @GetMapping("/servicetypes")
-    @PreAuthorize("hasAuthority('COMPANY_ADMIN', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('COMPANY_ADMIN', 'ADMIN')")
     public ResponseEntity<?> getServiceTypes() {
         List<ServiceType> serviceTypes = serviceTypeRepo.findAll();
         List<ServiceTypeDTO> serviceTypesDTO = new ArrayList<>();
