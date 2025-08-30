@@ -17,6 +17,15 @@ public class TicketDTO {
     private TicketStatus status;
     private LocalDateTime createdAt;
     private UserLightDTO assignedTo;
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String desctiption) {
+        this.description = desctiption;
+    }
 
     public UserLightDTO getAssignedTo() {
         return assignedTo;

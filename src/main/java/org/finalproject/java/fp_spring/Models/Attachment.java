@@ -1,5 +1,8 @@
 package org.finalproject.java.fp_spring.Models;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +21,7 @@ public class Attachment {
 
     @ManyToOne
     @JoinColumn(name = "ticket_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Ticket ticket;
 
     @NotBlank

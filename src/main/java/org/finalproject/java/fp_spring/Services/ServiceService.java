@@ -21,6 +21,7 @@ import org.finalproject.java.fp_spring.Models.Role;
 import org.hibernate.event.internal.DefaultPersistEventListener;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
+import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
@@ -34,6 +35,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class ServiceService implements IServiceService {
@@ -58,6 +62,9 @@ public class ServiceService implements IServiceService {
 
     @Autowired
     TicketsRepository ticketRepo;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public String generateServiceCode() {
@@ -252,24 +259,25 @@ public class ServiceService implements IServiceService {
         CompanyService serviceToDelete = serviceRepo.findById(id)
                 .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
 
+        // rimuovo operators
+        for (User operator : new ArrayList<>(serviceToDelete.getOperators())) {
+            operator.getServices().remove(serviceToDelete);
+        }
         serviceToDelete.getOperators().clear();
+
+        for (User customer : new ArrayList<>(serviceToDelete.getCustomers())) {
+            customer.getCustomerServices().remove(serviceToDelete);
+        }
         serviceToDelete.getCustomers().clear();
 
-        // cancella ticket attachments prima di cancellare i ticket
-        for (Ticket ticket : serviceToDelete.getTickets()) {
-            ticket.getAttachments().clear(); // se ci sono attachments
-            ticketRepo.delete(ticket);
-        }
+        serviceToDelete.getTicketTypes().clear();
         serviceToDelete.getTickets().clear();
 
-        // cancella ticket types
-        for (TicketType type : serviceToDelete.getTicketTypes()) {
-            type.getTickets().clear();
-            ticketTypeRepo.delete(type);
-        }
-        serviceToDelete.getTicketTypes().clear();
-
         serviceRepo.delete(serviceToDelete);
+
+        em.flush();
+        em.clear();
+
     }
 
     public Optional<CompanyService> findByTicketsContaining(Ticket ticket) {

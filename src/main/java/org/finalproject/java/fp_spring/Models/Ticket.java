@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -34,6 +36,7 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private CompanyService service;
 
     @ManyToOne
