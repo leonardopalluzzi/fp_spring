@@ -7,9 +7,11 @@ import java.util.Map;
 import org.finalproject.java.fp_spring.DTOs.ServiceTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
+import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.ServiceType;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
+import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
@@ -34,6 +36,9 @@ public class TipologyRestController {
     TicketTypeRepository ticketTypeRepo;
 
     @Autowired
+    ServiceRepository serviceRepo;
+
+    @Autowired
     TicketsRepository ticketsRepo;
 
     @Autowired
@@ -55,12 +60,13 @@ public class TipologyRestController {
     }
 
     @GetMapping("/tickettypes/{id}")
-    public ResponseEntity<?> getTicketTypes(@PathVariable("id") Integer ticketId) {
+    public ResponseEntity<?> getTicketTypes(@PathVariable("id") Integer serviceId) {
 
         try {
-            Ticket ticket = ticketsRepo.findById(ticketId).orElseThrow(() -> new NotFoundException("TicketNotFound"));
+            CompanyService service = serviceRepo.findById(serviceId)
+                    .orElseThrow(() -> new NotFoundException("Service Not Found"));
 
-            List<TicketType> ticketTypesEntity = ticket.getService().getTicketTypes();
+            List<TicketType> ticketTypesEntity = service.getTicketTypes();
             List<TicketTypeDTO> ticketTypes = new ArrayList<>();
 
             for (TicketType entity : ticketTypesEntity) {
@@ -73,7 +79,5 @@ public class TipologyRestController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Not Found", "message", e.getMessage()));
         }
-
     }
-
 }

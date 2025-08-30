@@ -40,7 +40,7 @@ public class UsersRestController {
     @GetMapping
     public ResponseEntity<?> index(@RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "email", required = false) String email,
-            @RequestParam(name = "page", required = false) int page) {
+            @RequestParam(name = "page", required = false) Integer page) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
