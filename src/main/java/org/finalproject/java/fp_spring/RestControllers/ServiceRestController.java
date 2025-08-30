@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.ServiceNotFoundException;
 
@@ -110,7 +111,8 @@ public class ServiceRestController {
 
         try {
             serviceService.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "Item deleted correctly", "status", "OK"));
 
         } catch (ServiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

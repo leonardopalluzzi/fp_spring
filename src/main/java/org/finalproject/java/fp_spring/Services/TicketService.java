@@ -199,7 +199,7 @@ public class TicketService {
 
             // info che arrivano dall'input dto
             ticketToSave.setTitle(ticket.getTitle());
-            ticketToSave.setAttached(ticket.getAttachments());
+            ticketToSave.setAttachments(ticket.getAttachments());
             TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
                     .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
             ticketToSave.setType(type);
@@ -251,7 +251,7 @@ public class TicketService {
         Ticket ticketToUpdate = ticketEntity.get();
 
         ticketToUpdate.setTitle(ticket.getTitle());
-        ticketToUpdate.getAttached().addAll(ticket.getAttachments());
+        ticketToUpdate.getAttachments().addAll(ticket.getAttachments());
         TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
                 .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
         ticketToUpdate.setType(type);

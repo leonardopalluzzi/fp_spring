@@ -15,14 +15,18 @@ import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
+import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
+import org.hibernate.event.internal.DefaultPersistEventListener;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
+import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
+import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.Interfaces.IServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +52,12 @@ public class ServiceService implements IServiceService {
 
     @Autowired
     TicketTypeRepository ticketTypeRepo;
+
+    @Autowired
+    CompanyRepository companyRepo;
+
+    @Autowired
+    TicketsRepository ticketRepo;
 
     @Override
     public String generateServiceCode() {
@@ -92,6 +102,7 @@ public class ServiceService implements IServiceService {
         return services;
     }
 
+    @Transactional
     public List<CompanyServiceDTO> getAllFromUser(DatabaseUserDetails user) {
 
         boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
@@ -236,12 +247,29 @@ public class ServiceService implements IServiceService {
 
     }
 
+    @Transactional
     public void deleteById(Integer id) throws ServiceNotFoundException {
-        Optional<CompanyService> serviceToDelete = serviceRepo.findById(id);
-        if (serviceToDelete.isEmpty()) {
-            throw new ServiceNotFoundException("Service not found");
+        CompanyService serviceToDelete = serviceRepo.findById(id)
+                .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
+
+        serviceToDelete.getOperators().clear();
+        serviceToDelete.getCustomers().clear();
+
+        // cancella ticket attachments prima di cancellare i ticket
+        for (Ticket ticket : serviceToDelete.getTickets()) {
+            ticket.getAttachments().clear(); // se ci sono attachments
+            ticketRepo.delete(ticket);
         }
-        serviceRepo.delete(serviceToDelete.get());
+        serviceToDelete.getTickets().clear();
+
+        // cancella ticket types
+        for (TicketType type : serviceToDelete.getTicketTypes()) {
+            type.getTickets().clear();
+            ticketTypeRepo.delete(type);
+        }
+        serviceToDelete.getTicketTypes().clear();
+
+        serviceRepo.delete(serviceToDelete);
     }
 
     public Optional<CompanyService> findByTicketsContaining(Ticket ticket) {

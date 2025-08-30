@@ -147,7 +147,7 @@ public class MapperService {
         TicketDTO dto = new TicketDTO();
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
-        dto.setAttachments(entity.getAttached());
+        dto.setAttachments(entity.getAttachments());
         dto.setService(toCompanyServiceLightDTO(entity.getService()));
         dto.setRequester(toUserLightDTO(entity.getRequester()));
         dto.setType(toTicketTypeDTO(entity.getType()));
