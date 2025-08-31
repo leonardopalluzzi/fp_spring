@@ -115,4 +115,32 @@ public class TicketsManagementService {
         return ticketHistoryDTOPaged;
     }
 
+    public void assignTicketToOperator(Integer operatorId, Integer ticketId, DatabaseUserDetails currentUser)
+            throws AccessDeniedException, NotFoundException {
+
+        boolean hasAuthority = false;
+
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            hasAuthority = currentUser.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketId)));
+        } else if (currentUser.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
+            hasAuthority = currentUser.getServices().stream()
+                    .anyMatch(s -> s.getOperators().stream().anyMatch(o -> o.getId().equals(operatorId)));
+        } else {
+            throw new AccessDeniedException("You don't have the authority to complete this operation");
+        }
+
+        if (hasAuthority) {
+            User operator = userSerivice.getById(operatorId);
+            Ticket ticket = ticketRepo.findById(ticketId).orElseThrow(() -> new NotFoundException("Ticket Not Found"));
+
+            operator.getAdminTickets().add(ticket);
+            ticket.setAssignedTo(operator);
+
+        } else {
+            throw new AccessDeniedException("You don't have the authority to complete this operation");
+        }
+    }
+
 }

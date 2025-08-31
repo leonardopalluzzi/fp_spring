@@ -42,7 +42,8 @@ public class UsersRestController {
     @GetMapping
     public ResponseEntity<?> index(@RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "email", required = false) String email,
-            @RequestParam(name = "page", required = false) Integer page) {
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "role", required = false) String role) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
@@ -56,14 +57,14 @@ public class UsersRestController {
 
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
             // meotodo per lista user admin con dto
-            UserAdminIndexDTO allUsers = userService.getAllForAdminFiltered(currentUser, username, email, page);
+            UserAdminIndexDTO allUsers = userService.getAllForAdminFiltered(currentUser, username, email, page, role);
 
             return ResponseEntity.ok(allUsers);
 
         } else if (currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
             // dto per lista users impiegato
-            Page<UserDTO> customers = userService.getAllForEmployeeFiltered(currentUser, username, email, page);
+            Page<UserDTO> customers = userService.getAllForEmployeeFiltered(currentUser, username, email, page, role);
 
             return ResponseEntity.ok(customers);
         } else {
@@ -95,7 +96,7 @@ public class UsersRestController {
     }
 
     @PostMapping("/store/{id}")
-    @PreAuthorize("hasAuthority(RoleName.COMPANY_ADMIN.ToString())")
+    @PreAuthorize("hasAuthority('COMPANY_ADMIN')")
     public ResponseEntity<?> store(@Valid @RequestBody UserInputDTO user, BindingResult bindingResult,
             @PathVariable("id") Integer serviceId) {
         if (bindingResult.hasErrors()) {

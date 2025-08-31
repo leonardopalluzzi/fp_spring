@@ -129,8 +129,9 @@ public class UserService implements IUserService {
         return user;
     }
 
-    public List<User> getOperatorsByService(Integer serviceId) {
-        CompanyService service = serviceRepo.findById(serviceId).get();
+    public List<User> getOperatorsByService(Integer serviceId) throws NotFoundException {
+        CompanyService service = serviceRepo.findById(serviceId)
+                .orElseThrow(() -> new NotFoundException("Service Not Found"));
         List<User> employees = service.getOperators();
 
         return employees;
@@ -172,13 +173,14 @@ public class UserService implements IUserService {
     }
 
     public UserAdminIndexDTO getAllForAdminFiltered(DatabaseUserDetails user, String username, String email,
-            int page) {
+            int page, String role) {
 
         Integer companyId = user.getCompany().getId();
         Pageable pagination = PageRequest.of(page, 10);
         Specification<User> spec = Specification.<User>unrestricted()
                 .and(usernameContains(username))
-                .and(emailContains(email));
+                .and(emailContains(email))
+                .and(roleContains(role));
 
         UserAdminIndexDTO usersLists = new UserAdminIndexDTO();
 
@@ -220,11 +222,12 @@ public class UserService implements IUserService {
     }
 
     public Page<UserDTO> getAllForEmployeeFiltered(DatabaseUserDetails user, String username, String email,
-            int page) {
+            int page, String role) {
 
         Specification<User> sepc = Specification.<User>unrestricted()
                 .and(usernameContains(username))
-                .and(emailContains(email));
+                .and(emailContains(email))
+                .and(roleContains(role));
         Pageable pagination = PageRequest.of(page, 10);
         Integer operatorId = user.getId();
 

@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketHistoryDTO;
@@ -18,9 +19,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.jsonwebtoken.JwtException;
 
 @RestController
 @RequestMapping("/api/v1/tickets/manage")
@@ -79,6 +83,28 @@ public class TicketsManagementController {
     }
 
     // riassegna ticket
+    @PutMapping("/assign/{operatorId}/ticket/{ticketId}")
+    public ResponseEntity<?> assignTicketToOperator(@PathVariable("operatorId") Integer operatorId,
+            @PathVariable("ticketId") Integer ticketId) {
+
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        try {
+            ticketsManagementService.assignTicketToOperator(operatorId, ticketId, currentUser);
+            return ResponseEntity.ok(Map.of("state", "success", "message", "Operator assigned correctly"));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("expired", "error", "message", e.getMessage()));
+        }
+
+    }
 
     // update storico / inserisci note
 
