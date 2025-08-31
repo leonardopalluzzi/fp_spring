@@ -343,31 +343,27 @@ public class UserService implements IUserService {
 
         // se company_admin fai senno no
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
-            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            boolean isRelated = currentUser.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getOperators().stream()
+                            .anyMatch(o -> o.getId().equals(userId)));
 
-                boolean isRelated = currentUser.getCompany().getServices().stream()
-                        .anyMatch(s -> s.getOperators().stream()
-                                .anyMatch(o -> o.getId().equals(userId)));
-
-                if (isRelated) {
-                    // creo user a partire dal dto
-                    User userToUpdateEntity = userRepo.findById(userId)
-                            .orElseThrow(() -> new NotFoundException("User Not Found"));
-                    userToUpdateEntity.setUsername(userToUpdateDTO.getUsername());
-                    userToUpdateEntity.setEmail(userToUpdateDTO.getEmail());
-                    String rawPassword = userToUpdateDTO.getPassword();
+            if (isRelated) {
+                // creo user a partire dal dto
+                User userToUpdateEntity = userRepo.findById(userId)
+                        .orElseThrow(() -> new NotFoundException("User Not Found"));
+                userToUpdateEntity.setUsername(userToUpdateDTO.getUsername());
+                userToUpdateEntity.setEmail(userToUpdateDTO.getEmail());
+                String rawPassword = userToUpdateDTO.getPassword();
+                if (userToUpdateDTO.getPassword() != "") {
                     userToUpdateEntity.setPassword(passwordEncoder.encode(rawPassword));
-
-                    User updatedUser = userRepo.save(userToUpdateEntity);
-
-                    return mapper.toUserDTO(updatedUser);
-                } else {
-                    throw new AccessDeniedException(
-                            "You cannot insert an employee in a service that is not from your company");
                 }
 
+                User updatedUser = userRepo.save(userToUpdateEntity);
+
+                return mapper.toUserDTO(updatedUser);
             } else {
-                throw new AccessDeniedException("You don't have permission to excecute this action");
+                throw new AccessDeniedException(
+                        "You cannot insert an employee in a service that is not from your company");
             }
         } else if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
             boolean isRelated = currentUser.getId().equals(userId);

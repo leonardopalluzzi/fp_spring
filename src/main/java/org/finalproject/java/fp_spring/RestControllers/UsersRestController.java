@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Map;
 
 import org.finalproject.java.fp_spring.DTOs.UserAdminIndexDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -66,7 +68,7 @@ public class UsersRestController {
             return ResponseEntity.ok(customers);
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You don't have permission to access this resource");
+                    .body(Map.of("state", "error", "message", "You don't have permsission to access this resource"));
         }
     }
 
@@ -80,10 +82,14 @@ public class UsersRestController {
             return ResponseEntity.ok(user);
 
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("expired", "error", "message", e.getMessage()));
         }
 
     }
@@ -103,9 +109,14 @@ public class UsersRestController {
             UserDTO savedUser = userService.save(currentUser, user, serviceId);
             return ResponseEntity.ok(savedUser);
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("expired", "error", "message", e.getMessage()));
         }
 
     }
@@ -124,9 +135,14 @@ public class UsersRestController {
             UserDTO savedUser = userService.update(currentUser, userToUpdate, userId);
             return ResponseEntity.ok(savedUser);
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("expired", "error", "message", e.getMessage()));
         }
     }
 
@@ -141,9 +157,14 @@ public class UsersRestController {
 
             return ResponseEntity.ok(null);
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("expired", "error", "message", e.getMessage()));
         }
 
     }
