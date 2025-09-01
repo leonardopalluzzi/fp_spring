@@ -41,8 +41,8 @@ public class TicketsManagementController {
     // get pool di ticket da assengare per servizio (ad uso degli operatori)
     @GetMapping
     public ResponseEntity<?> getPool(
-            @RequestParam(name = "type", required = false) TicketType type,
-            @RequestParam(name = "status", required = false) TicketStatus status,
+            @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "description", required = false) String description,
             @RequestParam(name = "createdAt", required = false) LocalDateTime createdAt,

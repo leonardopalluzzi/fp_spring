@@ -45,7 +45,7 @@ public class TicketsManagementService {
     @Autowired
     MapperService mapper;
 
-    public Page<TicketDTO> getOperatorPool(DatabaseUserDetails currentUser, TicketType type, TicketStatus status,
+    public Page<TicketDTO> getOperatorPool(DatabaseUserDetails currentUser, String type, String status,
             String title,
             String description,
             LocalDateTime createdAt, Integer page, Integer serviceId) throws UsernameNotFoundException {

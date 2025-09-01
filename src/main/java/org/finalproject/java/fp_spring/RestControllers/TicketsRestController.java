@@ -8,6 +8,7 @@ import javax.management.ServiceNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketInputDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketLightInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
@@ -16,6 +17,7 @@ import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,11 +46,11 @@ public class TicketsRestController {
 
     @GetMapping
     public ResponseEntity<?> index(
-            @RequestParam(name = "type", required = false) TicketType type,
-            @RequestParam(name = "status", required = false) TicketStatus status,
+            @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "description", required = false) String description,
-            @RequestParam(name = "createdAt", required = false) LocalDateTime createdAt,
+            @RequestParam(name = "createdAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAt,
             @RequestParam(name = "page", required = true, defaultValue = "0") Integer page,
             @RequestParam(name = "serviceId", required = false) Integer serviceId) {
 
@@ -131,7 +133,7 @@ public class TicketsRestController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> update(@Valid @RequestBody TicketInputDTO ticket) {
+    public ResponseEntity<?> update(@Valid @RequestBody TicketLightInputDTO ticket) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();

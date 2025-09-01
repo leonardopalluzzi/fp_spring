@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Ticket;
-import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -13,11 +12,11 @@ import jakarta.persistence.criteria.Join;
 
 public class TicketsSpecifications {
 
-    public static Specification<Ticket> hasType(TicketType type) {
-        return (root, query, cb) -> type == null ? null : cb.equal(root.get("type"), type);
+    public static Specification<Ticket> hasType(String type) {
+        return (root, query, cb) -> type == null ? null : cb.equal(root.get("type").get("name"), type);
     }
 
-    public static Specification<Ticket> hasStatus(TicketStatus status) {
+    public static Specification<Ticket> hasStatus(String status) {
         return (root, query, cb) -> status == null ? null : cb.equal(root.get("status"), status);
     }
 

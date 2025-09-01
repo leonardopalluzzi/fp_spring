@@ -8,6 +8,7 @@ import javax.management.ServiceNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketInputDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketLightInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
@@ -70,7 +71,7 @@ public class TicketService {
     @Autowired
     TicketHistroyRepository ticketHistoryRepo;
 
-    public Page<TicketDTO> findCustomerTicketsFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
+    public Page<TicketDTO> findCustomerTicketsFiltered(DatabaseUserDetails user, String type, String status,
             String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
 
         // prendo i ticket da db gia filtrati per l'utente
@@ -94,7 +95,7 @@ public class TicketService {
 
     }
 
-    public Page<TicketDTO> findEmployeeTicketFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
+    public Page<TicketDTO> findEmployeeTicketFiltered(DatabaseUserDetails user, String type, String status,
             String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
         // prendo tutti i ticket assegnati all'impiegato
         User currentUser = userService.getById(user.getId());
@@ -117,7 +118,7 @@ public class TicketService {
 
     }
 
-    public Page<TicketDTO> findCompanyTicketFiltered(DatabaseUserDetails user, TicketType type, TicketStatus status,
+    public Page<TicketDTO> findCompanyTicketFiltered(DatabaseUserDetails user, String type, String status,
             String title, String description, LocalDateTime createdAt, Integer page, Integer serviceId) {
         // prendo tutti i ticket per la compangia
         User currentUser = userService.getById(user.getId());
@@ -220,7 +221,7 @@ public class TicketService {
         }
     }
 
-    public TicketDTO update(TicketInputDTO ticket, DatabaseUserDetails user)
+    public TicketDTO update(TicketLightInputDTO ticket, DatabaseUserDetails user)
             throws NotFoundException, AccessDeniedException {
         User currentUser = userService.getById(user.getId());
 
@@ -251,21 +252,17 @@ public class TicketService {
         Ticket ticketToUpdate = ticketEntity.get();
 
         ticketToUpdate.setTitle(ticket.getTitle());
-        ticketToUpdate.getAttachments().addAll(ticket.getAttachments());
+        ticketToUpdate.getAttachments().addAll(ticket.getAttachment());
         TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
                 .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
         ticketToUpdate.setType(type);
-        ticketToUpdate.setStatus(ticket.getStatus());
         ticketToUpdate.setDescription(ticket.getDescription());
         ticketToUpdate.setUpdatedAt(LocalDateTime.now());
-        Optional<User> assingedTo = userService.findById(ticket.getAssignedToId());
-        if (assingedTo.isEmpty())
-            throw new NotFoundException("User not found");
-        ticketToUpdate.setAssignedTo(assingedTo.get());
 
         Ticket updatedTicket = ticketsRepo.save(ticketToUpdate);
+        TicketDTO ticketDTO = mapper.toTicketDTO(updatedTicket);
         // aggiorna ticket history
-        updateTicketHistory(ticket, updatedTicket, user);
+        updateTicketHistory(ticketDTO, updatedTicket, user);
 
         return mapper.toTicketDTO(updatedTicket);
 
@@ -311,6 +308,23 @@ public class TicketService {
         ticketHistory.setChangedAt(currentDate);
         ticketHistory.setChangedBy(currentUserEntity);
         ticketHistory.setNotes(ticketDTO.getNotes());
+        ticketHistory.setStatus(ticketDTO.getStatus());
+        ticketHistory.setTicket(ticketEntity);
+
+        ticketHistoryRepo.save(ticketHistory);
+
+    }
+
+    public void updateTicketHistory(TicketDTO ticketDTO, Ticket ticketEntity, DatabaseUserDetails currentUser)
+            throws NotFoundException {
+        TicketHistory ticketHistory = new TicketHistory();
+        User currentUserEntity = userService.findById(currentUser.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        ticketHistory.setChangedAt(currentDate);
+        ticketHistory.setChangedBy(currentUserEntity);
+        ticketHistory.setNotes("Admin changed the ticket basic infos");
         ticketHistory.setStatus(ticketDTO.getStatus());
         ticketHistory.setTicket(ticketEntity);
 
