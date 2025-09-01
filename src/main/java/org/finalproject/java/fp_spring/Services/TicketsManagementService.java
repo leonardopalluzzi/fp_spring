@@ -132,11 +132,19 @@ public class TicketsManagementService {
         }
 
         if (hasAuthority) {
+            
             User operator = userSerivice.getById(operatorId);
             Ticket ticket = ticketRepo.findById(ticketId).orElseThrow(() -> new NotFoundException("Ticket Not Found"));
 
+            //controllo se il ticket è gia assegnato a qualcuno ed in quel caso tolgo il ticket dall'operatore
+            if(ticket.getAssignedTo() != null){
+                ticket.setAssignedTo(null);
+            }
+
             operator.getAdminTickets().add(ticket);
             ticket.setAssignedTo(operator);
+
+            ticketRepo.save(ticket);
 
         } else {
             throw new AccessDeniedException("You don't have the authority to complete this operation");
