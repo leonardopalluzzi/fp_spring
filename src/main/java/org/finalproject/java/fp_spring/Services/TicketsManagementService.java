@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketHistoryDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketHistoryInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
@@ -148,6 +149,37 @@ public class TicketsManagementService {
 
         } else {
             throw new AccessDeniedException("You don't have the authority to complete this operation");
+        }
+    }
+
+    public void insertNotesIntoTicket(DatabaseUserDetails currentUser, TicketHistoryInputDTO ticketHistoryDTO) throws AccessDeniedException, NotFoundException {
+        boolean hasAuthority = false;
+
+        if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))){
+            hasAuthority = currentUser.getCompany().getServices().stream().anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketHistoryDTO.getTicketId())));
+        } else if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))){
+            hasAuthority = currentUser.getServices().stream().anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketHistoryDTO.getTicketId())));
+        } else if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))){
+            User currentUserEntity = userSerivice.findById(currentUser.getId()).orElseThrow(() -> new NotFoundException("User Not Found"));
+            hasAuthority = currentUserEntity.getUserTickets().stream().anyMatch(t -> t.getId().equals(ticketHistoryDTO.getTicketId()));
+        } else {
+            throw new AccessDeniedException("User not logged");
+        }
+
+        if(hasAuthority){
+
+            //logica di save nel ticekthistory
+            TicketHistory ticketHistoryEntity = new TicketHistory();
+            ticketHistoryEntity.setChangedAt(ticketHistoryDTO.getChangedAt());
+            ticketHistoryEntity.setChangedBy(userSerivice.findById(ticketHistoryDTO.getChangedById()).orElseThrow(() -> new NotFoundException("Operator Not Found")));
+            ticketHistoryEntity.setNotes(ticketHistoryDTO.getNotes());
+            ticketHistoryEntity.setStatus(ticketHistoryDTO.getStatus());
+            ticketHistoryEntity.setTicket(ticketRepo.findById(ticketHistoryDTO.getTicketId()).orElseThrow(() -> new NotFoundException("Ticket Not Found")));
+
+            ticketHistoryRepo.save(ticketHistoryEntity);
+
+        } else {
+            throw new AccessDeniedException("You fon't have the authority to complete this operation");
         }
     }
 
