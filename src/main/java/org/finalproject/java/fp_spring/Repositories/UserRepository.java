@@ -15,44 +15,46 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecificationExecutor<User> {
-    Optional<User> findByUsername(String username);
+        Optional<User> findByUsername(String username);
 
-    boolean existsByUsername(String username);
+        boolean existsByUsername(String username);
 
-    List<User> findByCompany(Company company);
+        List<User> findByCompany(Company company);
 
-    List<User> findByServicesId(Integer serviceId);
+        List<User> findByServicesId(Integer serviceId);
 
-    Optional<User> findByUserTicketsContaining(Ticket ticket);
+        Optional<User> findByUserTicketsContaining(Ticket ticket);
 
-    Optional<User> findByAdminTicketsContaining(Ticket ticket);
+        Optional<User> findByAdminTicketsContaining(Ticket ticket);
 
-    @Query("""
-            SELECT u FROM User u
-            JOIN u.customerServices cs
-            JOIN cs.company c
-            WHERE c.id = :companyId
-            """)
-    Page<User> findCustomersByCompanyId(@Param("companyId") Integer companyId, Specification<User> spec,
-            Pageable pagination);
+        @Query("""
+                        SELECT u FROM User u
+                        JOIN u.customerServices cs
+                        JOIN cs.company c
+                        WHERE c.id = :companyId
+                        """)
+        Page<User> findCustomersByCompanyId(@Param("companyId") Integer companyId, Specification<User> spec,
+                        Pageable pagination);
 
-    @Query("""
-            SELECT u FROM User u
-            JOIN u.services s
-            JOIN s.company c
-            WHERE c.id = :companyId
-            """)
-    Page<User> findEmployeesByCompanyId(@Param("companyId") Integer companyId, Specification<User> spec,
-            Pageable pagination);
+        @Query("""
+                        SELECT u FROM User u
+                        JOIN u.services s
+                        JOIN s.company c
+                        WHERE c.id = :companyId
+                        """)
+        Page<User> findEmployeesByCompanyId(@Param("companyId") Integer companyId, Specification<User> spec,
+                        Pageable pagination);
 
-    @Query("""
-            SELECT DISTINCT u
-            FROM User u
-            JOIN u.customerServices cs
-            JOIN cs.operators o
-            WHERE o.id = :operatorId
-            """)
-    Page<User> findCustomerByOperatorId(@Param("operatorId") Integer operatorId, Specification<User> spec,
-            Pageable pagination);
+        @Query("""
+                        SELECT DISTINCT u
+                        FROM User u
+                        JOIN u.customerServices cs
+                        JOIN cs.operators o
+                        WHERE o.id = :operatorId
+                        """)
+        Page<User> findCustomerByOperatorId(@Param("operatorId") Integer operatorId, Specification<User> spec,
+                        Pageable pagination);
+
+        List<User> findAllByCompanyId(Integer companyid);
 
 }

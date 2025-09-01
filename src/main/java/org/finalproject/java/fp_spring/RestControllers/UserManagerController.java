@@ -3,6 +3,7 @@ package org.finalproject.java.fp_spring.RestControllers;
 import java.util.List;
 import java.util.Map;
 
+import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.UserService;
@@ -30,7 +31,7 @@ public class UserManagerController {
 
         try {
 
-            List<User> employees = userService.getOperatorsByService(serviceId);
+            List<UserDTO> employees = userService.getOperatorsByServiceDTO(serviceId);
             return ResponseEntity.ok(employees);
 
         } catch (NotFoundException e) {

@@ -287,6 +287,7 @@ public class MapperService {
         dto.setChangedBy(toUserDTO(entity.getChangedBy()));
         dto.setNotes(entity.getNotes());
         dto.setTicket(toTicketDTO(entity.getTicket()));
+        dto.setStatus(entity.getStatus());
 
         return dto;
     }

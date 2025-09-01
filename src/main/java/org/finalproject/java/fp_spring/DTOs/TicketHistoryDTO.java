@@ -2,12 +2,23 @@ package org.finalproject.java.fp_spring.DTOs;
 
 import java.time.LocalDateTime;
 
+import org.finalproject.java.fp_spring.Enum.TicketStatus;
+
 public class TicketHistoryDTO {
     private Integer id;
     private TicketDTO ticket;
     private String notes;
     private UserDTO changedBy;
     private LocalDateTime changedAt;
+    private TicketStatus status;
+
+    public TicketStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TicketStatus status) {
+        this.status = status;
+    }
 
     public Integer getId() {
         return this.id;

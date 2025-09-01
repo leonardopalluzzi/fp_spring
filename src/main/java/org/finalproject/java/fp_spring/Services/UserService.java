@@ -129,10 +129,29 @@ public class UserService implements IUserService {
         return user;
     }
 
+    public List<UserDTO> getOperatorsByServiceDTO(Integer serviceId) throws NotFoundException {
+        CompanyService service = serviceRepo.findById(serviceId)
+                .orElseThrow(() -> new NotFoundException("Service Not Found"));
+        List<User> employees = service.getOperators();
+        List<User> admins = userRepo.findAllByCompanyId(service.getCompany().getId());
+        List<UserDTO> employeesDTO = new ArrayList<>();
+
+        for (User entity : employees) {
+            employeesDTO.add(mapper.toUserDTO(entity));
+        }
+        for (User admin : admins) {
+            employeesDTO.add(mapper.toUserDTO(admin));
+        }
+
+        return employeesDTO;
+    }
+
     public List<User> getOperatorsByService(Integer serviceId) throws NotFoundException {
         CompanyService service = serviceRepo.findById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service Not Found"));
         List<User> employees = service.getOperators();
+
+        Role adminRole = roleRepo.findByName(RoleName.COMPANY_ADMIN);
 
         return employees;
     }
