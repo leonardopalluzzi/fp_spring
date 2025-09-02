@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.finalproject.java.fp_spring.DTOs.UserAdminIndexDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.DTOs.UserInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
@@ -236,14 +235,14 @@ public class UserService implements IUserService {
 
         Integer operatorId = user.getId();
 
-        Specification<User> sepc = Specification.<User>unrestricted()
+        Specification<User> spec = Specification.<User>unrestricted()
                 .and(usernameContains(username))
                 .and(emailContains(email))
                 .and(roleContains(role))
                 .and(hasOperator(operatorId));
         Pageable pagination = PageRequest.of(page, 10);
 
-        Page<User> customersEntity = userRepo.findAll(sepc, pagination);
+        Page<User> customersEntity = userRepo.findAll(spec, pagination);
         Page<UserDTO> customersDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
         List<User> customersListEntity = customersEntity.getContent();
         List<UserDTO> customersListDTO = new ArrayList<>();

@@ -1,10 +1,7 @@
 package org.finalproject.java.fp_spring.Specifications;
 
-import java.util.Set;
-
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
-import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.User;
 import org.springframework.data.jpa.domain.Specification;
 

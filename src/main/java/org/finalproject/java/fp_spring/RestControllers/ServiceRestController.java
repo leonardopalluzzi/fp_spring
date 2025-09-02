@@ -1,7 +1,7 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import javax.management.ServiceNotFoundException;
@@ -11,6 +11,7 @@ import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -35,14 +38,29 @@ public class ServiceRestController {
     ServiceService serviceService;
 
     @GetMapping
-    public ResponseEntity<?> index() {
+    public ResponseEntity<?> index(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "description", required = false) String description,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "createdAt", required = false) LocalDateTime createdAt,
+            @RequestParam(name = "serviceType", required = false) String serviceType,
+            @RequestParam(name = "code", required = false) String code,
+            @RequestParam(name = "page", required = true) Integer page) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal(); // cast
 
-        List<CompanyServiceDTO> services = serviceService.getAllFromUser(currentUser);
+        try {
+            Page<CompanyServiceDTO> services = serviceService.getAllFromUser(currentUser, name, description, status,
+                    createdAt, serviceType, code, page);
 
-        return ResponseEntity.ok(services);
+            return ResponseEntity.ok(services);
+
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        }
+
     }
 
     @GetMapping("/{id}")
@@ -59,6 +77,9 @@ public class ServiceRestController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (ServiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         }
 
     }
@@ -79,6 +100,9 @@ public class ServiceRestController {
             return ResponseEntity.ok(saved);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -101,6 +125,9 @@ public class ServiceRestController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (ServiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         }
 
     }
@@ -116,6 +143,9 @@ public class ServiceRestController {
 
         } catch (ServiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         }
     }
 

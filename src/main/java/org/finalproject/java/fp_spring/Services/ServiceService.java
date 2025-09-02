@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.Services;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,8 @@ import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
-import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
-import org.hibernate.event.internal.DefaultPersistEventListener;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Models.User;
@@ -31,6 +30,11 @@ import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.Interfaces.IServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -38,6 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import static org.finalproject.java.fp_spring.Specifications.ServiceSpecifications.*;
 
 @Service
 public class ServiceService implements IServiceService {
@@ -86,55 +92,79 @@ public class ServiceService implements IServiceService {
     }
 
     @Transactional
-    public List<CompanyService> findAllByUser(DatabaseUserDetails user) throws RoleInfoNotFoundException {
+    public Page<CompanyService> findAllByUser(DatabaseUserDetails user, String name, String description,
+            String status,
+            LocalDateTime createdAt, String serviceType, String code, Integer page) throws RoleInfoNotFoundException {
         Set<GrantedAuthority> roles = user.getAuthorities();
         Role emplyeeRole = roleRepo.findByName(RoleName.COMPANY_USER);
         Role customerRole = roleRepo.findByName(RoleName.CLIENT);
 
+        Pageable pagination = PageRequest.of(page, 10);
+        Specification<CompanyService> spec = Specification.<CompanyService>unrestricted()
+                .and(nameContains(name))
+                .and(serviceDescriptionContains(description))
+                .and(hasServiceStatus(status))
+                .and(ServiceCreatedAfter(createdAt))
+                .and(hasServiceType(serviceType))
+                .and(codeContains(code));
+
         GrantedAuthority employeeAuthority = new SimpleGrantedAuthority(emplyeeRole.toString());
         GrantedAuthority customerAuthority = new SimpleGrantedAuthority(customerRole.toString());
 
-        List<CompanyService> services = new ArrayList<>();
+        Page<CompanyService> services = new PageImpl<>(new ArrayList<>());
 
         if (roles.isEmpty()) {
             throw new RoleInfoNotFoundException("Role not found");
         }
 
         if (roles.contains(employeeAuthority) && !roles.contains(customerAuthority)) {
-            services = serviceRepo.findByOperators_id(user.getId());
+            services = serviceRepo.findAll(spec.and(belongsToEmployee(user.getId())), pagination);
         } else if (roles.contains(customerAuthority) && !roles.contains(employeeAuthority)) {
-            services = serviceRepo.findByCustomers_id(user.getId());
+            services = serviceRepo.findAll(spec.and(belongsToCustomer(user.getId())), pagination);
         }
 
         return services;
     }
 
     @Transactional
-    public List<CompanyServiceDTO> getAllFromUser(DatabaseUserDetails user) {
+    public Page<CompanyServiceDTO> getAllFromUser(DatabaseUserDetails user, String name, String description,
+            String status,
+            LocalDateTime createdAt, String serviceType, String code, Integer page) {
+
+        Pageable pagination = PageRequest.of(page, 10);
+        Specification<CompanyService> spec = Specification.<CompanyService>unrestricted()
+                .and(nameContains(name))
+                .and(serviceDescriptionContains(description))
+                .and(hasServiceStatus(status))
+                .and(ServiceCreatedAfter(createdAt))
+                .and(hasServiceType(serviceType))
+                .and(codeContains(code));
 
         boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
         boolean isEmployee = user.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()));
         boolean isCustomer = user.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
-        List<CompanyServiceDTO> services = new ArrayList<>();
+        Page<CompanyService> services = new PageImpl<>(new ArrayList<>());
 
         if (isAdmin) {
-            for (CompanyService companyService : user.getCompany().getServices()) {
-                services.add(mapper.toCompanyServiceDTO(companyService));
-            }
+            services = serviceRepo.findAll(spec.and(belongsToCompany(user.getCompany().getId())),
+                    pagination);
         } else if (isEmployee) {
-            for (CompanyService companyService : user.getServices()) {
-                services.add(mapper.toCompanyServiceDTO(companyService));
-            }
+            services = serviceRepo.findAll(spec.and(belongsToEmployee(user.getId())), pagination);
         } else if (isCustomer) {
-            List<CompanyService> servicesEntity = serviceRepo.findByCustomers_id(user.getId());
-            for (CompanyService entity : servicesEntity) {
-                services.add(mapper.toCompanyServiceDTO(entity));
-            }
+            services = serviceRepo.findAll(spec.and(belongsToCustomer(user.getId())), pagination);
         }
 
-        return services;
+        // conversione a dto
+        List<CompanyService> entitiesList = services.getContent();
+        List<CompanyServiceDTO> dtoList = new ArrayList<>();
+        for (CompanyService entity : entitiesList) {
+            dtoList.add(mapper.toCompanyServiceDTO(entity));
+        }
+        Page<CompanyServiceDTO> dtoToSend = new PageImpl<CompanyServiceDTO>(new ArrayList<CompanyServiceDTO>(dtoList));
+
+        return dtoToSend;
     }
 
     public CompanyServiceDTO findById(Integer serviceId, DatabaseUserDetails user)
