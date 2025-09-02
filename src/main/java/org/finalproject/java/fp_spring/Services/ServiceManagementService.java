@@ -1,11 +1,14 @@
 package org.finalproject.java.fp_spring.Services;
 
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.ServiceNotFoundException;
 
 import org.apache.coyote.BadRequestException;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceLightDTO;
 import org.finalproject.java.fp_spring.DTOs.CustomerRegisterRequestDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
@@ -28,6 +31,9 @@ public class ServiceManagementService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    MapperService mapper;
 
     public void assignOperatorToService(Integer serviceId, Integer userId, DatabaseUserDetails currentUser)
             throws AccessDeniedException, NotFoundException, BadRequestException, ServiceNotFoundException {
@@ -217,5 +223,17 @@ public class ServiceManagementService {
             throw new ServiceNotFoundException(e.getMessage());
         }
 
+    }
+
+    public List<CompanyServiceLightDTO> getAll(DatabaseUserDetails currentUser) {
+        List<CompanyService> services = serviceRepo.findAllByCompanyId(currentUser.getCompany().getId());
+
+        List<CompanyServiceLightDTO> servicesDTO = new ArrayList<>();
+
+        for (CompanyService entity : services) {
+            servicesDTO.add(mapper.toCompanyServiceLightDTO(entity));
+        }
+
+        return servicesDTO;
     }
 }

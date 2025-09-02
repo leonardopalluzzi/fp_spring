@@ -22,6 +22,8 @@ public interface ServiceRepository
 
     Page<CompanyService> findAllByCompanyId(Specification<CompanyService> spec, Pageable pagination);
 
+    List<CompanyService> findAllByCompanyId(Integer companyId);
+
     Page<CompanyService> findByCustomers_id(Specification<CompanyService> spec,
             Pageable pagination);
 

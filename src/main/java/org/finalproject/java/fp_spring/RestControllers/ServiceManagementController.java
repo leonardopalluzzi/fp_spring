@@ -1,10 +1,13 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
+import java.util.List;
+import java.util.Map;
 
 import javax.management.ServiceNotFoundException;
 
 import org.apache.coyote.BadRequestException;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceLightDTO;
 import org.finalproject.java.fp_spring.DTOs.CustomerRegisterRequestDTO;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
@@ -15,20 +18,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/relations/services")
+@RequestMapping("/api/v1/services/manage")
 public class ServiceManagementController {
 
     @Autowired
     ServiceManagementService serviceManagService;
+
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        try {
+            List<CompanyServiceLightDTO> servicesDTO = serviceManagService.getAll(currentUser);
+            return ResponseEntity.ok(servicesDTO);
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        }
+    }
 
     @PostMapping("/{serviceId}/operator/{userId}")
     public ResponseEntity<?> assingOperatorToService(@PathVariable("serviceId") Integer serviceId,
