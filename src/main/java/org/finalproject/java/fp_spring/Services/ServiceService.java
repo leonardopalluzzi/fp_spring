@@ -157,14 +157,7 @@ public class ServiceService implements IServiceService {
         }
 
         // conversione a dto
-        List<CompanyService> entitiesList = services.getContent();
-        List<CompanyServiceDTO> dtoList = new ArrayList<>();
-        for (CompanyService entity : entitiesList) {
-            dtoList.add(mapper.toCompanyServiceDTO(entity));
-        }
-        Page<CompanyServiceDTO> dtoToSend = new PageImpl<CompanyServiceDTO>(new ArrayList<CompanyServiceDTO>(dtoList));
-
-        return dtoToSend;
+        return services.map(mapper::toCompanyServiceDTO);
     }
 
     public CompanyServiceDTO findById(Integer serviceId, DatabaseUserDetails user)

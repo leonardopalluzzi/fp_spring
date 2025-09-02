@@ -224,10 +224,7 @@ public class UserService implements IUserService {
             return new PageImpl<>(new ArrayList<>()); // se non c'è il flag restituisco lista vuota
         }
 
-        List<UserDTO> listDTO = entities.getContent().stream().map(mapper::toUserDTO).toList();
-
-        return new PageImpl<>(listDTO, pagination, entities.getTotalElements()); // costruttore apposito per page
-                                                                                 // implementatio
+        return entities.map(mapper::toUserDTO);
     }
 
     public Page<UserDTO> getAllForEmployeeFiltered(DatabaseUserDetails user, String username, String email,
@@ -243,16 +240,8 @@ public class UserService implements IUserService {
         Pageable pagination = PageRequest.of(page, 10);
 
         Page<User> customersEntity = userRepo.findAll(spec, pagination);
-        Page<UserDTO> customersDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
-        List<User> customersListEntity = customersEntity.getContent();
-        List<UserDTO> customersListDTO = new ArrayList<>();
 
-        for (User customer : customersListEntity) {
-            customersListDTO.add(mapper.toUserDTO(customer));
-        }
-        customersDTO = new PageImpl<UserDTO>(customersListDTO);
-
-        return customersDTO;
+        return customersEntity.map(mapper::toUserDTO);
     }
 
     public UserDTO getAllByIdRoleWise(DatabaseUserDetails user, Integer userId)
