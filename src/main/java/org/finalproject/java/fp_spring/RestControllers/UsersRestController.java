@@ -43,7 +43,9 @@ public class UsersRestController {
     public ResponseEntity<?> index(@RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "email", required = false) String email,
             @RequestParam(name = "page", required = false) Integer page,
-            @RequestParam(name = "role", required = false) String role) {
+            @RequestParam(name = "role", required = false) String role,
+            @RequestParam(name = "list", required = true) String list //flag per tipo lista
+            ) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
@@ -57,7 +59,7 @@ public class UsersRestController {
 
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
             // meotodo per lista user admin con dto
-            UserAdminIndexDTO allUsers = userService.getAllForAdminFiltered(currentUser, username, email, page, role);
+            Page<UserDTO> allUsers = userService.getAllForAdminFiltered(currentUser, username, email, page, role, list);
 
             return ResponseEntity.ok(allUsers);
 

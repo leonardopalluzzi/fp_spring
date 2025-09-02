@@ -191,8 +191,8 @@ public class UserService implements IUserService {
         return companyId;
     }
 
-    public UserAdminIndexDTO getAllForAdminFiltered(DatabaseUserDetails user, String username, String email,
-            int page, String role) {
+    public Page<UserDTO> getAllForAdminFiltered(DatabaseUserDetails user, String username, String email,
+            int page, String role, String list) {
 
         Integer companyId = user.getCompany().getId();
         Pageable pagination = PageRequest.of(page, 10);
@@ -201,43 +201,44 @@ public class UserService implements IUserService {
                 .and(emailContains(email))
                 .and(roleContains(role));
 
-        UserAdminIndexDTO usersLists = new UserAdminIndexDTO();
+        if(list == "customers"){
 
-        // popolo lista admin della company e converto in dto
-        List<User> adminCompany = user.getCompany().getUsers();
-        List<UserDTO> adminCompanyDTO = new ArrayList<>();
-        for (User admin : adminCompany) {
-            adminCompanyDTO.add(mapper.toUserDTO(admin));
+             // popolo lista customer della company e converto in dto
+            Page<User> custmomersEntity = userRepo.findCustomersByCompanyId(companyId, spec, pagination);
+            Page<UserDTO> customersDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
+            List<User> usersContent = custmomersEntity.getContent();
+            List<UserDTO> usersDTO = new ArrayList<>();
+
+            for (User userEntity : usersContent) {
+                usersDTO.add(mapper.toUserDTO(userEntity));
+            }
+            return customersDTO = new PageImpl<UserDTO>(usersDTO);
+
+        } else if(list == "operators"){
+
+            // popolo lista impiegati della company e converto in dto
+            Page<User> employeesEntity = userRepo.findEmployeesByCompanyId(companyId, spec, pagination);
+            Page<UserDTO> employeesDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
+            List<User> employeesEntityList = employeesEntity.getContent();
+            List<UserDTO> employeesDTOList = new ArrayList<>();
+
+            for (User employeeEntity : employeesEntityList) {
+                employeesDTOList.add(mapper.toUserDTO(employeeEntity));
+            }
+            return employeesDTO = new PageImpl<UserDTO>(employeesDTOList);
+
+
+        } else if(list == "admins"){
+            // popolo lista admin della company e converto in dto
+            List<User> adminCompany = user.getCompany().getUsers();
+            List<UserDTO> adminCompanyDTO = new ArrayList<>();
+            for (User admin : adminCompany) {
+                adminCompanyDTO.add(mapper.toUserDTO(admin));
+            }
+
+            return new PageImpl<>(adminCompanyDTO);
         }
-
-        // popolo lista customer della company e converto in dto
-        Page<User> custmomersEntity = userRepo.findCustomersByCompanyId(companyId, spec, pagination);
-        Page<UserDTO> customers = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
-        List<User> usersContent = custmomersEntity.getContent();
-        List<UserDTO> usersDTO = new ArrayList<>();
-
-        for (User userEntity : usersContent) {
-            usersDTO.add(mapper.toUserDTO(userEntity));
-        }
-        customers = new PageImpl<UserDTO>(usersDTO);
-
-        // popolo lista impiegati della company e converto in dto
-        Page<User> employeesEntity = userRepo.findEmployeesByCompanyId(companyId, spec, pagination);
-        Page<UserDTO> employeesDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
-        List<User> employeesEntityList = employeesEntity.getContent();
-        List<UserDTO> employeesDTOList = new ArrayList<>();
-
-        for (User employeeEntity : employeesEntityList) {
-            employeesDTOList.add(mapper.toUserDTO(employeeEntity));
-        }
-        employeesDTO = new PageImpl<UserDTO>(employeesDTOList);
-
-        // assegno i risultati nel dto
-        usersLists.setCompanyAdmins(adminCompanyDTO);
-        usersLists.setCustomers(customers);
-        usersLists.setEmployees(employeesDTO);
-
-        return usersLists;
+        return new PageImpl<>(new ArrayList<>()); // se non c'è il flag restituisco lista vuota
     }
 
     public Page<UserDTO> getAllForEmployeeFiltered(DatabaseUserDetails user, String username, String email,
