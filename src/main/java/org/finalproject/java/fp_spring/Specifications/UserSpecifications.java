@@ -46,4 +46,35 @@ public class UserSpecifications {
         };
     }
 
+    public static Specification<User> hasCustomerInCompany(Integer companyId) {
+        return (root, query, cb) -> {
+            Join<Object, Object> cs = root.join("customerServices");
+            Join<Object, Object> c = cs.join("company");
+            return cb.equal(c.get("id"), companyId);
+        };
+    }
+
+    public static Specification<User> hasEmployeeInCompany(Integer companyId) {
+        return (root, query, cb) -> {
+            Join<Object, Object> s = root.join("services");
+            Join<Object, Object> c = s.join("company");
+            return cb.equal(c.get("id"), companyId);
+        };
+    }
+
+    public static Specification<User> hasCustomerByOperator(Integer operatorId) {
+        return (root, query, cb) -> {
+            Join<Object, Object> cs = root.join("customerServices");
+            Join<Object, Object> o = cs.join("operators");
+            return cb.equal(o.get("id"), operatorId);
+        };
+    }
+
+    public static Specification<User> hasOperator(Integer operatorId) {
+        return (root, query, cb) -> {
+            root.join("customerServices").join("operators");
+            return cb.equal(root.join("customerServices").join("operators").get("id"), operatorId);
+        };
+    }
+
 }

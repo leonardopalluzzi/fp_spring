@@ -22,6 +22,7 @@ import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.Interfaces.IUserService;
+import org.finalproject.java.fp_spring.Specifications.UserSpecifications;
 import org.finalproject.java.fp_spring.ViewModels.UsersVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -201,34 +202,17 @@ public class UserService implements IUserService {
                 .and(emailContains(email))
                 .and(roleContains(role));
 
-        if(list == "customers"){
+        Page<User> entities;
 
-             // popolo lista customer della company e converto in dto
-            Page<User> custmomersEntity = userRepo.findCustomersByCompanyId(companyId, spec, pagination);
-            Page<UserDTO> customersDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
-            List<User> usersContent = custmomersEntity.getContent();
-            List<UserDTO> usersDTO = new ArrayList<>();
+        if (list.equals("customers")) {
 
-            for (User userEntity : usersContent) {
-                usersDTO.add(mapper.toUserDTO(userEntity));
-            }
-            return customersDTO = new PageImpl<UserDTO>(usersDTO);
+            entities = userRepo.findAll(spec.and(UserSpecifications.hasCustomerInCompany(companyId)), pagination);
 
-        } else if(list == "operators"){
+        } else if (list.equals("operators")) {
 
-            // popolo lista impiegati della company e converto in dto
-            Page<User> employeesEntity = userRepo.findEmployeesByCompanyId(companyId, spec, pagination);
-            Page<UserDTO> employeesDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
-            List<User> employeesEntityList = employeesEntity.getContent();
-            List<UserDTO> employeesDTOList = new ArrayList<>();
+            entities = userRepo.findAll(spec.and(UserSpecifications.hasEmployeeInCompany(companyId)), pagination);
 
-            for (User employeeEntity : employeesEntityList) {
-                employeesDTOList.add(mapper.toUserDTO(employeeEntity));
-            }
-            return employeesDTO = new PageImpl<UserDTO>(employeesDTOList);
-
-
-        } else if(list == "admins"){
+        } else if (list.equals("admins")) {
             // popolo lista admin della company e converto in dto
             List<User> adminCompany = user.getCompany().getUsers();
             List<UserDTO> adminCompanyDTO = new ArrayList<>();
@@ -237,21 +221,29 @@ public class UserService implements IUserService {
             }
 
             return new PageImpl<>(adminCompanyDTO);
+        } else {
+            return new PageImpl<>(new ArrayList<>()); // se non c'è il flag restituisco lista vuota
         }
-        return new PageImpl<>(new ArrayList<>()); // se non c'è il flag restituisco lista vuota
+
+        List<UserDTO> listDTO = entities.getContent().stream().map(mapper::toUserDTO).toList();
+
+        return new PageImpl<>(listDTO, pagination, entities.getTotalElements()); // costruttore apposito per page
+                                                                                 // implementatio
     }
 
     public Page<UserDTO> getAllForEmployeeFiltered(DatabaseUserDetails user, String username, String email,
             int page, String role) {
 
+        Integer operatorId = user.getId();
+
         Specification<User> sepc = Specification.<User>unrestricted()
                 .and(usernameContains(username))
                 .and(emailContains(email))
-                .and(roleContains(role));
+                .and(roleContains(role))
+                .and(hasOperator(operatorId));
         Pageable pagination = PageRequest.of(page, 10);
-        Integer operatorId = user.getId();
 
-        Page<User> customersEntity = userRepo.findCustomerByOperatorId(operatorId, sepc, pagination);
+        Page<User> customersEntity = userRepo.findAll(sepc, pagination);
         Page<UserDTO> customersDTO = new PageImpl<UserDTO>(new ArrayList<UserDTO>());
         List<User> customersListEntity = customersEntity.getContent();
         List<UserDTO> customersListDTO = new ArrayList<>();
