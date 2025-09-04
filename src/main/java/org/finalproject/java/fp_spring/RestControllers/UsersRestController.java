@@ -44,8 +44,8 @@ public class UsersRestController {
             @RequestParam(name = "email", required = false) String email,
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "role", required = false) String role,
-            @RequestParam(name = "list", required = true) String list //flag per tipo lista
-            ) {
+            @RequestParam(name = "list", required = true) String list // flag per tipo lista
+    ) {
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
@@ -158,7 +158,7 @@ public class UsersRestController {
         try {
             userService.deleteByIdRoleWise(userId, currentUser);
 
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(Map.of("state", "success", "message", "User deleted"));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("state", "error", "message", e.getMessage()));

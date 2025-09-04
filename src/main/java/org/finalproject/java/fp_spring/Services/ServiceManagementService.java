@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManager;
+
 @Service
 public class ServiceManagementService {
 
@@ -34,6 +36,9 @@ public class ServiceManagementService {
 
     @Autowired
     MapperService mapper;
+
+    @Autowired
+    EntityManager em;
 
     public void assignOperatorToService(Integer serviceId, Integer userId, DatabaseUserDetails currentUser)
             throws AccessDeniedException, NotFoundException, BadRequestException, ServiceNotFoundException {
@@ -111,6 +116,8 @@ public class ServiceManagementService {
                 serviceEntity.getOperators().remove(userEntity);
                 userEntity.getServices().remove(serviceEntity);
                 serviceRepo.save(serviceEntity);
+
+                em.flush();
             } else {
                 throw new AccessDeniedException("You don't have the authority to access this resource");
             }

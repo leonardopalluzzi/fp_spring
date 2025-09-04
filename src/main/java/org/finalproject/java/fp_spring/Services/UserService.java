@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.DTOs.UserInputDTO;
+import org.finalproject.java.fp_spring.DTOs.UserLightDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.Company;
@@ -33,6 +34,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.criteria.Join;
 
 import static org.finalproject.java.fp_spring.Specifications.UserSpecifications.*;
 
@@ -129,19 +132,24 @@ public class UserService implements IUserService {
         return user;
     }
 
-    public List<UserDTO> getOperatorsByServiceDTO(Integer serviceId) throws NotFoundException {
+    public Page<UserLightDTO> getOperatorsByServiceDTO(Integer serviceId, String username, String email, Integer page)
+            throws NotFoundException {
+
+        Pageable pagination = PageRequest.of(page, 10);
+        Specification<User> spec = Specification.<User>unrestricted()
+                .and(usernameContains(username))
+                .and(emailContains(email))
+                .and(hasService(serviceId))
+                .and((root, query, cb) -> {
+                    Join<User, Role> rolesJoin = root.join("roles");
+                    return rolesJoin.get("name").in(RoleName.COMPANY_USER.toString(),
+                            RoleName.COMPANY_ADMIN.toString());
+                });
+
         CompanyService service = serviceRepo.findById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service Not Found"));
-        List<User> employees = service.getOperators();
-        List<User> admins = userRepo.findAllByCompanyId(service.getCompany().getId());
-        List<UserDTO> employeesDTO = new ArrayList<>();
-
-        for (User entity : employees) {
-            employeesDTO.add(mapper.toUserDTO(entity));
-        }
-        for (User admin : admins) {
-            employeesDTO.add(mapper.toUserDTO(admin));
-        }
+        Page<User> employees = userRepo.findAll(spec, pagination);
+        Page<UserLightDTO> employeesDTO = employees.map(mapper::toUserLightDTO);
 
         return employeesDTO;
     }
@@ -213,7 +221,10 @@ public class UserService implements IUserService {
 
         } else if (list.equals("admins")) {
             // popolo lista admin della company e converto in dto
-            List<User> adminCompany = user.getCompany().getUsers();
+            Role adminRole = roleRepo.findByName(RoleName.COMPANY_ADMIN);
+            List<User> adminCompany = user.getCompany().getUsers().stream()
+                    .filter(u -> u.getRoles().stream().anyMatch(r -> r.getId().equals(adminRole.getId())))
+                    .toList();
             List<UserDTO> adminCompanyDTO = new ArrayList<>();
             for (User admin : adminCompany) {
                 adminCompanyDTO.add(mapper.toUserDTO(admin));
@@ -304,6 +315,8 @@ public class UserService implements IUserService {
             // controllo se admin puo inserire user nel service
             CompanyService service = serviceRepo.findById(serviceId)
                     .orElseThrow(() -> new NotFoundException("Service Not Found"));
+            Company company = companyRepo.findById(currentUser.getCompany().getId())
+                    .orElseThrow(() -> new NotFoundException("CompanyNotFound"));
 
             boolean isRelated = currentUser.getCompany().getServices().stream()
                     .anyMatch(s -> s.getId().equals(service.getId()));
@@ -317,6 +330,7 @@ public class UserService implements IUserService {
                 newUserEntity.setUsername(newUser.getUsername());
                 newUserEntity.setEmail(newUser.getEmail());
                 newUserEntity.setRoles(rolesToSet);
+                newUserEntity.setCompany(company);
 
                 // settare service in user e viceversa per persistenza
                 List<CompanyService> services = new ArrayList<>();
@@ -423,6 +437,32 @@ public class UserService implements IUserService {
             throw new AccessDeniedException("You don't have the authority to modify this resource");
         }
 
+    }
+
+    public Page<UserLightDTO> getOperatorsByCompanyId(Integer companyId, DatabaseUserDetails currentUser, Integer page,
+            String username, String email, Integer serviceId, boolean exclude)
+            throws AccessDeniedException {
+
+        Specification<User> spec = Specification.<User>unrestricted()
+                .and(usernameContains(username))
+                .and(emailContains(email))
+                .and(hasCompany(companyId));
+
+        if (exclude) {
+            spec = spec.and(notInService(serviceId));
+        }
+
+        boolean isRelated = currentUser.getCompany().getId().equals(companyId);
+        Pageable pagination = PageRequest.of(page, 10);
+
+        if (isRelated) {
+            Page<User> employeesEntity = userRepo.findAll(spec, pagination);
+            Page<UserLightDTO> employeesDTO = employeesEntity.map(mapper::toUserLightDTO);
+
+            return employeesDTO;
+        } else {
+            throw new AccessDeniedException("You don't have the authority to access this resource");
+        }
     }
 
 }

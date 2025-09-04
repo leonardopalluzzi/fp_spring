@@ -76,6 +76,7 @@ public class MapperService {
         }
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
+        dto.setCompanyId(entity.getCompany().getId());
 
         if (entity.getTickets() != null) {
             dto.setTickets(entity.getTickets().stream().map(this::toTicketLightDTO).toList());

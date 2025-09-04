@@ -11,6 +11,7 @@ public class CompanyServiceDTO {
     private String name;
     private String description;
     private String code;
+    private Integer companyId;
 
     private ServiceTypeDTO serviceType;
     private ServiceStatus status = ServiceStatus.INACTIVE;
@@ -19,6 +20,14 @@ public class CompanyServiceDTO {
     private List<TicketTypeDTO> ticketTypes = new ArrayList<>();
     private List<UserLightDTO> customers;
     private List<UserLightDTO> operators;
+
+    public Integer getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
 
     public Integer getId() {
         return this.id;
