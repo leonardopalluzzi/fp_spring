@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
-import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

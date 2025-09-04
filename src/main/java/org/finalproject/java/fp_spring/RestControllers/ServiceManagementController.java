@@ -57,7 +57,7 @@ public class ServiceManagementController {
 
         try {
             serviceManagService.assignOperatorToService(serviceId, userId, currentUser);
-            return ResponseEntity.ok("Operator Assigned Correctly");
+            return ResponseEntity.ok(Map.of("state", "success", "message:", "Operator Assigned Correctly"));
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -79,7 +79,7 @@ public class ServiceManagementController {
 
         try {
             serviceManagService.detachOperatorFromService(serviceId, userId, currentUser);
-            return ResponseEntity.ok("Operator Detached Correctly");
+            return ResponseEntity.ok(Map.of("state", "success", "message:", "Operator Detached Correctly"));
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -102,7 +102,7 @@ public class ServiceManagementController {
 
         try {
             serviceManagService.detachCustomerFromService(serviceId, userId, currentUser);
-            return ResponseEntity.ok("Customer Detached Correctly");
+            return ResponseEntity.ok(Map.of("state", "success", "message:", "Customer Detached Correctly"));
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -126,7 +126,7 @@ public class ServiceManagementController {
         try {
 
             serviceManagService.registerCustomerToService(currentUser, request);
-            return ResponseEntity.ok("Customer Registered Correctly");
+            return ResponseEntity.ok(Map.of("state", "success", "message:", "Customer Registered To Service"));
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
