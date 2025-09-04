@@ -82,7 +82,7 @@ public class UsersRestController {
 
         try {
             UserDTO user = userService.getAllByIdRoleWise(currentUser, id);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(Map.of("state", "success", "result", user));
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
