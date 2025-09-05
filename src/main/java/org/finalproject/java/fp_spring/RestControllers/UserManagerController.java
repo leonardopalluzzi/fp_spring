@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.jsonwebtoken.JwtException;
 
 @RestController
-@RequestMapping("api/v1/users/manage")
+@RequestMapping("/api/v1/users/manage")
 public class UserManagerController {
 
     @Autowired

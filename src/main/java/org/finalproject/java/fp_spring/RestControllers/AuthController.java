@@ -36,7 +36,7 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("token", token));
 
         } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("state", "error", "message", e.getMessage()));
         }
 
     }

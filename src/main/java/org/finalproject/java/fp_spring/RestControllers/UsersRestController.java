@@ -136,7 +136,7 @@ public class UsersRestController {
 
         try {
             UserDTO savedUser = userService.update(currentUser, userToUpdate, userId);
-            return ResponseEntity.ok(savedUser);
+            return ResponseEntity.ok(Map.of("state", "success", "result", savedUser));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("state", "error", "message", e.getMessage()));

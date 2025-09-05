@@ -54,7 +54,7 @@ public class ServiceRestController {
             Page<CompanyServiceDTO> services = serviceService.getAllFromUser(currentUser, name, description, status,
                     createdAt, serviceType, code, page);
 
-            return ResponseEntity.ok(services);
+            return ResponseEntity.ok(Map.of("state", "success", "result", services));
 
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
