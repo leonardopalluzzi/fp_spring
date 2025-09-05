@@ -71,15 +71,14 @@ public class ServiceRestController {
 
         try {
             CompanyServiceDTO service = serviceService.findById(id, currentUser);
-            return ResponseEntity.ok(service);
+            return ResponseEntity.ok(Map.of("state", "success", "result", service));
 
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("state", "error", "message", e.getMessage()));
         } catch (ServiceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("state", "error", "message", e.getMessage()));
         } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("state", "expired", "message", e.getMessage()));
         }
 
     }
