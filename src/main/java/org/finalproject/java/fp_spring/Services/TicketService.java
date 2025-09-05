@@ -30,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -223,12 +224,12 @@ public class TicketService {
 
     public TicketDTO update(TicketLightInputDTO ticket, DatabaseUserDetails user)
             throws NotFoundException, AccessDeniedException {
-        User currentUser = userService.getById(user.getId());
+        boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
+        boolean isEmployee = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()));
+        boolean isCustomer = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
 
-        Role employeeRole = roleRepo.findByName(RoleName.COMPANY_USER);
-        Role customRole = roleRepo.findByName(RoleName.CLIENT);
-
-        boolean errorFlag = false;
+        User userEntity = userService.getById(user.getId());
+        boolean isRelated = false;
 
         Optional<Ticket> ticketEntity = ticketsRepo.findById(ticket.getId());
 
@@ -236,19 +237,20 @@ public class TicketService {
             throw new NotFoundException("Ticket Not Found");
         }
 
-        // verificare i permessi
-        if (currentUser.getRoles().contains(employeeRole)) {
-            errorFlag = currentUser.getAdminTickets().contains(ticketEntity.get()) ? false : true;
-
-        } else if (currentUser.getRoles().contains(customRole)) {
-            errorFlag = currentUser.getUserTickets().contains(ticketEntity.get()) ? false : true;
+        if(isAdmin){
+            isRelated = userEntity.getCompany().getServices().stream().anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId())));
+        }
+        if(isEmployee){
+            isRelated = userEntity.getAdminTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId()));
+        }
+        if(isCustomer){
+            isRelated = userEntity.getUserTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId()));
         }
 
-        if (errorFlag == true) {
-            throw new AccessDeniedException("You don't have permission to access this resource");
-        }
+        
 
-        // esseguire update
+        if(isRelated){
+           // esseguire update
         Ticket ticketToUpdate = ticketEntity.get();
 
         ticketToUpdate.setTitle(ticket.getTitle());
@@ -264,8 +266,11 @@ public class TicketService {
         // aggiorna ticket history
         updateTicketHistory(ticketDTO, updatedTicket, user);
 
-        return mapper.toTicketDTO(updatedTicket);
-
+        return mapper.toTicketDTO(updatedTicket); 
+        } else {
+            throw new AccessDeniedException("You don't have the authority to access this resource");
+        }
+        
     }
 
     @Transactional
