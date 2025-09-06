@@ -164,7 +164,7 @@ public class TicketsRestController {
 
         try {
             ticketService.deleteById(id, currentUser);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body(Map.of("state", "success", "message", "Ticket deleted correctly"));
 
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

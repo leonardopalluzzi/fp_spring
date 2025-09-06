@@ -167,6 +167,7 @@ public class MapperService {
         TicketLightDTO dto = new TicketLightDTO();
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
+        dto.setServiceId(entity.getService().getId());
         dto.setType(toTicketTypeDTO(entity.getType()));
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
@@ -206,7 +207,7 @@ public class MapperService {
             for (CompanyService service : entity.getCustomerServices()) {
                 customerService.add(toCompanyServiceLightDTO(service));
             }
-            dto.setServices(customerService);
+            dto.setCustomerService(customerService);
         }
         if (entity.getUserTickets() != null) {
             List<TicketLightDTO> userTickets = new ArrayList<>();

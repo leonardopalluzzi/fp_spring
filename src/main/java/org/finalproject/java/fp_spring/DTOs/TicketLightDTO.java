@@ -10,6 +10,15 @@ public class TicketLightDTO {
     private TicketTypeDTO type;
     private TicketStatus status;
     private LocalDateTime createdAt;
+    private Integer serviceId;
+
+    public Integer getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Integer serviceId) {
+        this.serviceId = serviceId;
+    }
 
     public Integer getId() {
         return this.id;

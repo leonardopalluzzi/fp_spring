@@ -3,7 +3,6 @@ package org.finalproject.java.fp_spring.RestControllers;
 import java.nio.file.AccessDeniedException;
 import java.util.Map;
 
-import org.finalproject.java.fp_spring.DTOs.UserAdminIndexDTO;
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.DTOs.UserInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
