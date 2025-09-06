@@ -132,7 +132,7 @@ public class ServiceService implements IServiceService {
     @Transactional
     public Page<CompanyServiceDTO> getAllFromUser(DatabaseUserDetails user, String name, String description,
             String status,
-            LocalDateTime createdAt, String serviceType, String code, Integer page) {
+            LocalDateTime createdAt, String serviceType, String code, Integer page) throws AccessDeniedException {
 
         Pageable pagination = PageRequest.of(page, 10);
         Specification<CompanyService> spec = Specification.<CompanyService>unrestricted()
@@ -157,6 +157,8 @@ public class ServiceService implements IServiceService {
             services = serviceRepo.findAll(spec.and(belongsToEmployee(user.getId())), pagination);
         } else if (isCustomer) {
             services = serviceRepo.findAll(spec.and(belongsToCustomer(user.getId())), pagination);
+        } else {
+            throw new AccessDeniedException("You don't have the authority to access this resource");
         }
 
         // conversione a dto

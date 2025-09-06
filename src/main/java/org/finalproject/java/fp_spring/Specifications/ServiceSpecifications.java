@@ -16,14 +16,14 @@ public class ServiceSpecifications {
         if (name == null || name.isEmpty()) {
             return Specification.unrestricted();
         }
-        return (root, query, cb) -> cb.like(root.get("name"), name);
+        return (root, query, cb) -> cb.like(root.get("name"), "%" + name.toLowerCase() + "%");
     }
 
     public static Specification<CompanyService> serviceDescriptionContains(String description) {
         if (description == null || description.isEmpty()) {
             return Specification.unrestricted();
         }
-        return (root, query, cb) -> cb.like(root.get("description"), description);
+        return (root, query, cb) -> cb.like(root.get("description"), "%" + description.toLowerCase() + "%");
     }
 
     public static Specification<CompanyService> hasServiceStatus(String status) {
@@ -44,7 +44,7 @@ public class ServiceSpecifications {
         if (serviceType == null || serviceType.isEmpty()) {
             return Specification.unrestricted();
         }
-        return (root, query, cb) -> cb.equal(root.get("serviceType"), serviceType);
+        return (root, query, cb) -> cb.equal(root.get("serviceType").get("name"), serviceType);
     }
 
     public static Specification<CompanyService> codeContains(String code) {
