@@ -7,9 +7,7 @@ import java.util.Map;
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketHistoryDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketHistoryInputDTO;
-import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
-import org.finalproject.java.fp_spring.Models.TicketType;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.TicketsManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +55,14 @@ public class TicketsManagementController {
                     description,
                     createdAt, page, serviceId);
 
-            return ResponseEntity.ok(tickets);
+            return ResponseEntity.ok(Map.of("state", "success", "result", tickets));
 
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
         }
 
     }
@@ -75,14 +77,20 @@ public class TicketsManagementController {
 
         try {
             Page<TicketHistoryDTO> ticketHistroy = ticketsManagementService.getHistory(id, currentUser, page);
-            return ResponseEntity.ok(ticketHistroy);
+            return ResponseEntity.ok(Map.of("state", "success", "result", ticketHistroy));
 
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
         }
 
     }
@@ -98,7 +106,7 @@ public class TicketsManagementController {
 
         try {
             ticketsManagementService.assignTicketToOperator(operatorId, ticketId, currentUser);
-            return ResponseEntity.ok(Map.of("state", "success", "message", "Operator assigned correctly"));
+            return ResponseEntity.ok(Map.of("state", "success", "result", "Operator assigned correctly"));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("state", "error", "message", e.getMessage()));
@@ -130,7 +138,7 @@ public class TicketsManagementController {
 
             ticketsManagementService.insertNotesIntoTicket(currentUser, ticketHistoryDTO);
 
-            return ResponseEntity.ok(Map.of("state", "success", "message", "Notes inserted correctly"));
+            return ResponseEntity.ok(Map.of("state", "success", "result", "Notes inserted correctly"));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("state", "error", "message", e.getMessage()));

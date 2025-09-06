@@ -89,10 +89,11 @@ public class TicketsRestController {
         try {
             TicketDTO ticket = ticketService.findByIdFilterByRole(currentUser, id);
 
-            return ResponseEntity.ok(ticket);
+            return ResponseEntity.ok(Map.of("state", "success", "result", ticket));
 
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
 
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -144,7 +145,8 @@ public class TicketsRestController {
             return ResponseEntity.ok(Map.of("state", "success", "result", updatedTicket));
 
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("state", "error", "message", e.getMessage()));
@@ -169,7 +171,8 @@ public class TicketsRestController {
                     .body(Map.of("state", "error", "message", e.getMessage()));
 
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
 
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

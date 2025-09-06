@@ -105,13 +105,8 @@ public class TicketsManagementService {
 
         Pageable pagination = PageRequest.of(page, 10);
         Page<TicketHistory> ticketHistoryEntityPaged = ticketHistoryRepo.findAllByTicketId(ticketId, pagination);
-        List<TicketHistory> ticketHistorieEntity = ticketHistoryEntityPaged.getContent();
-        List<TicketHistoryDTO> ticketHistoryDTO = new ArrayList<>();
 
-        for (TicketHistory entity : ticketHistorieEntity) {
-            ticketHistoryDTO.add(mapper.toTicketHistoryDTO(entity));
-        }
-        Page<TicketHistoryDTO> ticketHistoryDTOPaged = new PageImpl<>(ticketHistoryDTO);
+        Page<TicketHistoryDTO> ticketHistoryDTOPaged = ticketHistoryEntityPaged.map(mapper::toTicketHistoryDTO);
 
         return ticketHistoryDTOPaged;
     }
