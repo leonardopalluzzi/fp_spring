@@ -8,6 +8,7 @@ import javax.management.ServiceNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceUpdateDTO;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,11 +75,14 @@ public class ServiceRestController {
             return ResponseEntity.ok(Map.of("state", "success", "result", service));
 
         } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (ServiceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("state", "expired", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
         }
 
     }
@@ -110,7 +114,7 @@ public class ServiceRestController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasAuthority('COMPANY_ADMIN')")
-    public ResponseEntity<?> update(@Valid @RequestBody CompanyServiceInputDTO serviceDto,
+    public ResponseEntity<?> update(@Valid @RequestBody CompanyServiceUpdateDTO serviceDto,
             BindingResult bindingResult, @PathVariable("id") Integer id) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("There are errors in some fields");
@@ -118,15 +122,16 @@ public class ServiceRestController {
 
         try {
             CompanyServiceDTO updated = serviceService.update(serviceDto, id);
-            return ResponseEntity.ok(updated);
+            return ResponseEntity.ok(Map.of("state", "success", "result", updated));
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("state", "error", "message", e.getMessage()));
         } catch (ServiceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("state", "error", "message", e.getMessage()));
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
         }
 
     }

@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.JwtException;
+
 @RestController
 @RequestMapping("/api/v1/tipologies")
 public class TipologyRestController {
@@ -47,16 +49,22 @@ public class TipologyRestController {
     @GetMapping("/servicetypes")
     @PreAuthorize("hasAnyAuthority('COMPANY_ADMIN', 'ADMIN')")
     public ResponseEntity<?> getServiceTypes() {
-        List<ServiceType> serviceTypes = serviceTypeRepo.findAll();
-        List<ServiceTypeDTO> serviceTypesDTO = new ArrayList<>();
-        for (ServiceType serviceType : serviceTypes) {
-            ServiceTypeDTO dto = new ServiceTypeDTO();
-            dto.setId(serviceType.getId());
-            dto.setName(serviceType.getName());
+        try {
+            List<ServiceType> serviceTypes = serviceTypeRepo.findAll();
+            List<ServiceTypeDTO> serviceTypesDTO = new ArrayList<>();
+            for (ServiceType serviceType : serviceTypes) {
+                ServiceTypeDTO dto = new ServiceTypeDTO();
+                dto.setId(serviceType.getId());
+                dto.setName(serviceType.getName());
 
-            serviceTypesDTO.add(dto);
+                serviceTypesDTO.add(dto);
+            }
+            return ResponseEntity.ok(Map.of("state", "success", "result", serviceTypesDTO));
+
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "ecpired", "message", e.getMessage()));
         }
-        return ResponseEntity.ok(serviceTypesDTO);
     }
 
     @GetMapping("/tickettypes/{id}")
@@ -73,11 +81,14 @@ public class TipologyRestController {
                 ticketTypes.add(mapper.toTicketTypeDTO(entity));
             }
 
-            return ResponseEntity.ok(ticketTypes);
+            return ResponseEntity.ok(Map.of("state", "success", "result", ticketTypes));
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Not Found", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "ecpired", "message", e.getMessage()));
         }
     }
 }

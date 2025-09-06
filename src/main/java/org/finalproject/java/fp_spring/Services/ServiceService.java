@@ -14,8 +14,11 @@ import javax.management.relation.RoleInfoNotFoundException;
 
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceDTO;
 import org.finalproject.java.fp_spring.DTOs.CompanyServiceInputDTO;
+import org.finalproject.java.fp_spring.DTOs.CompanyServiceUpdateDTO;
+import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
+import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
@@ -246,7 +249,7 @@ public class ServiceService implements IServiceService {
         return mapper.toCompanyServiceDTO(saved);
     }
 
-    public CompanyServiceDTO update(CompanyServiceInputDTO serviceDto, Integer serviceId)
+    public CompanyServiceDTO update(CompanyServiceUpdateDTO serviceDto, Integer serviceId)
             throws IllegalArgumentException, ServiceNotFoundException {
 
         Optional<CompanyService> serviceEntity = serviceRepo.findById(serviceId);
@@ -260,12 +263,25 @@ public class ServiceService implements IServiceService {
         service.setDescription(serviceDto.getDescription());
         service.setServiceType(serviceTypeRepo.findById(serviceDto.getServiceTypeId()).get());
         List<TicketType> ticketTypeList = new ArrayList<>();
-        for (Map<String, String> ticketTypeDTO : serviceDto.getTicketTypes()) {
+        // controllo se id e valorizzato
+        for (TicketTypeDTO ttDto : serviceDto.getTicketTypes()) {
+            if (ttDto.getId() == null) {
+                // se si creo
+                TicketType ticketType = new TicketType();
+                ticketType.setName(ttDto.getName());
+                ticketType.setService(service);
+                ticketTypeRepo.save(ticketType);
+                ticketTypeList.add(ticketType);
 
-            TicketType ticketType = new TicketType();
-            ticketType.setName(ticketTypeDTO.get("name"));
-            ticketType.setService(service);
-            ticketTypeList.add(ticketType);
+            } else {
+                // se no aggiorno
+                TicketType ttEntity = ticketTypeRepo.findById(ttDto.getId())
+                        .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
+
+                ttEntity.setName(ttDto.getName());
+                ticketTypeRepo.save(ttEntity);
+                ticketTypeList.add(ttEntity);
+            }
         }
         service.getTicketTypes().clear();
         service.getTicketTypes().addAll(ticketTypeList);
