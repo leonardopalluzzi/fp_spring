@@ -53,6 +53,29 @@ public class UserManagerController {
 
     }
 
+    @GetMapping("/byService/customers/{id}")
+    @PreAuthorize("hasAnyAuthority('COMPANY_ADMIN', 'COMPANY_USER')")
+    public ResponseEntity<?> getCustomersByService(
+            @PathVariable("id") Integer serviceId,
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "page", required = true) Integer page) {
+
+        try {
+
+            Page<UserLightDTO> customers = userService.getCustomersByServiceDTO(serviceId, username, email, page);
+            return ResponseEntity.ok(Map.of("state", "success", "result", customers));
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
+        }
+
+    }
+
     @GetMapping("/byCompany/{companyId}/service/{serviceId}")
     @PreAuthorize("hasAnyAuthority('COMPANY_ADMIN')")
     public ResponseEntity<?> getEmployeesByCompanyId(

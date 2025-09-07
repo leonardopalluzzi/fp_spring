@@ -154,6 +154,28 @@ public class UserService implements IUserService {
         return employeesDTO;
     }
 
+    public Page<UserLightDTO> getCustomersByServiceDTO(Integer serviceId, String username, String email, Integer page)
+            throws NotFoundException {
+
+        Pageable pagination = PageRequest.of(page, 10);
+        Specification<User> spec = Specification.<User>unrestricted()
+                .and(usernameContains(username))
+                .and(emailContains(email))
+                .and(hasService(serviceId))
+                .and((root, query, cb) -> {
+                    Join<User, Role> rolesJoin = root.join("roles");
+                    return rolesJoin.get("name").in(RoleName.CLIENT.toString(),
+                            RoleName.COMPANY_ADMIN.toString());
+                });
+
+        CompanyService service = serviceRepo.findById(serviceId)
+                .orElseThrow(() -> new NotFoundException("Service Not Found"));
+        Page<User> employees = userRepo.findAll(spec, pagination);
+        Page<UserLightDTO> employeesDTO = employees.map(mapper::toUserLightDTO);
+
+        return employeesDTO;
+    }
+
     public List<User> getOperatorsByService(Integer serviceId) throws NotFoundException {
         CompanyService service = serviceRepo.findById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service Not Found"));
