@@ -309,7 +309,7 @@ public class UserService implements IUserService {
             }
         } else if (isEmployee) {
             boolean isRelated = user.getCompany().getServices().stream()
-                    .anyMatch(s -> s.getCustomers().stream().anyMatch(c -> c.getId().equals(userId)));
+                    .anyMatch(s -> s.getCustomers().stream().anyMatch(c -> c.getId().equals(userId))) || userId.equals(user.getId());
 
             if (isRelated) {
                 userToSend = userRepo.findById(userId).get();
