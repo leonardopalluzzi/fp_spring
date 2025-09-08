@@ -3,6 +3,7 @@ package org.finalproject.java.fp_spring.Specifications;
 import java.time.LocalDateTime;
 
 import org.finalproject.java.fp_spring.Models.CompanyService;
+import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -56,10 +57,12 @@ public class ServiceSpecifications {
 
     public static Specification<CompanyService> belongsToEmployee(Integer userId) {
         return (root, query, cb) -> {
-            Join<CompanyService, User> userJoin = root.join("user");
+            Join<CompanyService, User> operatorJoin = root.join("operators");
+            Join<User, Role> roleJoin = operatorJoin.join("roles");
+
             return cb.and(
-                    cb.equal(userJoin.get("id"), userId),
-                    cb.isTrue(userJoin.get("isEmployee")));
+                    cb.equal(operatorJoin.get("id"), userId),
+                    cb.equal(roleJoin.get("name"), "COMPANY_USER"));
         };
     }
 

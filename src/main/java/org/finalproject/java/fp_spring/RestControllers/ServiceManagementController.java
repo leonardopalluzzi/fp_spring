@@ -42,10 +42,10 @@ public class ServiceManagementController {
 
         try {
             List<CompanyServiceLightDTO> servicesDTO = serviceManagService.getAll(currentUser);
-            return ResponseEntity.ok(servicesDTO);
+            return ResponseEntity.ok(Map.of("state", "success", "result", servicesDTO));
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("state", "error", "message", e.getMessage()));
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
         }
     }
 
