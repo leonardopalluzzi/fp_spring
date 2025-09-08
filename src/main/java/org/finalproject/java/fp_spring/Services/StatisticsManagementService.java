@@ -15,73 +15,84 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StatisticsManagementService {
-    @Autowired
-    CompanyRepository companyRepo;
+        @Autowired
+        CompanyRepository companyRepo;
 
-    @Autowired
-    UserService userService;
+        @Autowired
+        UserService userService;
 
-    public CompanyStatsDTO getCompanyStats(DatabaseUserDetails currentUser) throws NotFoundException {
+        public CompanyStatsDTO getCompanyStats(DatabaseUserDetails currentUser) throws NotFoundException {
 
-        // recupera copmany da userid
-        Company company = companyRepo.findById(currentUser.getCompany().getId())
-                .orElseThrow(() -> new NotFoundException("Compnay Not Found"));
+                // recupera copmany da userid
+                Company company = companyRepo.findById(currentUser.getCompany().getId())
+                                .orElseThrow(() -> new NotFoundException("Compnay Not Found"));
 
-        // recupera stats company
-        CompanyStatsDTO companyStats = new CompanyStatsDTO(0, 0, 0, 0, 0, 0, 0);
+                // recupera stats company
+                CompanyStatsDTO companyStats = new CompanyStatsDTO(0, 0, 0, 0, 0, 0, 0);
 
-        companyStats.setActiveServices(
-                (int) company.getServices().stream().filter(s -> s.getStatus().equals(ServiceStatus.ACTIVE)).count());
-        companyStats.setAllServices((int) company.getServices().size());
-        companyStats.setClosedTickets((int) company.getServices().stream().flatMap(
-                s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.RESOLVED))).count());
-        companyStats.setCustomerNumber(
-                (int) company.getServices().stream().flatMap(s -> s.getCustomers().stream()).count());
-        companyStats.setEmployeeNumber(
-                (int) company.getServices().stream().flatMap(s -> s.getOperators().stream()).count());
-        companyStats.setOpenTickets((int) company.getServices().stream().flatMap(
-                s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.WORKING))).count());
-        companyStats.setPendingTickets((int) company.getServices().stream().flatMap(
-                s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.PENDING))).count());
+                companyStats.setActiveServices(
+                                (int) company.getServices().stream()
+                                                .filter(s -> s.getStatus().equals(ServiceStatus.ACTIVE)).count());
+                companyStats.setAllServices((int) company.getServices().size());
+                companyStats.setClosedTickets((int) company.getServices().stream().flatMap(
+                                s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)))
+                                .count());
+                companyStats.setCustomerNumber(
+                                (int) company.getServices().stream().flatMap(s -> s.getCustomers().stream()).count());
+                companyStats.setEmployeeNumber(
+                                (int) company.getServices().stream().flatMap(s -> s.getOperators().stream()).count());
+                companyStats.setOpenTickets((int) company.getServices().stream().flatMap(
+                                s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.WORKING)))
+                                .count());
+                companyStats.setPendingTickets((int) company.getServices().stream().flatMap(
+                                s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.PENDING)))
+                                .count());
 
-        // return
-        return companyStats;
+                // return
+                return companyStats;
 
-    }
+        }
 
-    public EmployeeStatsDTO getEmployeeStats(DatabaseUserDetails currentUser) throws NotFoundException {
-        User user = userService.findById(currentUser.getId())
-                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        public EmployeeStatsDTO getEmployeeStats(DatabaseUserDetails currentUser) throws NotFoundException {
+                User user = userService.findById(currentUser.getId())
+                                .orElseThrow(() -> new NotFoundException("User Not Found"));
 
-        EmployeeStatsDTO employeeStats = new EmployeeStatsDTO(0, 0, 0);
+                EmployeeStatsDTO employeeStats = new EmployeeStatsDTO(0, 0, 0);
 
-        employeeStats.setAssignedTickets((int) user.getAdminTickets().size());
-        employeeStats.setPoolTickets((int) user.getServices().stream()
-                .flatMap(s -> s.getTickets().stream().filter(t -> t.getAssignedTo() == null)).count());
-        employeeStats.setResolvedTickets(
-                (int) user.getAdminTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)).count());
+                employeeStats.setAssignedTickets((int) user.getAdminTickets().size());
+                employeeStats.setPoolTickets((int) user.getServices().stream()
+                                .flatMap(s -> s.getTickets().stream().filter(t -> t.getAssignedTo() == null)).count());
+                employeeStats.setResolvedTickets(
+                                (int) user.getAdminTickets().stream()
+                                                .filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)).count());
 
-        return employeeStats;
+                return employeeStats;
 
-    }
+        }
 
-    public CustomerStatsDTO getCustomerStats(DatabaseUserDetails currentUser) throws NotFoundException {
-        User user = userService.findById(currentUser.getId())
-                .orElseThrow(() -> new NotFoundException("User Not Found"));
+        public CustomerStatsDTO getCustomerStats(DatabaseUserDetails currentUser) throws NotFoundException {
+                User user = userService.findById(currentUser.getId())
+                                .orElseThrow(() -> new NotFoundException("User Not Found"));
 
-        CustomerStatsDTO customerStats = new CustomerStatsDTO(0, 0, 0, 0);
+                CustomerStatsDTO customerStats = new CustomerStatsDTO(0, 0, 0, 0);
 
-        customerStats.setActiveServices(
-                (int) user.getServices().stream().filter(s -> s.getStatus().equals(ServiceStatus.ACTIVE)).count());
-        customerStats.setPendingTickets((int) user.getServices().stream()
-                .flatMap(s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.PENDING))).count());
-        customerStats.setResolvedTickets((int) user.getServices().stream()
-                .flatMap(s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)))
-                .count());
-        customerStats.setWorkingTickets((int) user.getServices().stream()
-                .flatMap(s -> s.getTickets().stream().filter(t -> t.getStatus().equals(TicketStatus.WORKING))).count());
+                customerStats.setActiveServices(
+                                (int) user.getCustomerServices().stream()
+                                                .filter(s -> s.getStatus().equals(ServiceStatus.ACTIVE)).count());
+                customerStats.setPendingTickets((int) user.getCustomerServices().stream()
+                                .flatMap(s -> s.getTickets().stream()
+                                                .filter(t -> t.getStatus().equals(TicketStatus.PENDING)))
+                                .count());
+                customerStats.setResolvedTickets((int) user.getCustomerServices().stream()
+                                .flatMap(s -> s.getTickets().stream()
+                                                .filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)))
+                                .count());
+                customerStats.setWorkingTickets((int) user.getCustomerServices().stream()
+                                .flatMap(s -> s.getTickets().stream()
+                                                .filter(t -> t.getStatus().equals(TicketStatus.WORKING)))
+                                .count());
 
-        return customerStats;
-    }
+                return customerStats;
+        }
 
 }

@@ -164,16 +164,15 @@ public class UserService implements IUserService {
                 .and(hasService(serviceId))
                 .and((root, query, cb) -> {
                     Join<User, Role> rolesJoin = root.join("roles");
-                    return rolesJoin.get("name").in(RoleName.CLIENT.toString(),
-                            RoleName.COMPANY_ADMIN.toString());
+                    return rolesJoin.get("name").in(RoleName.CLIENT.toString());
                 });
 
         CompanyService service = serviceRepo.findById(serviceId)
                 .orElseThrow(() -> new NotFoundException("Service Not Found"));
-        Page<User> employees = userRepo.findAll(spec, pagination);
-        Page<UserLightDTO> employeesDTO = employees.map(mapper::toUserLightDTO);
+        Page<User> customers = userRepo.findAll(spec, pagination);
+        Page<UserLightDTO> customersDTO = customers.map(mapper::toUserLightDTO);
 
-        return employeesDTO;
+        return customersDTO;
     }
 
     public List<User> getOperatorsByService(Integer serviceId) throws NotFoundException {
@@ -309,7 +308,8 @@ public class UserService implements IUserService {
             }
         } else if (isEmployee) {
             boolean isRelated = user.getCompany().getServices().stream()
-                    .anyMatch(s -> s.getCustomers().stream().anyMatch(c -> c.getId().equals(userId))) || userId.equals(user.getId());
+                    .anyMatch(s -> s.getCustomers().stream().anyMatch(c -> c.getId().equals(userId)))
+                    || userId.equals(user.getId());
 
             if (isRelated) {
                 userToSend = userRepo.findById(userId).get();

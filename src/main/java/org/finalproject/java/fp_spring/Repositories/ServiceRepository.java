@@ -16,24 +16,26 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ServiceRepository
-        extends JpaRepository<CompanyService, Integer>, JpaSpecificationExecutor<CompanyService> {
+                extends JpaRepository<CompanyService, Integer>, JpaSpecificationExecutor<CompanyService> {
 
-    boolean existsByCode(String code);
+        boolean existsByCode(String code);
 
-    Page<CompanyService> findAllByCompanyId(Specification<CompanyService> spec, Pageable pagination);
+        Page<CompanyService> findAllByCompanyId(Specification<CompanyService> spec, Pageable pagination);
 
-    List<CompanyService> findAllByCompanyId(Integer companyId);
+        List<CompanyService> findAllByCompanyId(Integer companyId);
 
-    Page<CompanyService> findByCustomers_id(Specification<CompanyService> spec,
-            Pageable pagination);
+        Page<CompanyService> findByCustomers_id(Specification<CompanyService> spec,
+                        Pageable pagination);
 
-    Page<CompanyService> findByOperators_id(Specification<CompanyService> spec,
-            Pageable pagination);
+        Page<CompanyService> findByOperators_id(Specification<CompanyService> spec,
+                        Pageable pagination);
 
-    Optional<CompanyService> findByTicketsContaining(Ticket ticket);
+        Optional<CompanyService> findByTicketsContaining(Ticket ticket);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Transactional
-    @Query(value = "DELETE FROM services s WHERE s.id = :serviceId", nativeQuery = true)
-    int deleteCustom(@Param("serviceId") Integer serviceId);
+        @Modifying(clearAutomatically = true, flushAutomatically = true)
+        @Transactional
+        @Query(value = "DELETE FROM services s WHERE s.id = :serviceId", nativeQuery = true)
+        int deleteCustom(@Param("serviceId") Integer serviceId);
+
+        Optional<CompanyService> findByCode(String code);
 }

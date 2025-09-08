@@ -200,7 +200,7 @@ public class ServiceManagementService {
             }
 
             // verificare che il service esista
-            CompanyService serviceEntity = serviceRepo.findById(request.getServiceId())
+            CompanyService serviceEntity = serviceRepo.findByCode(request.getServiceCode())
                     .orElseThrow(() -> new ServiceNotFoundException("Service Not Found"));
 
             // verificare che lo user non sia gia registrato
@@ -208,7 +208,7 @@ public class ServiceManagementService {
                 throw new BadRequestException("The user is already registered to this service");
             }
 
-            // conforntare codice service con codice requeset
+            // conforntare codice service con codice request
             boolean isMatch = serviceEntity.getCode().equals(request.getServiceCode());
 
             // se codici corrispondono aggiungere customer a service
@@ -234,7 +234,15 @@ public class ServiceManagementService {
 
     public List<CompanyServiceLightDTO> getAll(DatabaseUserDetails currentUser) {
 
-        // questo va bene per admin e eimpeiagti ma per clienti bisogna partire dai servizi perche loro nonhanno il companyId
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
+            List<CompanyService> customerServices = currentUser.getServices();
+            List<CompanyServiceLightDTO> listDTO = new ArrayList<>();
+            for (CompanyService entity : customerServices) {
+                listDTO.add(mapper.toCompanyServiceLightDTO(entity));
+            }
+            return listDTO;
+        }
+
         List<CompanyService> services = serviceRepo.findAllByCompanyId(currentUser.getCompany().getId());
 
         List<CompanyServiceLightDTO> servicesDTO = new ArrayList<>();
