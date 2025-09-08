@@ -69,5 +69,4 @@ public class TicketsSpecifications {
     public static Specification<Ticket> hasNoAssignee() {
         return (root, query, cb) -> cb.isNull(root.get("assignedTo"));
     }
-
 }

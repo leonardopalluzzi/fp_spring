@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -94,7 +95,7 @@ public class TicketsManagementService {
                     .anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketId)));
         } else if (currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
-            isRelated = currentUserEntity.getAdminTickets().stream().anyMatch(t -> t.getId().equals(ticketId));
+            isRelated = currentUserEntity.getServices().stream().anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketId)));
 
         } else if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
             isRelated = currentUserEntity.getUserTickets().stream().anyMatch((t -> t.getId().equals(ticketId)));
@@ -123,7 +124,7 @@ public class TicketsManagementService {
         } else if (currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
             hasAuthority = currentUser.getServices().stream()
-                    .anyMatch(s -> s.getOperators().stream().anyMatch(o -> o.getId().equals(operatorId)));
+                    .anyMatch(s -> s.getOperators().stream().anyMatch(o -> o.getId().equals(currentUser.getId())));
         } else {
             throw new AccessDeniedException("You don't have the authority to complete this operation");
         }
@@ -197,6 +198,20 @@ public class TicketsManagementService {
         } else {
             throw new AccessDeniedException("You don't have the authority to complete this operation");
         }
+    }
+
+    public Page<TicketDTO> getTicketsByAllOperatorServices(DatabaseUserDetails currentUser, Integer page, String type, String status, String title, String description, LocalDateTime createdAt, Integer serviceId){
+        Pageable pagination = PageRequest.of(page, 10);
+        Specification<Ticket> spec = Specification.<Ticket>unrestricted()
+                                        .and(hasType(type))
+                                        .and(hasStatus(status))
+                                        .and(titleContains(title))
+                                        .and(descriptionContains(description))
+                                        .and(createdAfter(createdAt))
+                                        .and(belongsToService(serviceId))
+                                        .and(belongsToOperatorService(currentUser.getId()));
+        Page<Ticket> ttListDTO = ticketRepo.findAll(spec, pagination);
+        return ttListDTO.map(t -> mapper.toTicketDTO(t));
     }
 
 }

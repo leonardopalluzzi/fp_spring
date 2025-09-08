@@ -233,6 +233,8 @@ public class ServiceManagementService {
     }
 
     public List<CompanyServiceLightDTO> getAll(DatabaseUserDetails currentUser) {
+
+        // questo va bene per admin e eimpeiagti ma per clienti bisogna partire dai servizi perche loro nonhanno il companyId
         List<CompanyService> services = serviceRepo.findAllByCompanyId(currentUser.getCompany().getId());
 
         List<CompanyServiceLightDTO> servicesDTO = new ArrayList<>();

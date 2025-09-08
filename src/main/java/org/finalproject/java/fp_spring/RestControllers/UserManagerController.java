@@ -1,10 +1,8 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
-import java.util.List;
 import java.util.Map;
 
-import org.finalproject.java.fp_spring.DTOs.UserDTO;
 import org.finalproject.java.fp_spring.DTOs.UserLightDTO;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;

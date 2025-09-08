@@ -103,7 +103,7 @@ public class TicketService {
         Pageable pagination = PageRequest.of(page, 10);
 
         Specification<Ticket> spec = Specification.<Ticket>unrestricted()
-                .and(belongsToRequester(currentUser))
+                .and(belongsToAssignee(currentUser))
                 .and(hasType(type))
                 .and(hasStatus(status))
                 .and(titleContains(title))

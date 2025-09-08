@@ -59,8 +59,7 @@ public class UsersRestController {
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
             // meotodo per lista user admin con dto
             Page<UserDTO> allUsers = userService.getAllForAdminFiltered(currentUser, username, email, page, role, list);
-
-            return ResponseEntity.ok(allUsers);
+            return ResponseEntity.ok(Map.of("state", "success","result", allUsers));
 
         } else if (currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {

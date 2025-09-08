@@ -48,6 +48,7 @@ public class TicketsRestController {
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "description", required = false) String description,
+            @RequestParam(name = "assignedToId", required = false) Integer assignedToId,
             @RequestParam(name = "createdAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAt,
             @RequestParam(name = "page", required = true, defaultValue = "0") Integer page,
             @RequestParam(name = "serviceId", required = false) Integer serviceId) {
