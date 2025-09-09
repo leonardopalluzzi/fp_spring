@@ -39,14 +39,14 @@ public class DatabaseUserDetailService implements UserDetailsService {
         return new DatabaseUserDetails(user.get());
     }
 
-    public void registerUser(User user) {
+    public User registerUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         Role customerRole = roleRepo.findByName(RoleName.CLIENT);
         Set<Role> roles = Set.of(customerRole);
         user.setPassword(encodedPassword);
         user.setRoles(roles);
 
-        repo.save(user);
+        return repo.save(user);
     }
 
 }

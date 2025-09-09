@@ -52,13 +52,10 @@ public class AuthService implements IAuthService {
         }
 
         User userEntity = new User(userDTO);
-        DatabaseUserDetails userDB = new DatabaseUserDetails(userEntity);
+        User savedUserEntity = dbUserService.registerUser(userEntity);
+        DatabaseUserDetails savedUser = new DatabaseUserDetails(savedUserEntity);
+        String token = jwtService.generateToken(savedUser);
 
-        dbUserService.registerUser(userEntity);
-        String token = jwtService.generateToken(userDB);
-
-        // Optionally, you can return the token or any other information
-        // related to the registration process.
         return token;
     }
 
