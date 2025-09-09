@@ -3,6 +3,8 @@ package org.finalproject.java.fp_spring.RestControllers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.finalproject.java.fp_spring.DTOs.ServiceTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
@@ -11,10 +13,12 @@ import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.ServiceType;
 import org.finalproject.java.fp_spring.Models.TicketType;
+import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
+import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.MapperService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,24 +53,32 @@ public class TipologyRestController {
     @Autowired
     MapperService mapper;
 
+    @Autowired
+    UserRepository userRepo;
+
     @GetMapping("/servicetypes")
-    @PreAuthorize("hasAnyAuthority('COMPANY_ADMIN', 'ADMIN', 'COMPANY_USER')")
     public ResponseEntity<?> getServiceTypes() {
-        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        User user = userRepo.findById(currentUser.getId()).orElseThrow(() -> new NotFoundException("User not found"));
         try {
 
             List<ServiceType> serviceTypes = new ArrayList<>();
-            // se sono company, tutti i type legati a servizi della mia compani presi una sola volta
-            if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))){
-                        // popolo lista
+
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+                serviceTypes = user.getCompany().getServices().stream().map(CompanyService::getServiceType)
+                        .distinct().collect(Collectors.toList());
             }
-            // se sono employee tutti i type dei servizi nella lista service presi una sola volta
-            if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))){
-                        // popolo lista
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
+                serviceTypes = user.getServices().stream().map(CompanyService::getServiceType).distinct()
+                        .collect(Collectors.toList());
             }
-            // se sono customer, tutti i type presi dalla lista customerservice dello user presi una sola volta
-            if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))){
-                        // popolo lista
+            // se sono customer, tutti i type presi dalla lista customerservice dello user
+            // presi una sola volta
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
+                // popolo lista
+                serviceTypes = user.getCustomerServices().stream().map(CompanyService::getServiceType).distinct()
+                        .collect(Collectors.toList());
             }
 
             // mappo a dto e restituisco
@@ -80,9 +92,12 @@ public class TipologyRestController {
             }
             return ResponseEntity.ok(Map.of("state", "success", "result", serviceTypesDTO));
 
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("state", "ecpired", "message", e.getMessage()));
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
         }
     }
 

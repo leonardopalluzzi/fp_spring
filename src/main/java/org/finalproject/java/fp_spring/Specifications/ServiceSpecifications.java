@@ -52,7 +52,7 @@ public class ServiceSpecifications {
         if (code == null || code.isEmpty()) {
             return Specification.unrestricted();
         }
-        return (root, query, cb) -> cb.like(root.get("code"), code);
+        return (root, query, cb) -> cb.like(root.get("code"), "%" + code + "%");
     }
 
     public static Specification<CompanyService> belongsToEmployee(Integer userId) {
