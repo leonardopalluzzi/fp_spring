@@ -233,9 +233,10 @@ public class ServiceManagementService {
     }
 
     public List<CompanyServiceLightDTO> getAll(DatabaseUserDetails currentUser) {
+        User userEntity = userService.getById(currentUser.getId());
 
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
-            List<CompanyService> customerServices = currentUser.getServices();
+            List<CompanyService> customerServices = userEntity.getCustomerServices();
             List<CompanyServiceLightDTO> listDTO = new ArrayList<>();
             for (CompanyService entity : customerServices) {
                 listDTO.add(mapper.toCompanyServiceLightDTO(entity));
@@ -243,7 +244,16 @@ public class ServiceManagementService {
             return listDTO;
         }
 
-        List<CompanyService> services = serviceRepo.findAllByCompanyId(currentUser.getCompany().getId());
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
+            List<CompanyService> customerServices = userEntity.getServices();
+            List<CompanyServiceLightDTO> listDTO = new ArrayList<>();
+            for (CompanyService entity : customerServices) {
+                listDTO.add(mapper.toCompanyServiceLightDTO(entity));
+            }
+            return listDTO;
+        }
+
+        List<CompanyService> services = serviceRepo.findAllByCompanyId(userEntity.getCompany().getId());
 
         List<CompanyServiceLightDTO> servicesDTO = new ArrayList<>();
 
