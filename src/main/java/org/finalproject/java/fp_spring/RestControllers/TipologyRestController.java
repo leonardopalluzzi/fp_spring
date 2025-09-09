@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.finalproject.java.fp_spring.DTOs.ServiceTypeDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketTypeDTO;
+import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.CompanyService;
 import org.finalproject.java.fp_spring.Models.ServiceType;
@@ -14,11 +15,14 @@ import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
+import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.MapperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,8 +52,24 @@ public class TipologyRestController {
     @GetMapping("/servicetypes")
     @PreAuthorize("hasAnyAuthority('COMPANY_ADMIN', 'ADMIN', 'COMPANY_USER')")
     public ResponseEntity<?> getServiceTypes() {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            List<ServiceType> serviceTypes = serviceTypeRepo.findAll();
+
+            List<ServiceType> serviceTypes = new ArrayList<>();
+            // se sono company, tutti i type legati a servizi della mia compani presi una sola volta
+            if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))){
+                        // popolo lista
+            }
+            // se sono employee tutti i type dei servizi nella lista service presi una sola volta
+            if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))){
+                        // popolo lista
+            }
+            // se sono customer, tutti i type presi dalla lista customerservice dello user presi una sola volta
+            if(currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))){
+                        // popolo lista
+            }
+
+            // mappo a dto e restituisco
             List<ServiceTypeDTO> serviceTypesDTO = new ArrayList<>();
             for (ServiceType serviceType : serviceTypes) {
                 ServiceTypeDTO dto = new ServiceTypeDTO();
