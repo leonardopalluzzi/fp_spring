@@ -81,15 +81,15 @@ public class StatisticsManagementService {
                                                 .filter(s -> s.getStatus().equals(ServiceStatus.ACTIVE)).count());
                 customerStats.setPendingTickets((int) user.getCustomerServices().stream()
                                 .flatMap(s -> s.getTickets().stream()
-                                                .filter(t -> t.getStatus().equals(TicketStatus.PENDING)))
+                                                .filter(t -> t.getStatus().equals(TicketStatus.PENDING) && t.getRequester().getId().equals(user.getId())))
                                 .count());
                 customerStats.setResolvedTickets((int) user.getCustomerServices().stream()
                                 .flatMap(s -> s.getTickets().stream()
-                                                .filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)))
+                                                .filter(t -> t.getStatus().equals(TicketStatus.RESOLVED)  && t.getRequester().getId().equals(user.getId())))
                                 .count());
                 customerStats.setWorkingTickets((int) user.getCustomerServices().stream()
                                 .flatMap(s -> s.getTickets().stream()
-                                                .filter(t -> t.getStatus().equals(TicketStatus.WORKING)))
+                                                .filter(t -> t.getStatus().equals(TicketStatus.WORKING)  && t.getRequester().getId().equals(user.getId())))
                                 .count());
 
                 return customerStats;

@@ -47,6 +47,16 @@ public class UserSpecifications {
         };
     }
 
+    public static Specification<User> hasCustomerService(Integer serviceId) {
+        if (serviceId == null) {
+            return Specification.unrestricted();
+        }
+        return (root, query, cb) -> {
+            Join<User, CompanyService> services = root.join("customerServices");
+            return cb.equal(services.get("id"), serviceId);
+        };
+    }
+
     public static Specification<User> hasCustomerInCompany(Integer companyId) {
         return (root, query, cb) -> {
             Join<User, CompanyService> cs = root.join("customerServices");

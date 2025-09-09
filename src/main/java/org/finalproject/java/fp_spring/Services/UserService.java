@@ -161,7 +161,7 @@ public class UserService implements IUserService {
         Specification<User> spec = Specification.<User>unrestricted()
                 .and(usernameContains(username))
                 .and(emailContains(email))
-                .and(hasService(serviceId))
+                .and(hasCustomerService(serviceId))
                 .and((root, query, cb) -> {
                     Join<User, Role> rolesJoin = root.join("roles");
                     return rolesJoin.get("name").in(RoleName.CLIENT.toString());
