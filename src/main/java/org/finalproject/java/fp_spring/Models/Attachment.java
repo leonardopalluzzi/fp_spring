@@ -21,7 +21,6 @@ public class Attachment {
 
     @ManyToOne
     @JoinColumn(name = "ticket_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Ticket ticket;
 
     @NotBlank

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.persistence.EntityManager;
 
 @Service
@@ -151,19 +152,18 @@ public class ServiceManagementService {
         boolean isCustomer = currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
 
-
-            if (isAdmin) {
-                if (!currentUser.getCompany().getServices().stream().anyMatch(s -> s.getId().equals(serviceId))) {
-                    throw new AccessDeniedException("You don't have the authority to access this resource");
-                }
-            } else if (isCustomer) {
-            // verifico che userId == currentUser.id
-                if (currentUser.getId() != userId) {
-                    throw new AccessDeniedException("You don't have the authority to access this resource");
-                }
-            } else {
-                throw new AccessDeniedException("User Not Allowed Here");
+        if (isAdmin) {
+            if (!currentUser.getCompany().getServices().stream().anyMatch(s -> s.getId().equals(serviceId))) {
+                throw new AccessDeniedException("You don't have the authority to access this resource");
             }
+        } else if (isCustomer) {
+            // verifico che userId == currentUser.id
+            if (!currentUser.getId().equals(userId)) {
+                throw new AccessDeniedException("You don't have the authority to access this resource");
+            }
+        } else {
+            throw new AccessDeniedException("User Not Allowed Here");
+        }
 
         try {
             // trovo service
@@ -179,17 +179,24 @@ public class ServiceManagementService {
                     .anyMatch(c -> c.getId().equals(userEntity.getId()));
 
             if (isRelated) {
-                // se ok rimuovo user dal service
-                serviceEntity.getCustomers().remove(userEntity);
                 // rimuovo service dallo user
                 userEntity.getCustomerServices().remove(serviceEntity);
-                for (Ticket ticket : userEntity.getUserTickets()) {
-                    ticketRepo.delete(ticket);
-                }
-                userEntity.getUserTickets().clear();
+                // se ok rimuovo user dal service
+                serviceEntity.getCustomers().remove(userEntity);
+
+                ticketRepo.deleteByRequesterAndServiceId(userEntity, serviceId);
+
+                // List<Ticket> ticketsToDelete = userEntity.getUserTickets().stream()
+                // .filter(t -> t.getService().getId().equals(serviceId))
+                // .toList();
+
+                // for (Ticket ticket : ticketsToDelete) {
+                // userEntity.getUserTickets().remove(ticket);
+                // serviceEntity.getTickets().remove(ticket);
+                // ticketRepo.delete(ticket);
+                // }
                 serviceRepo.save(serviceEntity);
                 userRepo.save(userEntity);
-                em.flush();
             } else {
                 throw new AccessDeniedException("You don't have the authority to access this resource");
             }

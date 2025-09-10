@@ -2,6 +2,8 @@ package org.finalproject.java.fp_spring.Services;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.management.ServiceNotFoundException;
@@ -12,6 +14,7 @@ import org.finalproject.java.fp_spring.DTOs.TicketLightInputDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
+import org.finalproject.java.fp_spring.Models.Attachment;
 import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.TicketHistory;
@@ -201,7 +204,16 @@ public class TicketService {
 
             // info che arrivano dall'input dto
             ticketToSave.setTitle(ticket.getTitle());
-            ticketToSave.setAttachments(ticket.getAttachments());
+
+            List<Attachment> attachments = new ArrayList<>();
+            if (ticket.getAttachments() != null) {
+                for (Attachment a : ticket.getAttachments()) {
+                    a.setTicket(ticketToSave); // IMPORTANTISSIMO!
+                    attachments.add(a);
+                }
+            }
+
+            ticketToSave.setAttachments(attachments);
             TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
                     .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
             ticketToSave.setType(type);

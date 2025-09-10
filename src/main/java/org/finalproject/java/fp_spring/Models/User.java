@@ -56,7 +56,7 @@ public class User {
     @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Ticket> userTickets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "assignedTo", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Ticket> adminTickets = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -70,7 +70,7 @@ public class User {
     @JoinColumn(name = "company_id") // nome della colonna FK in tabella user
     private Company company;
 
-    @ManyToMany(mappedBy = "customers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
     private List<CompanyService> customerServices;
 
     public User() {

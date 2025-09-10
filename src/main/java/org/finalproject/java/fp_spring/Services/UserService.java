@@ -17,6 +17,7 @@ import org.finalproject.java.fp_spring.Models.Role;
 import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Models.CompanyService;
+import org.finalproject.java.fp_spring.Repositories.AttachmentRepository;
 import org.finalproject.java.fp_spring.Repositories.CompanyRepository;
 import org.finalproject.java.fp_spring.Repositories.RoleRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
@@ -38,6 +39,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.criteria.Join;
+import jakarta.transaction.Transactional;
 
 import static org.finalproject.java.fp_spring.Specifications.UserSpecifications.*;
 
@@ -67,6 +69,9 @@ public class UserService implements IUserService {
 
     @Autowired
     MapperService mapper;
+
+    @Autowired
+    AttachmentRepository attachRepo;
 
     @Override
     public void deleteById(Integer userId) throws UsernameNotFoundException {
@@ -431,6 +436,7 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional
     public void deleteByIdRoleWise(Integer userId, DatabaseUserDetails currentUser)
             throws UsernameNotFoundException, AccessDeniedException {
         User user = userRepo.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
@@ -451,20 +457,63 @@ public class UserService implements IUserService {
             boolean isRelated = currentUser.getId().equals(userId);
 
             if (isRelated) {
-                for (CompanyService service : user.getCustomerServices()) {
-                    service.getCustomers().remove(user);
-                    serviceRepo.save(service);
+
+                // 0. Crea copia delle liste per evitare ConcurrentModification
+                List<Ticket> userTickets = new ArrayList<>(user.getUserTickets());
+                for (Ticket t : userTickets) {
+                    t.setAssignedTo(null); // rendi null il campo
                 }
-                for(Ticket ticket : user.getUserTickets()){
-                    user.getUserTickets().remove(ticket);
-                    ticketRepo.delete(ticket);
+                ticketRepo.saveAll(userTickets);
+                // 1. Cancella attachments dei tickets
+                for (Ticket t : userTickets) {
+                    attachRepo.deleteAll(t.getAttachments()); // se non hai orphanRemoval
+                    t.getAttachments().clear();
+                }
+
+                // 2. Cancella i tickets
+                ticketRepo.deleteAll(userTickets);
+                user.getUserTickets().clear();
+                user.getAdminTickets().clear();
+
+                // 3. Scollega dai customerServices
+                for (CompanyService s : new ArrayList<>(user.getCustomerServices())) {
+                    s.getCustomers().remove(user);
+                    serviceRepo.save(s);
                 }
                 user.getCustomerServices().clear();
-                userRepo.delete(user);
-            } else {
-                    throw new AccessDeniedException("You don't have the authority to modify this resource");
 
+                // 4. Scollega dai servizi come operator
+                for (CompanyService s : new ArrayList<>(user.getServices())) {
+                    s.getOperators().remove(user);
+                    serviceRepo.save(s);
                 }
+                user.getServices().clear();
+
+                // 5. Cancella user
+                userRepo.delete(user);
+
+                // for (CompanyService service : user.getServices()) {
+                // service.getOperators().remove(user);
+                // serviceRepo.save(service); // salva il servizio!
+                // }
+                // user.getServices().clear();
+
+                // for (CompanyService service : user.getCustomerServices()) {
+                // service.getCustomers().remove(user);
+                // serviceRepo.save(service); // salva il servizio!
+                // }
+                // user.getCustomerServices().clear();
+
+                // for (Ticket ticket : user.getUserTickets()) {
+                // ticketRepo.delete(ticket); // cancella il ticket
+                // }
+                // user.getUserTickets().clear();
+
+                // userRepo.delete(user);
+            } else {
+                throw new AccessDeniedException("You don't have the authority to modify this resource");
+
+            }
         } else {
             throw new AccessDeniedException("You don't have the authority to modify this resource");
         }
