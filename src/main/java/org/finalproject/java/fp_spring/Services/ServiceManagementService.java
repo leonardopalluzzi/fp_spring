@@ -142,20 +142,19 @@ public class ServiceManagementService {
         boolean isCustomer = currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
 
-        if (isCustomer) {
+
+            if (isAdmin) {
+                if (!currentUser.getCompany().getServices().stream().anyMatch(s -> s.getId().equals(serviceId))) {
+                    throw new AccessDeniedException("You don't have the authority to access this resource");
+                }
+            } else if (isCustomer) {
             // verifico che userId == currentUser.id
-            if (currentUser.getId() != userId) {
-                throw new AccessDeniedException("You don't have the authority to access this resource");
+                if (currentUser.getId() != userId) {
+                    throw new AccessDeniedException("You don't have the authority to access this resource");
+                }
+            } else {
+                throw new AccessDeniedException("User Not Allowed Here");
             }
-
-        } else if (isAdmin) {
-            if (!currentUser.getCompany().getServices().stream().anyMatch(s -> s.getId().equals(serviceId))) {
-                throw new AccessDeniedException("You don't have the authority to access this resource");
-            }
-
-        } else {
-            throw new AccessDeniedException("User Not Allowed Here");
-        }
 
         try {
             // trovo service
