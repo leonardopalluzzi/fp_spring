@@ -127,7 +127,7 @@ public class TicketService {
         Pageable pagination = PageRequest.of(page, 10);
 
         Specification<Ticket> spec = Specification.<Ticket>unrestricted()
-                .and(belongsToRequester(currentUser))
+                .and(belongsToService(serviceId))
                 .and(hasType(type))
                 .and(hasStatus(status))
                 .and(titleContains(title))
@@ -225,7 +225,8 @@ public class TicketService {
     public TicketDTO update(TicketLightInputDTO ticket, DatabaseUserDetails user)
             throws NotFoundException, AccessDeniedException {
         boolean isAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()));
-        boolean isEmployee = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()));
+        boolean isEmployee = user.getAuthorities()
+                .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()));
         boolean isCustomer = user.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()));
 
         User userEntity = userService.getById(user.getId());
@@ -237,40 +238,39 @@ public class TicketService {
             throw new NotFoundException("Ticket Not Found");
         }
 
-        if(isAdmin){
-            isRelated = userEntity.getCompany().getServices().stream().anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId())));
+        if (isAdmin) {
+            isRelated = userEntity.getCompany().getServices().stream()
+                    .anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId())));
         }
-        if(isEmployee){
+        if (isEmployee) {
             isRelated = userEntity.getAdminTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId()));
         }
-        if(isCustomer){
+        if (isCustomer) {
             isRelated = userEntity.getUserTickets().stream().anyMatch(t -> t.getId().equals(ticket.getId()));
         }
 
-        
+        if (isRelated) {
+            // esseguire update
+            Ticket ticketToUpdate = ticketEntity.get();
 
-        if(isRelated){
-           // esseguire update
-        Ticket ticketToUpdate = ticketEntity.get();
+            ticketToUpdate.setTitle(ticket.getTitle());
+            ticketToUpdate.getAttachments().addAll(ticket.getAttachment());
+            TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
+                    .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
+            ticketToUpdate.setType(type);
+            ticketToUpdate.setDescription(ticket.getDescription());
+            ticketToUpdate.setUpdatedAt(LocalDateTime.now());
 
-        ticketToUpdate.setTitle(ticket.getTitle());
-        ticketToUpdate.getAttachments().addAll(ticket.getAttachment());
-        TicketType type = ticketTypeRepo.findById(ticket.getTypeId())
-                .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
-        ticketToUpdate.setType(type);
-        ticketToUpdate.setDescription(ticket.getDescription());
-        ticketToUpdate.setUpdatedAt(LocalDateTime.now());
+            Ticket updatedTicket = ticketsRepo.save(ticketToUpdate);
+            TicketDTO ticketDTO = mapper.toTicketDTO(updatedTicket);
+            // aggiorna ticket history
+            updateTicketHistory(ticketDTO, updatedTicket, user);
 
-        Ticket updatedTicket = ticketsRepo.save(ticketToUpdate);
-        TicketDTO ticketDTO = mapper.toTicketDTO(updatedTicket);
-        // aggiorna ticket history
-        updateTicketHistory(ticketDTO, updatedTicket, user);
-
-        return mapper.toTicketDTO(updatedTicket); 
+            return mapper.toTicketDTO(updatedTicket);
         } else {
             throw new AccessDeniedException("You don't have the authority to access this resource");
         }
-        
+
     }
 
     @Transactional

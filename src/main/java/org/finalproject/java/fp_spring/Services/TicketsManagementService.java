@@ -81,6 +81,41 @@ public class TicketsManagementService {
         return ticketsDTO;
     }
 
+    public Page<TicketDTO> getAdminPool(DatabaseUserDetails currentUser, String type, String status,
+            String title,
+            String description,
+            LocalDateTime createdAt, Integer page, Integer serviceId) {
+
+        User userEntity = userSerivice.findById(currentUser.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Pageable pagiantion = PageRequest.of(page, 10);
+
+        Specification<Ticket> spec = Specification.<Ticket>unrestricted()
+                .and(belongsToCompany(currentUser.getCompany().getId()))
+                .and(hasNoAssignee())
+                .and(hasType(type))
+                .and(hasStatus(status))
+                .and(titleContains(title))
+                .and(descriptionContains(description))
+                .and(createdAfter(createdAt))
+                .and(belongsToService(serviceId));
+
+        Page<Ticket> ticketsEntity = ticketRepo.findAll(spec, pagiantion);
+
+        List<Ticket> ticketsEntityList = ticketsEntity.getContent();
+        List<TicketDTO> ticketsDTOList = new ArrayList<>();
+
+        for (Ticket ticket : ticketsEntityList) {
+            ticketsDTOList.add(mapper.toTicketDTO(ticket));
+        }
+
+        Page<TicketDTO> ticketsDTO = new PageImpl<TicketDTO>(ticketsDTOList);
+
+        return ticketsDTO;
+
+    }
+
     public Page<TicketHistoryDTO> getHistory(Integer ticketId, DatabaseUserDetails currentUser, Integer page)
             throws UsernameNotFoundException, AccessDeniedException, NotFoundException {
 
@@ -95,7 +130,8 @@ public class TicketsManagementService {
                     .anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketId)));
         } else if (currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
-            isRelated = currentUserEntity.getServices().stream().anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketId)));
+            isRelated = currentUserEntity.getServices().stream()
+                    .anyMatch(s -> s.getTickets().stream().anyMatch(t -> t.getId().equals(ticketId)));
 
         } else if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.CLIENT.toString()))) {
             isRelated = currentUserEntity.getUserTickets().stream().anyMatch((t -> t.getId().equals(ticketId)));
@@ -200,16 +236,17 @@ public class TicketsManagementService {
         }
     }
 
-    public Page<TicketDTO> getTicketsByAllOperatorServices(DatabaseUserDetails currentUser, Integer page, String type, String status, String title, String description, LocalDateTime createdAt, Integer serviceId){
+    public Page<TicketDTO> getTicketsByAllOperatorServices(DatabaseUserDetails currentUser, Integer page, String type,
+            String status, String title, String description, LocalDateTime createdAt, Integer serviceId) {
         Pageable pagination = PageRequest.of(page, 10);
         Specification<Ticket> spec = Specification.<Ticket>unrestricted()
-                                        .and(hasType(type))
-                                        .and(hasStatus(status))
-                                        .and(titleContains(title))
-                                        .and(descriptionContains(description))
-                                        .and(createdAfter(createdAt))
-                                        .and(belongsToService(serviceId))
-                                        .and(belongsToOperatorService(currentUser.getId()));
+                .and(hasType(type))
+                .and(hasStatus(status))
+                .and(titleContains(title))
+                .and(descriptionContains(description))
+                .and(createdAfter(createdAt))
+                .and(belongsToService(serviceId))
+                .and(belongsToOperatorService(currentUser.getId()));
         Page<Ticket> ttListDTO = ticketRepo.findAll(spec, pagination);
         return ttListDTO.map(t -> mapper.toTicketDTO(t));
     }

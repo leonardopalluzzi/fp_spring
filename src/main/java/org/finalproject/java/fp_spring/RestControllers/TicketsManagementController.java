@@ -7,6 +7,7 @@ import java.util.Map;
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketHistoryDTO;
 import org.finalproject.java.fp_spring.DTOs.TicketHistoryInputDTO;
+import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.TicketsManagementService;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
@@ -52,11 +54,23 @@ public class TicketsManagementController {
                 .getPrincipal();
 
         try {
-            Page<TicketDTO> tickets = ticketsManagementService.getOperatorPool(currentUser, type, status, title,
-                    description,
-                    createdAt, page, serviceId);
+            if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
+                Page<TicketDTO> tickets = ticketsManagementService.getOperatorPool(currentUser, type, status, title,
+                        description,
+                        createdAt, page, serviceId);
 
-            return ResponseEntity.ok(Map.of("state", "success", "result", tickets));
+                return ResponseEntity.ok(Map.of("state", "success", "result", tickets));
+            } else if (currentUser.getAuthorities()
+                    .contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+                Page<TicketDTO> tickets = ticketsManagementService.getAdminPool(currentUser, type, status, title,
+                        description,
+                        createdAt, page, serviceId);
+                return ResponseEntity.ok(Map.of("state", "success", "result", tickets));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("state", "error", "message",
+                                "You don't have the authority to accesss this resurce"));
+            }
 
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -152,29 +166,31 @@ public class TicketsManagementController {
         }
     }
 
-
     @GetMapping("/operatorList")
     @PreAuthorize("hasAuthority('COMPANY_USER')")
     public ResponseEntity<?> getTicketsByAllOperatorServices(
-         @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "type", required = false) String type,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "description", required = false) String description,
             @RequestParam(name = "createdAt", required = false) LocalDateTime createdAt,
             @RequestParam(name = "page", required = true, defaultValue = "0") Integer page,
-            @RequestParam(name = "serviceId", required = false) Integer serviceId
-    ){
-        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            @RequestParam(name = "serviceId", required = false) Integer serviceId) {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
 
         try {
 
-            Page<TicketDTO> operatorTicketList = ticketsManagementService.getTicketsByAllOperatorServices(currentUser, page, type, status, title, description, createdAt, serviceId);
+            Page<TicketDTO> operatorTicketList = ticketsManagementService.getTicketsByAllOperatorServices(currentUser,
+                    page, type, status, title, description, createdAt, serviceId);
 
             return ResponseEntity.ok(Map.of("state", "success", "result", operatorTicketList));
         } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "expired", "message", e.getMessage()));
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("state", "expired", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         }
     }
 }
