@@ -6,8 +6,16 @@ import java.util.Map;
 
 import org.finalproject.java.fp_spring.Enum.ServiceStatus;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class CompanyServiceInputDTO {
+
+    @NotBlank
+    @Size(min = 5, max = 200, message = "Name must be between 5 and 200 characters")
     private String name;
+
+    @Size(min = 10, max = 1200, message = "Description must be between 10 and 1200 characters")
     private String description;
 
     private Integer serviceTypeId;

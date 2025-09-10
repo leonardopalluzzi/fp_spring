@@ -18,6 +18,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "companies")
@@ -28,16 +30,23 @@ public class Company {
     private Integer id;
 
     @NotBlank
+    @Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters")
     private String name;
 
+    @Size(min = 10, max = 1200, message = "Description must be between 10 and 1200 characters")
     private String description;
 
     @NotBlank
     @Email
     private String email;
 
+    @NotBlank(message = "Phone cannot be blank")
+    @Size(min = 10, max = 15, message = "Phone must be between 10 and 15 characters")
+    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be numeric and can start with +")
     private String phone;
 
+    @NotBlank(message = "P.IVA cannot be blank")
+    @Pattern(regexp = "^[0-9]{11}$", message = "P.IVA must have 11 digits")
     private String pIva;
 
     @CreatedDate

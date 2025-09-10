@@ -2,9 +2,14 @@ package org.finalproject.java.fp_spring.DTOs;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.Size;
+
 public class TicketHistoryInputDTO {
     private Integer ticketId;
+
+    @Size(min = 10, max = 500, message = "Notes must be between 10 and 500 characters")
     private String notes;
+
     private Integer changedById;
     private LocalDateTime changedAt;
     private String status;

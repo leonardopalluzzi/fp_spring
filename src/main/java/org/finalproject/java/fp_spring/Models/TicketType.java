@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "ticket_types")
@@ -24,6 +25,7 @@ public class TicketType {
     private Integer id;
 
     @NotBlank
+    @Size(min = 5, max = 50, message = "Name must be between 5 and 50 characters")
     private String name;
 
     @OneToMany(mappedBy = "type", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

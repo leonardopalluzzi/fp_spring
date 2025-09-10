@@ -25,6 +25,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "tickets")
@@ -57,8 +58,10 @@ public class Ticket {
     private TicketStatus status;
 
     @NotBlank
+    @Size(min = 5, max = 150, message = "Title must be between 5 and 150 characters")
     private String title;
 
+    @Size(min = 10, max = 1200, message = "Description must be between 10 and 1200 characters")
     private String description;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

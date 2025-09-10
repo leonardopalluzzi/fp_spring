@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "ticket_history")
@@ -36,6 +37,7 @@ public class TicketHistory {
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
 
+    @Size(min = 10, max = 500, message = "Notes must be between 10 and 500 characters")
     private String notes;
 
     @CreatedDate

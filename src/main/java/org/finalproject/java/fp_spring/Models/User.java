@@ -25,6 +25,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -35,6 +36,7 @@ public class User {
     private Integer id;
 
     @NotBlank
+    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
     private String username;
 
     @NotBlank

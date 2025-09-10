@@ -7,17 +7,27 @@ import java.util.List;
 import org.finalproject.java.fp_spring.Enum.TicketStatus;
 import org.finalproject.java.fp_spring.Models.Attachment;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class TicketInputDTO {
     private Integer id; // non modificabile
+
+    @NotBlank
+    @Size(min = 5, max = 150, message = "Title must be between 5 and 150 characters")
     private String title;
     private List<Attachment> attachments = new ArrayList<>();
     private UserLightDTO requester; // non modificabile
+
+    @Size(min = 10, max = 1200, message = "Description must be between 10 and 1200 characters")
     private String description;
 
     private Integer typeId;
     private TicketStatus status;
     private LocalDateTime createdAt; // non modificabile
     private Integer assignedToId;
+
+    @Size(min = 10, max = 500, message = "Notes must be between 10 and 500 characters")
     private String notes; // per storico
 
     public String getNotes() {

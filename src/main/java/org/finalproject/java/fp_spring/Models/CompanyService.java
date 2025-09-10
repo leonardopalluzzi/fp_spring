@@ -25,6 +25,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "services")
@@ -43,8 +44,10 @@ public class CompanyService {
     private ServiceType serviceType;
 
     @NotBlank
+    @Size(min = 5, max = 200, message = "Name must be between 5 and 200 characters")
     private String name;
 
+    @Size(min = 10, max = 1200, message = "Description must be between 10 and 1200 characters")
     private String description;
 
     @NotNull

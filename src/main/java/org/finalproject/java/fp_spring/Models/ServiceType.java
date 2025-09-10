@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "service_types")
@@ -21,6 +22,7 @@ public class ServiceType {
     private Integer id;
 
     @NotBlank
+    @Size(min = 5, max = 150, message = "Name must be between 5 and 150 characters")
     private String name;
 
     @OneToMany(mappedBy = "serviceType", fetch = FetchType.EAGER)

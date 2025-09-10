@@ -4,11 +4,20 @@ import java.util.List;
 
 import org.finalproject.java.fp_spring.Models.Attachment;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class TicketLightInputDTO {
     private Integer id;
     private List<Attachment> attachment;
+
+    @NotBlank
+    @Size(min = 5, max = 150, message = "Title must be between 5 and 150 characters")
     private String title;
+
+    @Size(min = 10, max = 1200, message = "Description must be between 10 and 1200 characters")
     private String description;
+
     private Integer typeId;
 
     public Integer getId() {
