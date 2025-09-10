@@ -13,8 +13,11 @@ import org.finalproject.java.fp_spring.DTOs.CustomerRegisterRequestDTO;
 import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Exceptions.NotFoundException;
 import org.finalproject.java.fp_spring.Models.CompanyService;
+import org.finalproject.java.fp_spring.Models.Ticket;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
+import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
+import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,6 +39,12 @@ public class ServiceManagementService {
 
     @Autowired
     MapperService mapper;
+
+    @Autowired
+    UserRepository userRepo;
+
+    @Autowired
+    TicketsRepository ticketRepo;
 
     @Autowired
     EntityManager em;
@@ -173,9 +182,14 @@ public class ServiceManagementService {
                 // se ok rimuovo user dal service
                 serviceEntity.getCustomers().remove(userEntity);
                 // rimuovo service dallo user
-                userEntity.getServices().remove(serviceEntity);
+                userEntity.getCustomerServices().remove(serviceEntity);
+                for (Ticket ticket : userEntity.getUserTickets()) {
+                    ticketRepo.delete(ticket);
+                }
+                userEntity.getUserTickets().clear();
                 serviceRepo.save(serviceEntity);
-
+                userRepo.save(userEntity);
+                em.flush();
             } else {
                 throw new AccessDeniedException("You don't have the authority to access this resource");
             }
@@ -217,6 +231,7 @@ public class ServiceManagementService {
                 userToAssign.getServices().add(serviceEntity);
 
                 serviceRepo.save(serviceEntity);
+                userRepo.save(userToAssign);
             } else {
                 throw new BadRequestException("The service code is not valid for the required service");
             }
