@@ -70,7 +70,7 @@ public class User {
     @JoinColumn(name = "company_id") // nome della colonna FK in tabella user
     private Company company;
 
-    @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "customers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<CompanyService> customerServices;
 
     public User() {

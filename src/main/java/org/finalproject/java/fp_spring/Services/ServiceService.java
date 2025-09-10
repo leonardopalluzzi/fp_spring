@@ -30,6 +30,7 @@ import org.finalproject.java.fp_spring.Repositories.ServiceRepository;
 import org.finalproject.java.fp_spring.Repositories.ServiceTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketTypeRepository;
 import org.finalproject.java.fp_spring.Repositories.TicketsRepository;
+import org.finalproject.java.fp_spring.Repositories.UserRepository;
 import org.finalproject.java.fp_spring.Security.config.DatabaseUserDetails;
 import org.finalproject.java.fp_spring.Services.Interfaces.IServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,9 @@ public class ServiceService implements IServiceService {
 
     @Autowired
     TicketsRepository ticketRepo;
+
+    @Autowired
+    UserRepository userRepo;
 
     @PersistenceContext
     private EntityManager em;
@@ -232,20 +236,22 @@ public class ServiceService implements IServiceService {
         serviceEntity.setCompany(user.getCompany());
         serviceEntity.setStatus(ServiceStatus.INACTIVE);
 
+        serviceEntity.getTicketTypes().clear();
+        CompanyService savedService = serviceRepo.save(serviceEntity);
+
         List<TicketType> ticketTypes = service.getTicketTypes().stream()
                 .map(ticketTypeName -> {
                     TicketType t = new TicketType();
                     t.setName(ticketTypeName.get("name"));
                     t.setService(serviceEntity);
-                    return t;
+                    return ticketTypeRepo.save(t);
                 })
                 .toList();
 
-        serviceEntity.getTicketTypes().clear();
-        serviceEntity.getTicketTypes().addAll(ticketTypes);
+        savedService.getTicketTypes().addAll(ticketTypes);
 
         // salvare in db
-        CompanyService saved = serviceRepo.save(serviceEntity);
+        CompanyService saved = serviceRepo.save(savedService);
 
         // ritornare DTO mappato
         return mapper.toCompanyServiceDTO(saved);
@@ -296,29 +302,33 @@ public class ServiceService implements IServiceService {
     }
 
     @Transactional
-    public void deleteById(Integer id) throws ServiceNotFoundException {
+    public void deleteById(Integer id) throws ServiceNotFoundException, Exception {
         CompanyService serviceToDelete = serviceRepo.findById(id)
                 .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
 
-        // rimuovo operators
-        for (User operator : new ArrayList<>(serviceToDelete.getOperators())) {
-            operator.getServices().remove(serviceToDelete);
+        // // rimuovo operators
+        // for (User operator : new ArrayList<>(serviceToDelete.getOperators())) {
+        // operator.getServices().remove(serviceToDelete);
+        // }
+        // serviceToDelete.getOperators().clear();
+
+        // for (User customer : new ArrayList<>(serviceToDelete.getCustomers())) {
+        // customer.getCustomerServices().remove(serviceToDelete);
+        // }
+        // serviceToDelete.getCustomers().clear();
+        // List<TicketType> ttType = serviceToDelete.getTicketTypes();
+        // for (TicketType ticketType : ttType) {
+        // ticketTypeRepo.delete(ticketType);
+        // }
+
+        // serviceToDelete.getTicketTypes().clear();
+        // serviceToDelete.getTickets().clear();
+
+        serviceRepo.deleteCustom(serviceToDelete.getId());
+
+        if (serviceRepo.existsById(serviceToDelete.getId())) {
+            throw new Exception("Service Not Deleted");
         }
-        serviceToDelete.getOperators().clear();
-
-        for (User customer : new ArrayList<>(serviceToDelete.getCustomers())) {
-            customer.getCustomerServices().remove(serviceToDelete);
-        }
-        serviceToDelete.getCustomers().clear();
-
-        serviceToDelete.getTicketTypes().clear();
-        serviceToDelete.getTickets().clear();
-
-        serviceRepo.delete(serviceToDelete);
-
-        em.flush();
-        em.clear();
-
     }
 
     public Optional<CompanyService> findByTicketsContaining(Ticket ticket) {

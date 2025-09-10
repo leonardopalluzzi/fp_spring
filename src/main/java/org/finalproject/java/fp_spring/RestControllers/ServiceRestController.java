@@ -103,7 +103,7 @@ public class ServiceRestController {
 
         try {
             CompanyServiceDTO saved = serviceService.store(service, currentUser);
-            return ResponseEntity.ok(saved);
+            return ResponseEntity.ok(Map.of("state", "success", "result", saved));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (JwtException e) {
@@ -146,11 +146,14 @@ public class ServiceRestController {
         try {
             serviceService.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "Item deleted correctly", "status", "OK"));
+                    .body(Map.of("message", "Item deleted correctly", "state", "success"));
 
         } catch (ServiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("state", "error", "message", e.getMessage()));
         }

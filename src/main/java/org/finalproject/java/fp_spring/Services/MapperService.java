@@ -250,6 +250,22 @@ public class MapperService {
         return dto;
     }
 
+    public ServiceTypeDTO toServiceTypeDTO(ServiceType entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        ServiceTypeDTO dto = new ServiceTypeDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        List<CompanyServiceLightDTO> servicesDTO = new ArrayList<>();
+        for (CompanyService serviceEntity : entity.getServices()) {
+            servicesDTO.add(toCompanyServiceLightDTO(serviceEntity));
+        }
+        dto.setServices(servicesDTO);
+        return dto;
+    }
+
     // -------------TO ENTITY-----------------
     public CompanyService toCompanyServiceEntity(CompanyServiceInputDTO dto, ServiceTypeRepository serviceTypeRepo,
             TicketTypeRepository ticketTypeRepo) {

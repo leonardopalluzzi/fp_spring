@@ -56,6 +56,28 @@ public class TipologyRestController {
     @Autowired
     UserRepository userRepo;
 
+    @GetMapping("/getAllServiceTypes")
+    public ResponseEntity<?> getAllServiceTypesForCreate() {
+        DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        User user = userRepo.findById(currentUser.getId()).orElseThrow(() -> new NotFoundException("User not found"));
+        List<ServiceType> serviceTypes = new ArrayList<>();
+        if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
+            serviceTypes = serviceTypeRepo.findAll();
+
+            List<ServiceTypeDTO> dtos = new ArrayList<>();
+            for (ServiceType entity : serviceTypes) {
+                dtos.add(mapper.toServiceTypeDTO(entity));
+            }
+
+            return ResponseEntity.ok(Map.of("state", "success", "result", dtos));
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", "You don't have the uthority to access this resource"));
+        }
+
+    }
+
     @GetMapping("/servicetypes")
     public ResponseEntity<?> getServiceTypes() {
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
