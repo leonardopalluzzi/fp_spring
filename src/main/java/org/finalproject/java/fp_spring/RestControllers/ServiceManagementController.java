@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +138,11 @@ public class ServiceManagementController {
     public ResponseEntity<?> registerCustomerToService(@Valid @RequestBody CustomerRegisterRequestDTO request,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There are errors in some fields");
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()

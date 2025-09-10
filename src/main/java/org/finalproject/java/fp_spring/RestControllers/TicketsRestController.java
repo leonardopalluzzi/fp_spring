@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.ServiceNotFoundException;
@@ -109,7 +110,11 @@ public class TicketsRestController {
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("There are errors in some fields");
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         try {

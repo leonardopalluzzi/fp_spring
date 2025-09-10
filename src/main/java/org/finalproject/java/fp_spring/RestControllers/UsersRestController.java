@@ -1,6 +1,7 @@
 package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.finalproject.java.fp_spring.DTOs.UserDTO;
@@ -59,7 +60,7 @@ public class UsersRestController {
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
             // meotodo per lista user admin con dto
             Page<UserDTO> allUsers = userService.getAllForAdminFiltered(currentUser, username, email, page, role, list);
-            return ResponseEntity.ok(Map.of("state", "success","result", allUsers));
+            return ResponseEntity.ok(Map.of("state", "success", "result", allUsers));
 
         } else if (currentUser.getAuthorities()
                 .contains(new SimpleGrantedAuthority(RoleName.COMPANY_USER.toString()))) {
@@ -100,7 +101,11 @@ public class UsersRestController {
     public ResponseEntity<?> store(@Valid @RequestBody UserInputDTO user, BindingResult bindingResult,
             @PathVariable("id") Integer serviceId) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("There are errors in some fields");
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -126,7 +131,11 @@ public class UsersRestController {
     public ResponseEntity<?> update(@Valid @RequestBody UserInputDTO userToUpdate, BindingResult bindingResult,
             @PathVariable("id") Integer userId) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There are error is some fields");
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()

@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.ServiceNotFoundException;
@@ -95,7 +96,11 @@ public class ServiceRestController {
     public ResponseEntity<?> store(@Valid @RequestBody CompanyServiceInputDTO service,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -120,7 +125,11 @@ public class ServiceRestController {
     public ResponseEntity<?> update(@Valid @RequestBody CompanyServiceUpdateDTO serviceDto,
             BindingResult bindingResult, @PathVariable("id") Integer id) {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("There are errors in some fields");
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         try {

@@ -2,6 +2,7 @@ package org.finalproject.java.fp_spring.RestControllers;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.finalproject.java.fp_spring.DTOs.TicketDTO;
@@ -142,8 +143,11 @@ public class TicketsManagementController {
             BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("state", "error", "message", "there are errors in some fields"));
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err -> {
+                errors.put(err.getField(), err.getDefaultMessage());
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         DatabaseUserDetails currentUser = (DatabaseUserDetails) SecurityContextHolder.getContext().getAuthentication()

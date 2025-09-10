@@ -36,7 +36,8 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("token", token));
 
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("state", "error", "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         }
 
     }
@@ -49,7 +50,7 @@ public class AuthController {
             bindingResult.getFieldErrors().forEach(err -> {
                 errors.put(err.getField(), err.getDefaultMessage());
             });
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("state", "error", "message", errors));
         }
 
         try {
