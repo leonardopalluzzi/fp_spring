@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.CascadeType;
@@ -145,5 +146,11 @@ public class Company {
     public void addUser(User user) {
         this.users.add(user);
         user.setCompany(this); // ESSENZIALE per mantenere la relazione sincronizzata
+    }
+
+    // helpers
+    public long getAdminCount() {
+        return getUsers().stream().filter(u -> u.getRoles().stream()
+                .anyMatch(r -> r.getName().toString().equals(RoleName.COMPANY_ADMIN.toString()))).count();
     }
 }

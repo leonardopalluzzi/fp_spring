@@ -306,24 +306,6 @@ public class ServiceService implements IServiceService {
         CompanyService serviceToDelete = serviceRepo.findById(id)
                 .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
 
-        // // rimuovo operators
-        // for (User operator : new ArrayList<>(serviceToDelete.getOperators())) {
-        // operator.getServices().remove(serviceToDelete);
-        // }
-        // serviceToDelete.getOperators().clear();
-
-        // for (User customer : new ArrayList<>(serviceToDelete.getCustomers())) {
-        // customer.getCustomerServices().remove(serviceToDelete);
-        // }
-        // serviceToDelete.getCustomers().clear();
-        // List<TicketType> ttType = serviceToDelete.getTicketTypes();
-        // for (TicketType ticketType : ttType) {
-        // ticketTypeRepo.delete(ticketType);
-        // }
-
-        // serviceToDelete.getTicketTypes().clear();
-        // serviceToDelete.getTickets().clear();
-
         serviceRepo.deleteCustom(serviceToDelete.getId());
 
         if (serviceRepo.existsById(serviceToDelete.getId())) {

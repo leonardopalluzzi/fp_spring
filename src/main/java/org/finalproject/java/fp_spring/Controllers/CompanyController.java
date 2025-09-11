@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.finalproject.java.fp_spring.Enum.RoleName;
 import org.finalproject.java.fp_spring.Models.Company;
 import org.finalproject.java.fp_spring.Models.User;
 import org.finalproject.java.fp_spring.Services.CompanyService;
