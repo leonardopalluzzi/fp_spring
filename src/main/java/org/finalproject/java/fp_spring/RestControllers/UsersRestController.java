@@ -172,6 +172,9 @@ public class UsersRestController {
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("state", "error", "message", e.getMessage()));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("state", "error", "message", e.getMessage()));
         } catch (JwtException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("expired", "error", "message", e.getMessage()));

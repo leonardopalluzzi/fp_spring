@@ -80,7 +80,7 @@ public class CompanyController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String create(Model model) {
 
-        model.addAttribute("isEdit", false);
+        model.addAttribute("isEdit", Boolean.FALSE);
 
         List<User> users = new ArrayList<>();
 

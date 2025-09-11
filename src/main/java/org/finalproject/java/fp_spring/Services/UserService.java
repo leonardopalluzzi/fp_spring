@@ -86,7 +86,10 @@ public class UserService implements IUserService {
 
     public List<User> findByCompany(Integer companyId) {
         Optional<Company> company = companyRepo.findById(companyId);
-        List<User> users = userRepo.findByCompany(company.get());
+        Specification<User> spec = Specification.<User>unrestricted()
+                                        .and(hasCompany(companyId))
+                                        .and(roleContains(RoleName.COMPANY_ADMIN.toString()));
+        List<User> users = userRepo.findAll(spec);
         return users;
     }
 
@@ -438,7 +441,7 @@ public class UserService implements IUserService {
 
     @Transactional
     public void deleteByIdRoleWise(Integer userId, DatabaseUserDetails currentUser)
-            throws UsernameNotFoundException, AccessDeniedException {
+            throws UsernameNotFoundException, AccessDeniedException, NotFoundException {
         User user = userRepo.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
         if (currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.COMPANY_ADMIN.toString()))) {
@@ -461,6 +464,8 @@ public class UserService implements IUserService {
                 // 0. Crea copia delle liste per evitare ConcurrentModification
                 List<Ticket> userTickets = new ArrayList<>(user.getUserTickets());
                 for (Ticket t : userTickets) {
+                    User operator = userRepo.findById(t.getAssignedTo().getId()).orElseThrow(() -> new NotFoundException("Operator Not Found"));
+                    operator.getAdminTickets().remove(t);
                     t.setAssignedTo(null); // rendi null il campo
                 }
                 ticketRepo.saveAll(userTickets);
@@ -470,46 +475,30 @@ public class UserService implements IUserService {
                     t.getAttachments().clear();
                 }
 
-                // 2. Cancella i tickets
-                ticketRepo.deleteAll(userTickets);
-                user.getUserTickets().clear();
-                user.getAdminTickets().clear();
-
-                // 3. Scollega dai customerServices
-                for (CompanyService s : new ArrayList<>(user.getCustomerServices())) {
-                    s.getCustomers().remove(user);
-                    serviceRepo.save(s);
-                }
-                user.getCustomerServices().clear();
-
-                // 4. Scollega dai servizi come operator
+                 // 4. Scollega dai servizi come operator
                 for (CompanyService s : new ArrayList<>(user.getServices())) {
                     s.getOperators().remove(user);
                     serviceRepo.save(s);
                 }
                 user.getServices().clear();
 
+                // 3. Scollega dai customerServices --> exception
+                for (CompanyService s : new ArrayList<>(user.getCustomerServices())) {
+                    s.getCustomers().remove(user);
+                    serviceRepo.save(s);
+                }
+                user.getCustomerServices().clear();
+
+
+                // 2. Cancella i tickets
+                ticketRepo.deleteAll(userTickets);
+                user.getUserTickets().clear();
+                user.getAdminTickets().clear();
+
+                
                 // 5. Cancella user
                 userRepo.delete(user);
 
-                // for (CompanyService service : user.getServices()) {
-                // service.getOperators().remove(user);
-                // serviceRepo.save(service); // salva il servizio!
-                // }
-                // user.getServices().clear();
-
-                // for (CompanyService service : user.getCustomerServices()) {
-                // service.getCustomers().remove(user);
-                // serviceRepo.save(service); // salva il servizio!
-                // }
-                // user.getCustomerServices().clear();
-
-                // for (Ticket ticket : user.getUserTickets()) {
-                // ticketRepo.delete(ticket); // cancella il ticket
-                // }
-                // user.getUserTickets().clear();
-
-                // userRepo.delete(user);
             } else {
                 throw new AccessDeniedException("You don't have the authority to modify this resource");
 

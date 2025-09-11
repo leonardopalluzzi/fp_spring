@@ -26,7 +26,7 @@
 
 
 
-            <form th:action="${isEdit ? '/admin/company/update' : '/admin/company/store'}" th:method="POST"
+            <form th:action="@{${isEdit} ? '/admin/company/update' : '/admin/company/store'}" th:method="POST"
                 th:object="${company}">
 
                 <input type="hidden" th:field="*{id}">
