@@ -25,7 +25,7 @@ public class TicketType {
     private Integer id;
 
     @NotBlank
-    @Size(min = 5, max = 50, message = "Name must be between 5 and 50 characters")
+    @Size(min = 1, max = 50, message = "Name must be between 5 and 50 characters")
     private String name;
 
     @OneToMany(mappedBy = "type", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
