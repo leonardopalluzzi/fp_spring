@@ -87,8 +87,8 @@ public class UserService implements IUserService {
     public List<User> findByCompany(Integer companyId) {
         Optional<Company> company = companyRepo.findById(companyId);
         Specification<User> spec = Specification.<User>unrestricted()
-                                        .and(hasCompany(companyId))
-                                        .and(roleContains(RoleName.COMPANY_ADMIN.toString()));
+                .and(hasCompany(companyId))
+                .and(roleContains(RoleName.COMPANY_ADMIN.toString()));
         List<User> users = userRepo.findAll(spec);
         return users;
     }
@@ -464,18 +464,20 @@ public class UserService implements IUserService {
                 // 0. Crea copia delle liste per evitare ConcurrentModification
                 List<Ticket> userTickets = new ArrayList<>(user.getUserTickets());
                 for (Ticket t : userTickets) {
-                    User operator = userRepo.findById(t.getAssignedTo().getId()).orElseThrow(() -> new NotFoundException("Operator Not Found"));
-                    operator.getAdminTickets().remove(t);
-                    t.setAssignedTo(null); // rendi null il campo
+                    deleteTicket(t.getId(), currentUser);
+                    // User operator = userRepo.findById(t.getAssignedTo().getId())
+                    // .orElseThrow(() -> new NotFoundException("Operator Not Found"));
+                    // operator.getAdminTickets().remove(t);
+                    // t.setAssignedTo(null); // rendi null il campo
                 }
-                ticketRepo.saveAll(userTickets);
-                // 1. Cancella attachments dei tickets
-                for (Ticket t : userTickets) {
-                    attachRepo.deleteAll(t.getAttachments()); // se non hai orphanRemoval
-                    t.getAttachments().clear();
-                }
+                // ticketRepo.saveAll(userTickets);
+                // // 1. Cancella attachments dei tickets
+                // for (Ticket t : userTickets) {
+                // attachRepo.deleteAll(t.getAttachments()); // se non hai orphanRemoval
+                // t.getAttachments().clear();
+                // }
 
-                 // 4. Scollega dai servizi come operator
+                // 4. Scollega dai servizi come operator
                 for (CompanyService s : new ArrayList<>(user.getServices())) {
                     s.getOperators().remove(user);
                     serviceRepo.save(s);
@@ -489,13 +491,11 @@ public class UserService implements IUserService {
                 }
                 user.getCustomerServices().clear();
 
-
                 // 2. Cancella i tickets
                 ticketRepo.deleteAll(userTickets);
                 user.getUserTickets().clear();
                 user.getAdminTickets().clear();
 
-                
                 // 5. Cancella user
                 userRepo.delete(user);
 
@@ -533,6 +533,32 @@ public class UserService implements IUserService {
         } else {
             throw new AccessDeniedException("You don't have the authority to access this resource");
         }
+    }
+
+    // utils
+
+    // metodo per delete ticket per la cancellazione del profilo utente
+    @Transactional
+    public void deleteTicket(Integer ticketId, DatabaseUserDetails user)
+            throws NotFoundException, AccessDeniedException {
+        Ticket ticketToDelete = ticketRepo.findById(ticketId)
+                .orElseThrow(() -> new NotFoundException("Ticket Not Found"));
+
+        if (ticketToDelete.getService() != null) {
+            ticketToDelete.getService().getTickets().remove(ticketToDelete);
+            ticketToDelete.setService(null);
+        }
+
+        if (ticketToDelete.getType() != null) {
+            ticketToDelete.getType().getTickets().remove(ticketToDelete);
+            ticketToDelete.setType(null);
+        }
+
+        ticketToDelete.setRequester(null);
+        ticketToDelete.setAssignedTo(null);
+
+        // elimina direttamente il ticket: JPA si occupa di cascade e orphan removal
+        ticketRepo.delete(ticketToDelete);
     }
 
 }
