@@ -123,6 +123,12 @@ public class ServiceManagementService {
 
             // se ok aggiungo relazione
             if (isRelated) {
+                List<Ticket> ttToDetach = userEntity.getAdminTickets().stream()
+                        .filter(t -> t.getService().getId().equals(serviceEntity.getId())).toList();
+                for (Ticket ticket : ttToDetach) {
+                    ticket.setAssignedTo(null);
+                }
+                userEntity.getAdminTickets().removeAll(ttToDetach);
                 serviceEntity.getOperators().remove(userEntity);
                 userEntity.getServices().remove(serviceEntity);
                 serviceRepo.save(serviceEntity);
