@@ -22,11 +22,6 @@ import jakarta.servlet.http.HttpServletResponse;
 @Order(1)
 public class ApiSecurityConfig {
 
-        // va cvreatre una classe JwtAuthenticationFilter con la llogica per estrarre il
-        // jwt dall'header verificarlo caricare l'tente settare l'autenticazione nel
-        // securityContextHolder, serve anche una classe jwtService da mettere nei
-        // servizi
-
         @Value("${FRONTEND_URL:http://localhost:5173}")
         private String frontendUrl;
 
@@ -36,19 +31,19 @@ public class ApiSecurityConfig {
                 http
                                 .securityMatcher("/api/v1/**") // Applica solo alle rotte API
                                 .cors(cors -> cors.configurationSource(request -> {
-                                        CorsConfiguration conrsConfig = new CorsConfiguration();
-                                        conrsConfig.setAllowedOrigins(List.of(frontendUrl));
-                                        conrsConfig.setAllowedMethods(
+                                        CorsConfiguration corsConfig = new CorsConfiguration();
+                                        corsConfig.setAllowedOrigins(List.of(frontendUrl));
+                                        corsConfig.setAllowedMethods(
                                                         List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                                        conrsConfig.setAllowedHeaders(List.of("*"));
-                                        conrsConfig.setAllowCredentials(true);
-                                        return conrsConfig;
+                                        corsConfig.setAllowedHeaders(List.of("*"));
+                                        corsConfig.setAllowCredentials(true);
+                                        return corsConfig;
                                 }))
                                 .csrf(csrf -> csrf.disable())
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .authorizeHttpRequests(auth -> auth 
+                                .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
-                                                .anyRequest().authenticated()) 
+                                                .anyRequest().authenticated())
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint((request, response, authException) -> {
                                                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
