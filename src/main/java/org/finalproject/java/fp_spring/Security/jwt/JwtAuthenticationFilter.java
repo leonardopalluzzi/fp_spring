@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String jwt = authHeader.substring(7);
             final String username = jwtService.extractUsername(jwt);
 
-            if(jwtService.isTokenExpired(jwt)){
+            if (jwtService.isTokenExpired(jwt)) {
                 throw new JwtException("Token expired");
             }
 
@@ -49,7 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 DatabaseUserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken( // classe
+                                                                                                             // che
+                                                                                                             // spring
+                                                                                                             // usa per
+                                                                                                             // definire
+                                                                                                             // l'atto
+                                                                                                             // di
+                                                                                                             // atenticazione
                             userDetails, null, userDetails.getAuthorities());
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
